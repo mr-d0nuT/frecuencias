@@ -684,6 +684,29 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
 .qb.all{font-size:13px;font-family:var(--f-mono);font-weight:700;color:var(--fg3);width:auto;padding:0 10px}
 .qb.all.on{color:var(--acc)}
 @media (max-width:760px){ .qb{width:32px;height:32px;font-size:16px} }
+
+/* ── barra de facetas ── */
+.facets{position:sticky;top:calc(var(--hdr) + env(safe-area-inset-top));z-index:58;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);margin-top:var(--s5)}
+.fc-in{display:flex;align-items:center;gap:7px;padding:9px 0;flex-wrap:wrap}
+.fc{position:relative}
+.fcb{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 11px;border:1px solid var(--line);background:var(--srf);border-radius:9px;font-size:13px;font-weight:560;color:var(--fg2);transition:.14s;white-space:nowrap}
+.fcb:hover{border-color:var(--line2);color:var(--fg)}
+.fcb .lab{color:var(--fg3);font-size:11.5px;font-family:var(--f-mono);letter-spacing:.03em}
+.fcb .val{color:var(--fg);font-weight:620}
+.fcb .car{opacity:.5;font-size:9px}
+.fc.on .fcb{border-color:var(--c,var(--acc));background:color-mix(in srgb,var(--c,var(--acc)) 9%,var(--srf))}
+.fc.on .fcb .val{color:var(--c,var(--acc))}
+.fc.on .fcb .lab{color:color-mix(in srgb,var(--c,var(--acc)) 70%,var(--fg3))}
+.fcm{position:absolute;z-index:60;top:calc(100% + 6px);left:0;min-width:210px;max-height:320px;overflow-y:auto;background:var(--bg-e);border:1px solid var(--line2);border-radius:var(--r2);box-shadow:var(--sh3);padding:5px;animation:ucin .14s ease}
+.fcm button{display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:8px 10px;border-radius:7px;font-size:13px;color:var(--fg2);transition:.12s}
+.fcm button:hover{background:var(--srf)}
+.fcm button.sel{background:color-mix(in srgb,var(--acc) 12%,transparent);color:var(--fg);font-weight:600}
+.fcm .dt2{width:7px;height:7px;border-radius:50%;flex:none}
+.fc-count{margin-left:auto;font-family:var(--f-mono);font-size:11.5px;color:var(--fg3)}
+.fc-clear{font-size:12.5px;color:var(--fg3);text-decoration:underline;text-underline-offset:3px;padding:4px}
+.fc-clear:hover{color:var(--acc)}
+@media (max-width:760px){ .facets{display:none} }
+@media (min-width:761px){ .fpanel{display:none} }
 @media print{
   .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
   body{background:#fff;color:#000;font-size:10pt}
@@ -856,6 +879,8 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
       <div class="scrollhint">← desliza para recorrer el espectro →</div>
     </div>
   </section>
+
+  <div class="facets" id="facets"><div class="wrap fc-in"></div></div>
 
   <div class="fbar" id="fbar">
     <button class="fbtn" id="openf">
@@ -1802,7 +1827,7 @@ $("#fpanel").addEventListener("click",e=>{
   const c=e.target.closest(".ch"); if(!c)return;
   F[c.dataset.f]=c.dataset.v;
   if(UC!==null){UC=null;paintUcBtn();paintQbar();}
-  syncChips(); render();
+  syncChips(); paintFacets(); render();
 });
 function activeCount(){return Object.values(F).filter(v=>v!=="all").length+(UC!==null?1:0)+(FAVONLY?1:0)}
 
@@ -1817,6 +1842,51 @@ $("#fclear2").addEventListener("click",()=>{F={tx:"all",rx:"all",me:"all",rf:"al
 const mq=window.matchMedia("(max-width:760px)");
 function applyMQ(){ $("#fapply").style.display=mq.matches?"block":"none"; if(!mq.matches)closeF(); }
 mq.addEventListener?.("change",applyMQ); applyMQ();
+
+
+/* ═══════════════ Barra de facetas (escritorio) ═══════════════
+   Misma información que la hoja de filtros del móvil, en una línea. */
+const FACETS=[
+ {f:"tx", lab:"Transmitir", opts:[["all","Todo"],["0","Libre, sin licencia"],["1","Requiere licencia"],["2","No transmitir nunca"]],
+  col:{"0":"var(--ok)","1":"var(--info)","2":"var(--bad)"}},
+ {f:"rx", lab:"Escuchar", opts:[["all","Todo"],["0","Escucha libre"],["1","Legal, no divulgable"],["2","Escucha ilícita"]],
+  col:{"0":"var(--ok)","1":"var(--warn)","2":"var(--bad)"}},
+ {f:"me", lab:"Mi licencia", opts:[["all","Todo"],["ok","Puedo transmitir"],["partial","Me falta algo"],["no","No habilitado"]],
+  col:{ok:"var(--ok)",partial:"var(--warn)",no:"var(--info)"}},
+ {f:"rf", lab:"Banda", opts:[["all","Todas"],["LF/MF","LF/MF"],["HF","HF"],["VHF","VHF"],["UHF","UHF"],["SHF","SHF · µondas"]]},
+ {f:"cat", lab:"Servicio", opts:[["all","Todos"]].concat(cats.map(c=>[c,c]))}
+];
+const fcIn=$("#facets .fc-in");
+function paintFacets(){
+  const n=Object.values(F).filter(v=>v!=="all").length;
+  fcIn.innerHTML=FACETS.map(fa=>{
+    const v=F[fa.f], act=v!=="all";
+    const txt=(fa.opts.find(o=>o[0]===v)||["","—"])[1];
+    const c=act&&fa.col?fa.col[v]:null;
+    return `<div class="fc ${act?"on":""}" data-fc="${fa.f}" ${c?`style="--c:${c}"`:""}>
+      <button class="fcb"><span class="lab">${esc(fa.lab)}</span><span class="val">${esc(txt)}</span><span class="car">▼</span></button></div>`;
+  }).join("")+
+  `<span class="fc-count" id="cnt"></span>${n?`<button class="fc-clear" id="fclear3">Limpiar ${n}</button>`:""}`;
+  const c=$("#cnt"); if(c) c.textContent=lastCount;
+}
+let lastCount="";
+fcIn.addEventListener("click",e=>{
+  if(e.target.closest("#fclear3")){F={tx:"all",rx:"all",me:"all",rf:"all",cat:"all"};syncChips();paintFacets();render();return;}
+  const host=e.target.closest("[data-fc]"); if(!host)return;
+  const abierto=host.querySelector(".fcm");
+  fcIn.querySelectorAll(".fcm").forEach(m=>m.remove());
+  if(abierto)return;
+  const fa=FACETS.find(x=>x.f===host.dataset.fc);
+  const m=document.createElement("div"); m.className="fcm";
+  m.innerHTML=fa.opts.map(([v,t])=>`<button data-v="${esc(v)}" class="${F[fa.f]===v?"sel":""}">${fa.col&&fa.col[v]?`<i class="dt2" style="background:${fa.col[v]}"></i>`:""}${esc(t)}</button>`).join("");
+  m.addEventListener("click",ev=>{
+    const b=ev.target.closest("[data-v]"); if(!b)return;
+    F[fa.f]=b.dataset.v; m.remove(); syncChips(); paintFacets(); render();
+  });
+  host.appendChild(m);
+});
+document.addEventListener("click",e=>{ if(!e.target.closest("#facets")) fcIn.querySelectorAll(".fcm").forEach(m=>m.remove()); });
+paintFacets();
 
 /* ═══════════════ resultados ═══════════════ */
 function matches(b){
@@ -1853,7 +1923,7 @@ function cardHTML(b){
 function render(){
   const list=D.filter(matches);
   const txt=list.length+" / "+D.length+" bandas";
-  $("#cnt").textContent=txt; $("#cnt2").textContent=txt;
+  lastCount=txt; const c1=$("#cnt"); if(c1)c1.textContent=txt; const c2=$("#cnt2"); if(c2)c2.textContent=txt;
   const n=activeCount();
   $("#fbadge").hidden=!n; $("#fbadge").textContent=n;
   $("#openf").classList.toggle("act",n>0);
