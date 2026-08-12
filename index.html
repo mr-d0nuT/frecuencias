@@ -558,6 +558,21 @@ details.svc .grid{padding-top:2px}
 .golink b{display:block;font-size:13.6px;font-weight:620;margin-bottom:2px}
 .golink span{font-size:12.5px;color:var(--fg2);line-height:1.5}
 .golink svg{width:18px;height:18px;flex:none;color:var(--acc)}
+
+/* ── coordinación UAS: cabecera plegable ── */
+.uas{padding:0}
+.uas>.uas-sum{list-style:none;cursor:pointer;display:flex;align-items:center;gap:13px;padding:14px 16px}
+.uas>.uas-sum::-webkit-details-marker{display:none}
+.uas-ico{font-size:23px;line-height:1;flex:none;width:32px;text-align:center}
+.uas-tt{flex:1;min-width:0}
+.uas-tt b{display:block;font-size:15.5px;font-weight:620;letter-spacing:-.024em;line-height:1.3}
+.uas-tt span{display:block;font-size:12.6px;color:var(--fg2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.uas>.uas-sum .caret{flex:none;color:var(--fg3);transition:transform .2s}
+.uas[open]>.uas-sum .caret{transform:rotate(180deg)}
+.uas[open]>.uas-sum{border-bottom:1px solid var(--line)}
+.uas-body{padding:var(--s4) var(--s5) var(--s5)}
+.uas-body h5:first-of-type{margin-top:0}
+@media (max-width:760px){ .uas>.uas-sum{padding:13px 14px} .uas-body{padding:var(--s4)} }
 @media print{
   .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
   body{background:#fff;color:#000;font-size:10pt}
@@ -624,6 +639,39 @@ details.svc .grid{padding-top:2px}
         </div>
       </details>
     </div>
+  </section>
+
+  <section class="sec" id="uas-sec">
+    <details class="card uas">
+      <summary class="uas-sum">
+        <span class="uas-ico">🛩️</span>
+        <span class="uas-tt"><b>Coordinación de un vuelo UAS</b><span>Qué es trámite y qué es radio · pasos, teléfonos y permisos</span></span>
+        <svg class="caret" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+      </summary>
+      <div class="uas-body">
+      <div class="uas-intro">
+        <p>Volar un dron cruza <b>dos marcos distintos</b> que se confunden a menudo. La <b>operación</b> la regulan AESA y ENAIRE: registro, zonas geográficas y autorización. El <b>espectro</b> lo regula el CNAF: qué frecuencias puedes usar. Cumplir uno no te cubre el otro, y la mayor parte de la coordinación no se hace por radio.</p>
+      </div>
+
+      <h5>El trámite, por orden</h5>
+      <ol class="steps">
+        <li><b>Regístrate como operador UAS</b><span>En AESA. Te dan un número de operador que debe ir en la aeronave.</span></li>
+        <li><b>Consulta la zona antes de cada vuelo</b><span>En ENAIRE Drones. Ahí ves si el punto está en zona restringida, en el entorno de un aeródromo o en espacio aéreo controlado.</span></li>
+        <li><b>Solicita autorización si la zona lo exige</b><span>Lo que haga falta depende de la categoría de la operación y de la zona concreta. La resolución te llega con sus condiciones.</span></li>
+        <li><b>Coordina con la dependencia</b><span>Aquí está la clave: <b>normalmente por teléfono</b>, con el número que figura en tu propia autorización. La radio con ATC es la excepción, no la norma.</span></li>
+        <li><b>Antes de despegar, escucha</b><span>El ATIS y la torre te dan pista en servicio, viento y tráfico real. Escuchar es libre y no exige ningún permiso.</span></li>
+      </ol>
+
+      <h5>La radio: qué necesitas de verdad</h5>
+      <p class="hint2">El enlace de mando y el vídeo van en el propio dron; el resto depende de tu perfil.</p>
+      <div class="uas-radio" id="uasRadio"></div>
+
+      <h5>Tu aeródromo de referencia</h5>
+      <div id="uasAd"></div>
+
+      <div class="cal c-nt" style="margin-top:16px"><span class="kicker">Alcance de esta guía</span>Esto ordena el marco general para que sepas qué tienes que mirar; no sustituye a tu autorización ni a la normativa aplicable. Los requisitos concretos dependen de la categoría de la operación y de la zona: la fuente son AESA y ENAIRE, y para las frecuencias, el CNAF y el AIP.</div>
+      </div>
+    </details>
   </section>
 
   <section class="sec">
@@ -737,36 +785,6 @@ details.svc .grid{padding-top:2px}
   </div>
 
   <div id="results"></div>
-
-  <section class="sec" id="uas-sec">
-    <div class="sec-h">
-      <h2>Coordinación de un vuelo UAS</h2>
-      <span class="sub">Qué es trámite y qué es radio — no son lo mismo</span>
-    </div>
-    <div class="card uas">
-      <div class="uas-intro">
-        <p>Volar un dron cruza <b>dos marcos distintos</b> que se confunden a menudo. La <b>operación</b> la regulan AESA y ENAIRE: registro, zonas geográficas y autorización. El <b>espectro</b> lo regula el CNAF: qué frecuencias puedes usar. Cumplir uno no te cubre el otro, y la mayor parte de la coordinación no se hace por radio.</p>
-      </div>
-
-      <h5>El trámite, por orden</h5>
-      <ol class="steps">
-        <li><b>Regístrate como operador UAS</b><span>En AESA. Te dan un número de operador que debe ir en la aeronave.</span></li>
-        <li><b>Consulta la zona antes de cada vuelo</b><span>En ENAIRE Drones. Ahí ves si el punto está en zona restringida, en el entorno de un aeródromo o en espacio aéreo controlado.</span></li>
-        <li><b>Solicita autorización si la zona lo exige</b><span>Lo que haga falta depende de la categoría de la operación y de la zona concreta. La resolución te llega con sus condiciones.</span></li>
-        <li><b>Coordina con la dependencia</b><span>Aquí está la clave: <b>normalmente por teléfono</b>, con el número que figura en tu propia autorización. La radio con ATC es la excepción, no la norma.</span></li>
-        <li><b>Antes de despegar, escucha</b><span>El ATIS y la torre te dan pista en servicio, viento y tráfico real. Escuchar es libre y no exige ningún permiso.</span></li>
-      </ol>
-
-      <h5>La radio: qué necesitas de verdad</h5>
-      <p class="hint2">El enlace de mando y el vídeo van en el propio dron; el resto depende de tu perfil.</p>
-      <div class="uas-radio" id="uasRadio"></div>
-
-      <h5>Tu aeródromo de referencia</h5>
-      <div id="uasAd"></div>
-
-      <div class="cal c-nt" style="margin-top:16px"><span class="kicker">Alcance de esta guía</span>Esto ordena el marco general para que sepas qué tienes que mirar; no sustituye a tu autorización ni a la normativa aplicable. Los requisitos concretos dependen de la categoría de la operación y de la zona: la fuente son AESA y ENAIRE, y para las frecuencias, el CNAF y el AIP.</div>
-    </div>
-  </section>
 
   <section class="sec">
     <article class="card sos">
