@@ -1300,6 +1300,15 @@ const D=[
  notas:["Los transmisores FM de coche (móvil → autorradio) se toleran a potencia mínima, del orden de 50 nW ERP.","Escuchar y grabar para uso privado es libre; redifundir tiene además implicaciones de derechos de autor."],
  alt:"Radio online o podcast; o concurso público de licencias FM en tu comunidad autónoma."},
 
+{id:"aero-emg",nom:"Banda Aérea de EMERGENCIA · 121,500 MHz",cat:"Aviación",rf:"VHF",lo:121.5,hi:121.5,txt:"121,500 MHz · frecuencia de guardia",
+ pot:"Estaciones aeronáuticas autorizadas",modo:"AM · 25 kHz",
+ desc:"Frecuencia internacional de socorro y urgencia aeronáutica, VHF guard. La escuchan torres, centros de control y muchas aeronaves en ruta; el gemelo militar es 243,000 MHz en UHF.",
+ rx:{s:1,r:0,n:"Escucharla es legal y de hecho es la primera que sintoniza cualquier aficionado a la banda aérea. Un receptor no radia: no interfieres nada. El límite sigue siendo el contenido — no divulgues lo que oigas."},
+ tx:{s:1,r:3,n:"Requiere habilitación de radiotelefonía y licencia de estación aeronáutica, como el resto de la banda. Aquí, además, solo se emite en emergencia o urgencia reales."},
+ notas:["243,000 MHz: la misma función en UHF militar; una emergencia en 121,500 se replica ahí.",
+  "Nunca para pruebas, comprobaciones de equipo ni llamadas de cortesía: una emisión indebida moviliza medios de búsqueda y salvamento.",
+  "Las balizas ELT antiguas emitían aquí; desde 2009 el sistema satelital solo procesa las de 406 MHz."],
+ alt:"Escucharla es libre. Para una emergencia en tierra, el 112."},
 {id:"aero",nom:"Banda Aérea VHF",cat:"Aviación",rf:"VHF",lo:108,hi:137,txt:"108 – 136,975 MHz",
  pot:"Solo estaciones autorizadas",modo:"AM · separación 8,33 kHz",
  desc:"Torre, rodadura, aproximación, ruta, ATIS y ayudas a la navegación. La banda favorita de los spotters.",
@@ -1332,6 +1341,15 @@ const D=[
  notas:["Comparte proximidad con la banda marítima (156–162 MHz): un error de programación puede meterte en el canal 16.","Es la banda donde más aparecen equipos genéricos programados a mano."],
  alt:"PMR446 o dPMR446 si te basta con 500 mW; concesión de uso privativo si necesitas cobertura de empresa."},
 
+{id:"mar-16",nom:"Canal 16 · EMERGENCIA marítima",cat:"Náutica y marina",rf:"VHF",lo:156.8,hi:156.8,txt:"156,800 MHz · socorro y llamada",
+ pot:"1 W o 25 W según el momento",modo:"FM",
+ desc:"Frecuencia internacional de socorro, urgencia y llamada en VHF marítima. Las estaciones costeras y los buques obligados mantienen escucha permanente.",
+ rx:{s:1,r:0,n:RX_NOD},
+ tx:{s:1,r:3,n:"Requiere título de operador (SRC, LRC o GOC) y licencia de estación de barco. Establecido el contacto, se cambia a un canal de trabajo: el 16 se deja libre."},
+ notas:["Canal 70 (156,525 MHz): llamada selectiva digital DSC de socorro. Solo datos, nunca voz.",
+  "Salvamento Marítimo escucha el 16 y el 70 en toda la costa española.",
+  "Una falsa alerta moviliza medios de rescate y se sanciona con severidad."],
+ alt:"Título SRC para el uso legal. Desde tierra, el 112 o Salvamento Marítimo."},
 {id:"mar",nom:"Banda Marina VHF",cat:"Náutica y marina",rf:"VHF",lo:156,hi:162.05,txt:"156,000 – 162,025 MHz · canales 1–88 + AIS",
  pot:"25 W · 1 W en canales de baja potencia",modo:"FM · DSC",
  desc:"Comunicaciones entre buques, puertos, prácticos y salvamento marítimo. El canal 16 es el de socorro.",
@@ -1384,6 +1402,14 @@ const D=[
  notas:["433,500 MHz: llamada FM.","Convive con LPD433 e ISM: hay miles de mandos y sensores en el mismo tramo."],
  alt:"Licencia de radioaficionado."},
 
+{id:"cb-9",nom:"Canal 9 CB · emergencia y carretera",cat:"Walkies y uso personal",rf:"HF",lo:27.065,hi:27.065,txt:"27,065 MHz · canal 9 de la CB",
+ pot:"4 W en AM/FM · 12 W PEP en SSB",modo:"AM · FM · SSB",
+ desc:"Canal reservado por convenio a emergencias y auxilio en carretera dentro de la Banda Ciudadana. No hay servicio oficial de escucha detrás: depende de que alguien esté sintonizado.",
+ rx:{s:0,r:0,n:RX_LIB},
+ tx:{s:0,r:0,n:"Uso común, sin licencia, como el resto de la CB-27. Lo que cambia es la norma de cortesía: se reserva a emergencias y no se usa para conversación."},
+ notas:["No sustituye al 112: nadie garantiza que haya alguien escuchando.",
+  "El canal 19 es el habitual de carretera para tráfico y avisos entre camioneros."],
+ alt:"Es libre. Para una emergencia real, el 112 por teléfono."},
 {id:"lpd",nom:"LPD433 e ISM 433 MHz",cat:"Walkies y uso personal",rf:"UHF",lo:433.05,hi:434.79,txt:"433,05 – 434,79 MHz · 69 canales",
  pot:"10 mW ERP",modo:"FM voz · datos · OOK",
  desc:"Uso común compartido: walkies LPD, mandos de garaje, estaciones meteorológicas, sensores, telemandos y LoRa 433.",
@@ -1580,7 +1606,7 @@ const USECASES=[
        ["Contar con privacidad","Los tonos CTCSS y DCS solo silencian tu altavoz. Cualquiera en el canal te oye igual."],
        ["Usar un walkie de 5 W en 446 MHz","Aunque acierte la frecuencia, no cumple potencia ni antena: no es PMR446 legal."]]}},
 
- {e:"📡",t:"Máximo alcance legal sin licencia",ids:["cb","pmr446"],brief:{
+ {e:"📡",t:"Máximo alcance legal sin licencia",ids:["cb","cb-9","pmr446"],brief:{
    tit:"Hasta dónde se llega sin licencia",
    sub:"La respuesta es la <b>CB-27</b>. Es la única banda de uso común que permite antena exterior, y de ahí sale toda la diferencia de alcance.",
    si:[["Banda Ciudadana CB-27","26,965 – 27,405 MHz · 40 canales","4 W en AM/FM y 12 W PEP en banda lateral, sin licencia, sin tasas y sin examen."],
@@ -1592,7 +1618,7 @@ const USECASES=[
        ["Esperar cobertura garantizada","27 MHz depende de la propagación y sufre mucho ruido urbano."],
        ["Ocupar el canal 9","Está reservado a emergencias. El 19 es el de carretera."]]}},
 
- {e:"✈️",t:"Escuchar aviones y torres",ids:["aero","meteo"],brief:{
+ {e:"✈️",t:"Escuchar aviones y torres",ids:["aero","aero-emg","meteo"],brief:{
    tit:"Escuchar aviación es legal, y no necesitas ningún permiso",
    sub:"Un receptor <b>no radia energía</b>: no interfieres a nadie ni pones en riesgo ninguna operación. Tener un escáner o un SDR es perfectamente legal en España.",
    si:[["Escuchar toda la banda aérea","108 – 136,975 MHz en AM","Torre, rodadura, aproximación, ruta y ATIS. Sin permiso de ningún tipo."],
@@ -1603,7 +1629,7 @@ const USECASES=[
    no:[["Divulgar lo que oigas","Recibir es legal; difundir o aprovechar el contenido vulnera el secreto de las comunicaciones."],
        ["Transmitir","Ni con un walkie de aficionado ni para probar. Exige habilitación de radiotelefonía y licencia de estación."]]}},
 
- {e:"🚁",t:"Preparación de vuelo UAS",ids:["fpv58","wifi24","rc35","aero","gnss"],cred:"aer_op",vuelo:1,brief:{
+ {e:"🚁",t:"Preparación de vuelo UAS",ids:["fpv58","wifi24","rc35","aero","aero-emg","gnss"],cred:"aer_op",vuelo:1,brief:{
    tit:"Volar un dron: qué es espectro, qué es trámite y qué te habilita tu título",
    sub:"Volar cruza <b>dos marcos distintos</b>. La <b>operación</b> la regulan AESA y ENAIRE: registro, zonas y autorización. El <b>espectro</b> lo regula el CNAF. Cumplir uno no cubre el otro, y la mayor parte de la coordinación no se hace por radio. Si tienes habilitación de radiotelefonía, acredita a la <b>persona</b>: no autoriza por sí sola ninguna estación.",
    si:[["Enlace de mando del dron","2400 – 2483,5 MHz","Uso común hasta 100 mW EIRP. Es lo que usa tu emisora de serie, sin licencia."],
@@ -1621,7 +1647,7 @@ const USECASES=[
        ["Usar un walkie de 5 W como PMR446","El uso común de 446 MHz exige 500 mW y antena no desmontable."],
        ["Emitir en 121,500 MHz","Frecuencia de emergencia. Solo ante una emergencia real."],
        ["Usar 35 MHz para coches o barcos","Es exclusiva de modelos aéreos: puede hacer caer el modelo de otro."]]}},
- {e:"⛵",t:"Navegar y comunicar en el mar",ids:["mar","mar-mf","epirb"],cred:"mar_op",brief:{
+ {e:"⛵",t:"Navegar y comunicar en el mar",ids:["mar","mar-16","mar-mf","epirb"],cred:"mar_op",brief:{
    tit:"Qué está permitido a bordo, y con qué papeles",
    sub:"Como en aviación, hacen falta <b>dos permisos distintos</b>: el título habilita a la persona y la licencia de estación habilita al equipo instalado.",
    si:[["Escuchar la banda marina","156,000 – 162,025 MHz","Legal desde tierra o a bordo. El canal 16 es socorro y llamada, con escucha obligatoria."],
@@ -1783,12 +1809,12 @@ const TXREQ = {
   ndb: ["estado"], om: ["bcast"], "mar-mf": ["mar_op", "mar_est"], oc: ["bcast"],
   "ham-hf": ["ham"], "ham-6": ["ham"], "ham-2m": ["ham"], "ham-70": ["ham"], "ham-23": ["ham"],
   fm: ["bcast"], dab: ["bcast"], tdt: ["bcast"],
-  aero: ["aer_op", "aer_est"],
+  aero: ["aer_op", "aer_est"], "aero-emg": ["aer_op", "aer_est"],
   meteo: ["estado"], tetra: ["estado"], gnss: ["estado"],
   "movil-700": ["estado"], "movil-800": ["estado"], "movil-900": ["estado"],
   "movil-2100": ["estado"], "5g-35": ["estado"],
   "pmr-vhf": ["pmr"], "pmr-410": ["pmr"], "pmr-440": ["pmr"],
-  mar: ["mar_op", "mar_est"], epirb: ["plb"], satrx: ["earth"]
+  mar: ["mar_op", "mar_est"], "mar-16": ["mar_op", "mar_est"], epirb: ["plb"], satrx: ["earth"]
 };
 D.forEach(b => { b.tx.req = TXREQ[b.id] || []; });
 
@@ -1850,8 +1876,11 @@ const EQREQ = {
   dpmr446: { pwr: 0.5, ant: "fija", cert: "pmr446", modes: ["FM"], w: "500 mW y antena integrada no desmontable" },
   lpd:     { pwr: 0.01, ant: "fija", w: "10 mW y antena integrada" },
   cb:      { pwr: 12, modes: ["AM", "FM", "SSB"], w: "4 W en AM/FM o 12 W PEP en SSB" },
+  "cb-9":  { pwr: 12, modes: ["AM", "FM", "SSB"], w: "4 W en AM/FM o 12 W PEP en SSB" },
   aero:    { cert: "etso", modes: ["AM"], ch833: 1, w: "emisora aeronáutica homologada con canalización de 8,33 kHz" },
+  "aero-emg":{ cert: "etso", modes: ["AM"], w: "emisora aeronáutica homologada" },
   mar:     { cert: "marino", modes: ["FM"], w: "emisora marina homologada" },
+  "mar-16":{ cert: "marino", modes: ["FM"], w: "emisora marina homologada" },
   "mar-mf":{ cert: "marino", w: "equipo marítimo de MF con llamada selectiva" },
   micros:  { pwr: 0.05, w: "50 mW" },
   fpv58:   { pwr: 0.025, w: "25 mW EIRP" },
