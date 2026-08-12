@@ -504,6 +504,23 @@ details.svc>summary:hover h3{color:var(--acc)}
 details.svc>summary .caret{flex:none;color:var(--fg3);transition:transform .2s}
 details.svc[open]>summary .caret{transform:rotate(180deg)}
 details.svc>summary h3{transition:color .15s}
+
+/* ── grupos: apretados cuando están plegados ── */
+.svc{margin-bottom:0}
+details.svc{margin-bottom:2px;border-bottom:1px solid var(--line)}
+details.svc:last-child{border-bottom:0}
+details.svc[open]{margin-bottom:var(--s4);padding-bottom:var(--s2)}
+details.svc>summary.svc-h{margin:0;padding:13px 2px;gap:12px}
+details.svc[open]>summary.svc-h{padding-bottom:11px}
+details.svc>summary.svc-h h3{font-size:14px}
+details.svc .grid{padding-top:2px}
+
+/* ── distintivo de permiso ya declarado ── */
+.vtag{display:inline-flex;align-items:center;gap:4px;font-family:var(--f-mono);font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 7px 2px 5px;border-radius:20px;white-space:nowrap;flex:none;vertical-align:middle}
+.vtag svg{width:10px;height:10px;flex:none}
+.vtag.ok{background:color-mix(in srgb,var(--ok) 17%,transparent);color:var(--ok);border:1px solid color-mix(in srgb,var(--ok) 38%,transparent)}
+.vtag.half{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn);border:1px solid color-mix(in srgb,var(--warn) 38%,transparent)}
+.rtr .vtag{margin-left:6px}
 @media print{
   .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
   body{background:#fff;color:#000;font-size:10pt}
@@ -1111,6 +1128,21 @@ const TXPH={ham:"licencia de radioaficionado",mar_op:"título de operador marít
  aer_op:"habilitación de radiotelefonía",aer_est:"licencia de estación aeronáutica",pmr:"concesión de uso privativo",
  pmse:"autorización PMSE",plb:"baliza registrada",bcast:"concesión de radiodifusión",earth:"licencia de estación terrena"};
 const TXPAIR={"aer_op+aer_est":"título y licencia aeronáuticos","mar_op+mar_est":"título y licencia marítimos"};
+/* Distintivo junto al permiso cuando ya consta en el perfil */
+function txHeld(b){
+  const req=(b.tx.req||[]).filter(r=>TXPH[r]);
+  if(!req.length||!PROFILE.size) return null;
+  const have=req.filter(r=>PROFILE.has(r));
+  if(!have.length) return null;
+  return {all:have.length===req.length, have:have.length, tot:req.length,
+          txt:have.map(r=>TXPH[r]).join(" y ")};
+}
+function vtag(b){
+  const t=txHeld(b); if(!t) return "";
+  return t.all
+    ? `<i class="vtag ok" title="Ya consta en tu perfil: ${esc(t.txt)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg>lo tienes</i>`
+    : `<i class="vtag half" title="Tienes ${t.have} de ${t.tot}: ${esc(t.txt)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg>${t.have} de ${t.tot}</i>`;
+}
 function txLabel(b){
   if(b.tx.s!==1) return TXL[b.tx.s].t;
   const req=(b.tx.req||[]).filter(r=>TXPH[r]);
@@ -1585,7 +1617,7 @@ function cardHTML(b){
     <span class="dsc">${esc(b.desc)}</span>
     <span class="rt">
       <span class="rtr"><i class="rtk">RX</i>${pill(b.rx,RXL)}<i class="rmini">no radia</i></span>
-      <span class="rtr"><i class="rtk">TX</i>${pill(b.tx,TXL,txLabel(b))}${b.tx.r?bars(b.tx.r):'<i class="rmini">sin riesgo</i>'}</span>
+      <span class="rtr"><i class="rtk">TX</i>${pill(b.tx,TXL,txLabel(b))}${vtag(b)}${b.tx.r?bars(b.tx.r):'<i class="rmini">sin riesgo</i>'}</span>
       ${hasProfile()?(()=>{const v=fverdict(b);return `<span class="rtr me" style="--c:${VK[v.k]}"><i class="rtk">TÚ</i>${vBadge(v)}</span>`;})():""}
     </span>
     <span class="foot"><span>${esc(b.pot.split("·")[0].trim())}</span><span>${esc(b.modo.split("·")[0].trim())}</span>${b.canales?`<span>${b.canales.length} canales</span>`:""}</span>
@@ -1622,17 +1654,21 @@ function render(){
       ${uc.cred&&!PROFILE.has(uc.cred)?`<div class="bcta"><button class="btn pri" id="bcred">Tengo esta habilitación · añadir a mi perfil</button><span class="note2">Ajustará el veredicto de cada banda a tu caso.</span></div>`:
         uc.cred?`<div class="bcta"><span class="note2">✓ ${esc(CRED[uc.cred].t)} ya consta en tu perfil.</span></div>`:""}
     </section>`:"";
-  const cerr=new Set(LS.get("espectro:cerrados",[]));
+  // plegados por defecto; si hay búsqueda, filtro o situación elegida se abren
+  // solos, para que nunca parezca que no hay resultados
+  const abre=new Set(LS.get("espectro:abiertos",[]));
+  const filtrando = !!Q || UC!==null || FAVONLY || Object.values(F).some(v=>v!=="all");
   $("#results").innerHTML=brief+groups.map(([c,arr])=>`
-    <details class="svc" data-cat="${esc(c)}" ${cerr.has(c)?"":"open"}>
+    <details class="svc" data-cat="${esc(c)}" ${(filtrando||abre.has(c))?"open":""}>
       <summary class="svc-h"><h3>${esc(c)}</h3><span class="ln"></span><span class="qt">${arr.length}</span>
         <svg class="caret" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></summary>
       <div class="grid">${arr.map(cardHTML).join("")}</div>
     </details>`).join("");
   $$("#results details.svc").forEach(d=>d.addEventListener("toggle",()=>{
-    const s=new Set(LS.get("espectro:cerrados",[]));
-    d.open?s.delete(d.dataset.cat):s.add(d.dataset.cat);
-    LS.set("espectro:cerrados",[...s]);
+    if(filtrando)return;                       // no memorizar aperturas automáticas
+    const s=new Set(LS.get("espectro:abiertos",[]));
+    d.open?s.add(d.dataset.cat):s.delete(d.dataset.cat);
+    LS.set("espectro:abiertos",[...s]);
   }));
 }
 $("#results").addEventListener("click",e=>{
@@ -1675,7 +1711,7 @@ function openBand(id,push=true){
       </div>
       <div class="pc" style="--c:${TXL[b.tx.s].c}">
         <div class="kicker">► TX · Transmitir</div>
-        <div class="st">${esc(txLabel(b))}</div>
+        <div class="st">${esc(txLabel(b))} ${vtag(b)}</div>
         <p class="tx">${esc(b.tx.n)}</p>
         <div class="rr" style="--rc:${RISK[b.tx.r].c}"><span class="k">Riesgo</span>${bars(b.tx.r)}<span class="v">${RISK[b.tx.r].t}</span></div>
       </div>
