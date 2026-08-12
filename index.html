@@ -429,21 +429,6 @@ footer .end{margin-top:var(--s5);padding-top:var(--s4);border-top:1px solid var(
 .bcta{margin-top:var(--s4);display:flex;gap:9px;flex-wrap:wrap;align-items:center}
 .bcta .note2{font-size:12.3px;color:var(--fg3)}
 
-/* ── trío de explicadores: en una línea; el abierto ocupa el ancho ── */
-.trio{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
-.trio>details{flex:1 1 170px;min-width:0}
-.trio>details[open]{flex-basis:100%}
-.trio .exp>summary{padding:10px 12px;gap:8px}
-.trio .exp>summary .st{display:flex;align-items:center;gap:7px;min-width:0;flex:1}
-.trio .exp>summary .kicker{flex:none;font-size:9.5px}
-.trio .exp>summary h3{font-size:13px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.022em}
-.trio .exp[open]>summary h3{white-space:normal}
-.trio .exp .body{padding:0 13px 13px}
-@media (min-width:620px){
-  .trio{flex-wrap:nowrap}
-  .trio>details{flex:1 1 0}
-  .trio:has(details[open]){flex-wrap:wrap}
-}
 /* ── contacto del aeródromo ── */
 .contact{border:1px solid color-mix(in srgb,var(--info) 30%,var(--line));background:color-mix(in srgb,var(--info) 7%,transparent);border-radius:var(--r2);padding:14px 15px;margin-bottom:var(--s3)}
 .contact .ch2{display:flex;align-items:center;gap:7px;font-family:var(--f-mono);font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--info);margin-bottom:8px}
@@ -675,7 +660,6 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
 @media (max-width:760px){ .uas-sum{padding:13px 14px} }
 
 /* ── accesos rápidos por situación ── */
-.qbar{border-top:1px solid var(--line);background:color-mix(in srgb,var(--bg) 70%,transparent)}
 .qb-in{display:flex;gap:5px;align-items:center;padding:6px 0;overflow-x:auto;scrollbar-width:none}
 .qb-in::-webkit-scrollbar{display:none}
 .qb{flex:none;width:34px;height:34px;border-radius:9px;border:1px solid transparent;background:transparent;font-size:17px;line-height:1;display:grid;place-items:center;transition:.14s;position:relative}
@@ -707,6 +691,17 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
 .fc-clear:hover{color:var(--acc)}
 @media (max-width:760px){ .facets{display:none} }
 @media (min-width:761px){ .fpanel{display:none} }
+
+/* ── iconos de situación, en la propia cabecera ── */
+.qb-in{display:flex;gap:4px;align-items:center;flex:1;min-width:0;overflow-x:auto;scrollbar-width:none;padding:0}
+.qb-in::-webkit-scrollbar{display:none}
+.stat{text-align:center}
+
+/* ── claves RX/TX como píldoras ── */
+.keys{display:flex;gap:6px;flex-wrap:wrap;margin-top:var(--s3)}
+.kpill{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px;border-radius:20px;border:1px solid color-mix(in srgb,var(--c) 34%,transparent);background:color-mix(in srgb,var(--c) 9%,transparent);color:var(--c);font-family:var(--f-mono);font-size:10.5px;font-weight:700;letter-spacing:.09em;transition:.14s}
+.kpill:hover{background:color-mix(in srgb,var(--c) 17%,transparent)}
+.kpill i{font-style:normal;opacity:.6;font-size:11px}
 @media print{
   .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
   body{background:#fff;color:#000;font-size:10pt}
@@ -727,11 +722,7 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
       </svg>
       Espectro<small>·ES</small>
     </div>
-    <div class="search">
-      <svg class="si" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
-      <input id="q" type="search" placeholder="Buscar banda, servicio o uso…" autocomplete="off" aria-label="Buscar bandas">
-      <span class="sk">/</span>
-    </div>
+    <div class="wrap qb-in" id="qbar"></div>
     <div class="hbtns">
       <button class="pbtn" id="pbtn" aria-label="Mis habilitaciones"></button>
       <button class="ib" id="favbtn" aria-label="Mostrar solo favoritos" title="Solo favoritos">
@@ -742,7 +733,6 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
       </button>
     </div>
   </div>
-  <div class="qbar"><div class="wrap qb-in" id="qbar"></div></div>
 </header>
 
 <main class="wrap" id="top">
@@ -751,30 +741,9 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
     <div class="kicker">Cuadro de consulta · basado en el CNAF</div>
     <h1>Frecuencias de radio en <span class="g">España</span></h1>
     <div class="stats" id="stats"></div>
+    <div class="keys" id="keys"></div>
   </section>
 
-  <section class="sec">
-    <div class="trio">
-      <details class="card exp" style="--c:var(--acc)">
-        <summary><span class="st"><span class="kicker">Clave</span><h3>Por qué RX y TX van por separado</h3></span><svg class="caret" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></summary>
-        <div class="body"><p>Toda banda tiene dos regímenes distintos: el de <b>escuchar</b> y el de <b>transmitir</b>. Confundirlos es el error más común de las guías al uso. Aquí cada banda lleva las dos valoraciones independientes —legalidad y riesgo real— junto a sus canales, potencias y modos.</p></div>
-      </details>
-      <details class="card exp" style="--c:var(--ok)">
-        <summary><span class="st"><span class="kicker">◄ RX</span><h3>Escuchar no emite nada</h3></span><svg class="caret" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></summary>
-        <div class="body">
-          <p>Un receptor no radia energía: <b>no interfiere, no ocupa el canal y no puede poner en riesgo a nadie</b>. Escuchar la banda aérea, la marina o a los radioaficionados no es una infracción, y tener un escáner o un SDR es perfectamente legal en España.</p>
-          <p>El límite está en el <b>contenido</b>, no en la escucha: la Constitución protege el secreto de las comunicaciones, así que no puedes divulgar ni aprovechar lo que oigas de comunicaciones no destinadas al público. Descifrar señales cifradas sí es delito.</p>
-        </div>
-      </details>
-      <details class="card exp" style="--c:var(--hot)">
-        <summary><span class="st"><span class="kicker">► TX</span><h3>Transmitir sí ocupa espectro</h3></span><svg class="caret" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></summary>
-        <div class="body">
-          <p>Al emitir usas un recurso público limitado y compartido. Fuera de las bandas de uso común hace falta título habilitante; sin él es infracción de la Ley General de Telecomunicaciones, con sanción económica y decomiso del equipo.</p>
-          <p>Y el daño no es igual en todas partes: pisar un canal de taxi molesta, pero <b>pisar el canal 16 de marina o una frecuencia de torre puede costar vidas</b>, y eso pasa del terreno administrativo al penal.</p>
-        </div>
-      </details>
-    </div>
-  </section>
 
   <section class="sec">
     <div class="ucsel">
@@ -1534,6 +1503,34 @@ function fmtF(c){
 }
 const rngTxt=b=>`${b.lo<1?dec((b.lo*1000).toFixed(1))+" kHz":dec(b.lo)+" MHz"} → ${b.hi>=1000?dec((b.hi/1000).toFixed(2))+" GHz":dec(b.hi)+" MHz"}`;
 
+
+/* Las tres claves: píldoras que abren su explicación, sin ocupar una línea */
+const KEYS=[
+ {k:"CLAVE", c:"var(--acc)", t:"Por qué RX y TX van por separado",
+  p:["Toda banda tiene dos regímenes distintos: el de <b>escuchar</b> y el de <b>transmitir</b>. Confundirlos es el error más común de las guías al uso. Aquí cada banda lleva las dos valoraciones independientes —legalidad y riesgo real— junto a sus canales, potencias y modos."]},
+ {k:"RX", c:"var(--ok)", t:"Escuchar no emite nada",
+  p:["Un receptor no radia energía: <b>no interfiere, no ocupa el canal y no puede poner en riesgo a nadie</b>. Escuchar la banda aérea, la marina o a los radioaficionados no es una infracción, y tener un escáner o un SDR es perfectamente legal en España.",
+     "El límite está en el <b>contenido</b>, no en la escucha: la Constitución protege el secreto de las comunicaciones, así que no puedes divulgar ni aprovechar lo que oigas de comunicaciones no destinadas al público. Descifrar señales cifradas sí es delito."]},
+ {k:"TX", c:"var(--hot)", t:"Transmitir sí ocupa espectro",
+  p:["Al emitir usas un recurso público limitado y compartido. Fuera de las bandas de uso común hace falta título habilitante; sin él es infracción de la Ley General de Telecomunicaciones, con sanción económica y decomiso del equipo.",
+     "Y el daño no es igual en todas partes: pisar un canal de taxi molesta, pero <b>pisar el canal 16 de marina o una frecuencia de torre puede costar vidas</b>, y eso pasa del terreno administrativo al penal."]}
+];
+$("#keys").innerHTML=KEYS.map((x,i)=>`<button class="kpill" data-key="${i}" style="--c:${x.c}">${x.k}<i>?</i></button>`).join("");
+$("#keys").addEventListener("click",e=>{
+  const b=e.target.closest("[data-key]"); if(!b)return;
+  const x=KEYS[+b.dataset.key];
+  povl.querySelector(".sheet").innerHTML=`
+    <div class="grab"></div>
+    <div class="sh-h" style="--c:${x.c}">
+      <button class="x" id="kx" aria-label="Cerrar"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <div class="kicker" style="color:${x.c}">${x.k}</div>
+      <h2>${esc(x.t)}</h2>
+    </div>
+    <div class="sh-b">${x.p.map(p=>`<p style="color:var(--fg2);font-size:14.5px;line-height:1.62;margin-bottom:12px">${p}</p>`).join("")}</div>`;
+  povl.classList.add("on"); document.body.style.overflow="hidden"; povlOpened=Date.now();
+  povl.querySelector("#kx").onclick=closeProfile;
+});
+
 /* ═══════════════ estadísticas ═══════════════ */
 /* ═══════════════ PERFIL DE HABILITACIONES ═══════════════
    Un título habilita a la persona; una licencia de estación habilita al
@@ -1788,7 +1785,7 @@ ucmenu.addEventListener("click",e=>{
   const b=e.target.closest("[data-uc]"); if(!b)return;
   const i=+b.dataset.uc;
   UC = i<0 ? null : i;
-  if(UC!==null){ F={tx:"all",rx:"all",me:"all",rf:"all",cat:"all"}; Q=""; $("#q").value=""; syncChips(); }
+  if(UC!==null){ F={tx:"all",rx:"all",me:"all",rf:"all",cat:"all"}; Q=""; syncChips(); }
   ucOpen(false); paintUcBtn(); paintQbar(); render();
   const u=UC!==null?USECASES[UC]:null;
   $("#uas-sec").hidden = !(u && u.vuelo);             // el planificador solo aparece si vas a volar
@@ -1808,7 +1805,7 @@ qbar.addEventListener("click",e=>{
   const b=e.target.closest("[data-q]"); if(!b)return;
   const i=+b.dataset.q;
   UC = i<0 ? null : i;
-  if(UC!==null){ F={tx:"all",rx:"all",me:"all",rf:"all",cat:"all"}; Q=""; $("#q").value=""; syncChips(); }
+  if(UC!==null){ F={tx:"all",rx:"all",me:"all",rf:"all",cat:"all"}; Q=""; syncChips(); }
   paintUcBtn(); paintQbar(); render();
   const u=UC!==null?USECASES[UC]:null;
   $("#uas-sec").hidden = !(u && u.vuelo);
@@ -1969,7 +1966,7 @@ function render(){
 }
 $("#results").addEventListener("click",e=>{
   if(e.target.closest("#goUas")){e.preventDefault();
-    const i=USECASES.findIndex(u=>u.vuelo); if(i>=0){UC=i;F={tx:"all",rx:"all",me:"all",rf:"all",cat:"all"};Q="";$("#q").value="";syncChips();paintUcBtn();render();planVuelo();}
+    const i=USECASES.findIndex(u=>u.vuelo); if(i>=0){UC=i;F={tx:"all",rx:"all",me:"all",rf:"all",cat:"all"};Q="";syncChips();paintUcBtn();render();planVuelo();}
     return;}
   if(e.target.closest("[data-perfil]")){e.preventDefault();e.stopPropagation();openProfile(false);return;}
   if(e.target.closest("#bcred")){const uc=USECASES[UC]; if(uc&&uc.cred){PROFILE.add(uc.cred);saveProfile();paintProfileBtn();paintStats();render();} return;}
@@ -1982,7 +1979,7 @@ $("#results").addEventListener("keydown",e=>{
   const c=e.target.closest(".bc"); if(!c||e.target.closest("[data-fav]"))return;
   e.preventDefault(); openBand(c.dataset.id);
 });
-$("#q").addEventListener("input",e=>{Q=e.target.value.trim().toLowerCase();if(UC!==null){UC=null;paintUcBtn();paintQbar();}render()});
+
 $("#favbtn").addEventListener("click",e=>{FAVONLY=!FAVONLY;e.currentTarget.classList.toggle("on",FAVONLY);if(FAVONLY&&UC!==null){UC=null;paintUcBtn();}render()});
 
 /* ═══════════════ ficha ═══════════════ */
@@ -2059,7 +2056,6 @@ ov.addEventListener("click",e=>{if(e.target===ov)history.state?.band?history.bac
 window.addEventListener("popstate",e=>{ e.state&&e.state.band?openBand(e.state.band,false):closeBand(); });
 document.addEventListener("keydown",e=>{
   if(e.key==="Escape"){ if(ov.classList.contains("on")){history.state?.band?history.back():closeBand()} else if(fpanel.classList.contains("open"))closeF(); }
-  if(e.key==="/"&&!/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)){e.preventDefault();$("#q").focus()}
 });
 
 /* ═══════════════ espectro ═══════════════ */
