@@ -531,6 +531,33 @@ details.svc .grid{padding-top:2px}
 .rtr.tap{cursor:pointer}
 .rtr.tap:hover{background:color-mix(in srgb,var(--c) 14%,transparent)}
 .rtr .edit{margin-left:auto;font-family:var(--f-mono);font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--c);border:1px solid color-mix(in srgb,var(--c) 40%,transparent);border-radius:20px;padding:2px 8px;flex:none}
+
+/* ── coordinación UAS ── */
+.uas{padding:var(--s5)}
+.uas-intro p{font-size:14px;color:var(--fg2);line-height:1.62;margin-bottom:var(--s4)}
+.uas-intro b{color:var(--fg);font-weight:600}
+.steps{list-style:none;counter-reset:s;margin:0 0 var(--s4);padding:0;display:flex;flex-direction:column;gap:9px}
+.steps li{counter-increment:s;position:relative;padding:11px 14px 11px 46px;border:1px solid var(--line);border-radius:var(--r2);background:var(--srf2)}
+.steps li::before{content:counter(s);position:absolute;left:13px;top:11px;width:22px;height:22px;border-radius:50%;background:var(--acc);color:var(--acc-fg);font-family:var(--f-mono);font-size:11.5px;font-weight:700;display:grid;place-items:center}
+.steps li b{display:block;font-size:13.6px;font-weight:620;margin-bottom:2px;letter-spacing:-.015em}
+.steps li span{font-size:12.7px;color:var(--fg2);line-height:1.5}
+.steps li span b{display:inline;font-size:inherit;margin:0}
+.uas-radio{display:flex;flex-direction:column;gap:7px;margin-bottom:var(--s4)}
+.urow{display:flex;align-items:center;gap:11px;padding:10px 13px;border:1px solid var(--line);border-radius:var(--r2);background:var(--srf);flex-wrap:wrap}
+.urow .ui{width:9px;height:9px;border-radius:50%;background:var(--c);flex:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 18%,transparent)}
+.urow .un{font-size:13.4px;font-weight:580;flex:1;min-width:130px}
+.urow .uf{font-family:var(--f-mono);font-size:12px;color:var(--acc);white-space:nowrap}
+.urow .uv{font-size:11.5px;font-weight:700;color:var(--c);font-family:var(--f-mono);letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+.uasad{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:13px 14px;border:1px solid var(--line);border-radius:var(--r2);background:var(--srf2)}
+.uasad .uan{font-weight:640;font-size:14px;flex:1;min-width:150px}
+.uasad .uaf{font-family:var(--f-mono);font-size:12.2px;color:var(--fg2)}
+.uasad .uaf b{color:var(--acc);font-weight:600}
+
+.golink{display:flex;align-items:center;gap:12px;margin-top:10px;padding:13px 15px;border:1px solid color-mix(in srgb,var(--acc) 32%,transparent);background:color-mix(in srgb,var(--acc) 7%,transparent);border-radius:var(--r2);text-decoration:none;color:inherit;transition:.14s}
+.golink:hover{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 12%,transparent)}
+.golink b{display:block;font-size:13.6px;font-weight:620;margin-bottom:2px}
+.golink span{font-size:12.5px;color:var(--fg2);line-height:1.5}
+.golink svg{width:18px;height:18px;flex:none;color:var(--acc)}
 @media print{
   .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
   body{background:#fff;color:#000;font-size:10pt}
@@ -710,6 +737,36 @@ details.svc .grid{padding-top:2px}
   </div>
 
   <div id="results"></div>
+
+  <section class="sec" id="uas-sec">
+    <div class="sec-h">
+      <h2>Coordinación de un vuelo UAS</h2>
+      <span class="sub">Qué es trámite y qué es radio — no son lo mismo</span>
+    </div>
+    <div class="card uas">
+      <div class="uas-intro">
+        <p>Volar un dron cruza <b>dos marcos distintos</b> que se confunden a menudo. La <b>operación</b> la regulan AESA y ENAIRE: registro, zonas geográficas y autorización. El <b>espectro</b> lo regula el CNAF: qué frecuencias puedes usar. Cumplir uno no te cubre el otro, y la mayor parte de la coordinación no se hace por radio.</p>
+      </div>
+
+      <h5>El trámite, por orden</h5>
+      <ol class="steps">
+        <li><b>Regístrate como operador UAS</b><span>En AESA. Te dan un número de operador que debe ir en la aeronave.</span></li>
+        <li><b>Consulta la zona antes de cada vuelo</b><span>En ENAIRE Drones. Ahí ves si el punto está en zona restringida, en el entorno de un aeródromo o en espacio aéreo controlado.</span></li>
+        <li><b>Solicita autorización si la zona lo exige</b><span>Lo que haga falta depende de la categoría de la operación y de la zona concreta. La resolución te llega con sus condiciones.</span></li>
+        <li><b>Coordina con la dependencia</b><span>Aquí está la clave: <b>normalmente por teléfono</b>, con el número que figura en tu propia autorización. La radio con ATC es la excepción, no la norma.</span></li>
+        <li><b>Antes de despegar, escucha</b><span>El ATIS y la torre te dan pista en servicio, viento y tráfico real. Escuchar es libre y no exige ningún permiso.</span></li>
+      </ol>
+
+      <h5>La radio: qué necesitas de verdad</h5>
+      <p class="hint2">El enlace de mando y el vídeo van en el propio dron; el resto depende de tu perfil.</p>
+      <div class="uas-radio" id="uasRadio"></div>
+
+      <h5>Tu aeródromo de referencia</h5>
+      <div id="uasAd"></div>
+
+      <div class="cal c-nt" style="margin-top:16px"><span class="kicker">Alcance de esta guía</span>Esto ordena el marco general para que sepas qué tienes que mirar; no sustituye a tu autorización ni a la normativa aplicable. Los requisitos concretos dependen de la categoría de la operación y de la zona: la fuente son AESA y ENAIRE, y para las frecuencias, el CNAF y el AIP.</div>
+    </div>
+  </section>
 
   <section class="sec">
     <article class="card sos">
@@ -1511,13 +1568,13 @@ function openProfile(first) {
   povl.querySelectorAll("[data-eq]").forEach(t => t.addEventListener("click", () => {
     MYEQ = t.dataset.eq; LS.set("espectro:equipo", MYEQ);
     povl.querySelectorAll("[data-eq]").forEach(x => x.classList.toggle("on", x === t));
-    paintProfileBtn(); render(); paintStats();
+    paintProfileBtn(); render(); paintStats(); paintUas();
   }));
   povl.querySelectorAll("[data-cred]").forEach(i => i.addEventListener("change", e => {
     const id = e.target.dataset.cred;
     e.target.checked ? PROFILE.add(id) : PROFILE.delete(id);
     e.target.closest(".cred").classList.toggle("on", e.target.checked);
-    saveProfile(); paintProfileBtn(); render(); paintStats();
+    saveProfile(); paintProfileBtn(); render(); paintStats(); paintUas(); paintUas();
   }));
 }
 let povlOpened = 0;
@@ -1675,6 +1732,7 @@ function render(){
       <summary class="svc-h"><h3>${esc(c)}</h3><span class="ln"></span><span class="qt">${arr.length}</span>
         <svg class="caret" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></summary>
       <div class="grid">${arr.map(cardHTML).join("")}</div>
+      ${c==="RC y drones"?`<a class="golink" href="#uas-sec"><span><b>¿Vas a volar un dron cerca de un aeródromo?</b>Coordinar el vuelo es un trámite aparte del espectro: pasos, teléfonos y qué radio necesitas de verdad.</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>`:""}
     </details>`).join("");
   $$("#results details.svc").forEach(d=>d.addEventListener("toggle",()=>{
     if(filtrando)return;                       // no memorizar aperturas automáticas
@@ -2366,6 +2424,7 @@ function adContact(code) {
 function adRender(code) {
   const b = adBest(code);
   adOut.innerHTML = adContact(code) + adTable(b.f);
+  try{ paintUas(); }catch{}
   if (b.src === "live") {
     const mins = Math.round((Date.now() - b.t) / 60000);
     adStatus("live", `Leído del AIP oficial${b.amdt ? " · " + esc(b.amdt) : ""} · ${mins < 1 ? "hace un momento" : "hace " + mins + " min"}`);
@@ -2427,8 +2486,41 @@ try { const v = localStorage.getItem("espectro:ad"); if (v && AD[v]) adStart = v
 adSelect(adStart, false);
 
 
+
+/* ═══════════════ Coordinación de vuelo UAS ═══════════════ */
+function paintUas(){
+  const el=$("#uasRadio"); if(!el) return;
+  const band=id=>D.find(b=>b.id===id);
+  const filas=[
+    {n:"Enlace de mando del dron", id:"wifi24", f:"2400 – 2483,5 MHz", propio:1},
+    {n:"Vídeo FPV", id:"fpv58", f:"5725 – 5875 MHz", propio:1},
+    {n:"Escuchar torre y ATIS", id:"aero", f:"108 – 136,975 MHz", solorx:1},
+    {n:"Hablar con ATC por radio", id:"aero", f:"118 – 136,975 MHz"}
+  ];
+  el.innerHTML=filas.map(x=>{
+    const b=band(x.id);
+    let k,t;
+    if(x.solorx){ k="ok"; t="escucha libre"; }
+    else { const v=x.propio?verdict(b):fverdict(b); k=v.k; t=v.k==="ok"?"puedes":v.k==="never"?"no habilitable":v.t.replace(/^(Te falta|Necesitas):\s*/,"falta "); }
+    return `<div class="urow" style="--c:${VK[k]}"><i class="ui"></i><span class="un">${esc(x.n)}</span><span class="uf">${esc(x.f)}</span><span class="uv">${esc(t)}</span></div>`;
+  }).join("");
+  const ad=$("#uasAd"); if(!ad) return;
+  const code=(typeof adSel!=="undefined"&&adSel.value)||"LERS", a=AD[code];
+  if(!a){ad.innerHTML="";return;}
+  const live=cacheGet(code), fr=(live&&live.f)||a.f||[], con=(live&&live.c)||a.c;
+  const pick=re=>{const x=fr.find(f=>re.test((f.s||"")+" "+(f.r||"")));return x?fdec(x.m)+" MHz":null;};
+  const atis=pick(/ATIS/i), twr=pick(/TWR|APP/i);
+  const tel=con&&con.tel&&con.tel[0];
+  ad.innerHTML=`<div class="uasad">
+    <span class="uan">${esc(a.n)} · ${code}</span>
+    <span class="uaf">${twr?`Torre <b>${twr}</b>`:""}${twr&&atis?" · ":""}${atis?`ATIS <b>${atis}</b>`:""}</span>
+    ${tel?`<a class="cchip tel" href="tel:${tel.replace(/[^\d+]/g,"")}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6.5 3.5h3l1.5 4-2 1.5a12 12 0 006 6l1.5-2 4 1.5v3a2 2 0 01-2.2 2A17.5 17.5 0 014.5 5.7 2 2 0 016.5 3.5z"/></svg>${esc(tel)}</a>`:""}
+  </div>
+  <p class="hint2" style="margin:9px 0 0">Cambia de aeródromo en el apartado anterior y esto se actualiza. El teléfono es el que publica el AIP para el aeródromo, no necesariamente el de coordinación de tu vuelo.</p>`;
+}
+
 /* ═══════════════ arranque ═══════════════ */
-drawSpec(); paintStats(); render();
+drawSpec(); paintStats(); render(); paintUas();
 /* Sin perfil, los veredictos no son los tuyos: se pide al arrancar,
    con opción de omitirlo para no volver a insistir. */
 if (!hasProfile() && !LS.get("espectro:perfil-omitido", 0)) {
