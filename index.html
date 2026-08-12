@@ -429,17 +429,21 @@ footer .end{margin-top:var(--s5);padding-top:var(--s4);border-top:1px solid var(
 .bcta{margin-top:var(--s4);display:flex;gap:9px;flex-wrap:wrap;align-items:center}
 .bcta .note2{font-size:12.3px;color:var(--fg3)}
 
-/* ── trío de explicadores: en línea, y el abierto ocupa el ancho ── */
-.trio{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start}
-.trio>details{flex:1 1 230px;min-width:0}
+/* ── trío de explicadores: en una línea; el abierto ocupa el ancho ── */
+.trio{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
+.trio>details{flex:1 1 170px;min-width:0}
 .trio>details[open]{flex-basis:100%}
-.trio .exp>summary{padding:12px 14px;gap:9px}
-.trio .exp>summary .st{display:flex;align-items:center;gap:9px;min-width:0;flex:1}
-.trio .exp>summary .kicker{flex:none}
-.trio .exp>summary h3{font-size:13.8px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.02em}
+.trio .exp>summary{padding:10px 12px;gap:8px}
+.trio .exp>summary .st{display:flex;align-items:center;gap:7px;min-width:0;flex:1}
+.trio .exp>summary .kicker{flex:none;font-size:9.5px}
+.trio .exp>summary h3{font-size:13px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.022em}
 .trio .exp[open]>summary h3{white-space:normal}
-.trio .exp .body{padding:0 14px 14px}
-
+.trio .exp .body{padding:0 13px 13px}
+@media (min-width:620px){
+  .trio{flex-wrap:nowrap}
+  .trio>details{flex:1 1 0}
+  .trio:has(details[open]){flex-wrap:wrap}
+}
 /* ── contacto del aeródromo ── */
 .contact{border:1px solid color-mix(in srgb,var(--info) 30%,var(--line));background:color-mix(in srgb,var(--info) 7%,transparent);border-radius:var(--r2);padding:14px 15px;margin-bottom:var(--s3)}
 .contact .ch2{display:flex;align-items:center;gap:7px;font-family:var(--f-mono);font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--info);margin-bottom:8px}
@@ -750,10 +754,6 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
   </section>
 
   <section class="sec">
-    <div class="sec-h">
-      <h2>¿Qué quieres hacer?</h2>
-      <span class="sub">Elige tu situación y la app te deja solo lo que te sirve</span>
-    </div>
     <div class="ucsel">
       <button class="ucbtn" id="ucbtn" aria-haspopup="listbox" aria-expanded="false"></button>
       <div class="ucmenu" id="ucmenu" role="listbox" hidden></div>
