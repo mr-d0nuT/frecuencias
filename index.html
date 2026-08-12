@@ -673,7 +673,6 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
 @media (max-width:760px){
   .facets{position:static;background:none;backdrop-filter:none;border:0;margin-top:var(--s4)}
   .facets .fc-in{display:none}
-  .me-tiles{grid-template-columns:1fr 1fr}
 }
 @media (min-width:761px){ .fpanel{display:none} }
 
@@ -753,7 +752,7 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
 .me-h{display:flex;align-items:baseline;gap:9px;margin-bottom:8px;flex-wrap:wrap}
 .me-t{font-family:var(--f-mono);font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--fg3)}
 .me-cfg{font-size:12px;color:var(--acc);text-decoration:underline;text-underline-offset:3px;padding:2px}
-.me-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.me-tiles{display:grid}
 .me-tile{display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:9px 12px;border-radius:var(--r2);border:1px solid var(--line);background:var(--srf);transition:.15s;text-align:left;position:relative;overflow:hidden}
 .me-tile::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--c,var(--line2))}
 .me-tile:hover{border-color:var(--line2)}
@@ -843,6 +842,15 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
   .st-n{font-size:10.5px;max-width:130px}
   .st-p{display:none}
 }
+
+/* ── los cinco criterios, en una línea ── */
+.me-tiles{grid-template-columns:repeat(5,1fr);gap:5px}
+.me-tile{padding:7px 6px;gap:0}
+.me-tile .mn{font-size:17px}
+.me-tile .ml{font-size:10px;line-height:1.2}
+.me-tile .mi svg{width:11px;height:11px}
+@media (max-width:760px){ .me-tiles{grid-template-columns:repeat(5,1fr)} .me-tile{padding:6px 3px} .me-tile .mn{font-size:15px} .me-tile .ml{font-size:8.5px} }
+@media (max-width:430px){ .me-tile .ml{font-size:8px} .me-tile .mn{font-size:14px} .me-tile .mi{display:none} }
 @media print{
   .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
   body{background:#fff;color:#000;font-size:10pt}
@@ -2045,15 +2053,16 @@ function facetBtn(fa){
 
 /* ═══ Qué puedes hacer tú: lo primero y con números ═══ */
 const ME=[
- {v:"ok",      t:"Puedes transmitir", c:"var(--ok)",   i:'<path d="M4 12.5l5 5L20 6.5"/>'},
- {v:"partial", t:"Te falta algo",     c:"var(--warn)", i:'<path d="M12 7v6M12 17v.01"/>'},
- {v:"no",      t:"No puedes",         c:"var(--bad)",  i:'<path d="M6 6l12 12M18 6L6 18"/>'}
+ {v:"rxsi", t:"RX SÍ", c:"var(--ok)",   i:'<path d="M4 12.5l5 5L20 6.5"/>', f:b=>b.rx.s!==2},
+ {v:"rxno", t:"RX NO", c:"var(--bad)",  i:'<path d="M6 6l12 12M18 6L6 18"/>', f:b=>b.rx.s===2},
+ {v:"txsi", t:"TX SÍ", c:"var(--ok)",   i:'<path d="M4 12.5l5 5L20 6.5"/>', f:b=>meKind(b)==="ok"},
+ {v:"txno", t:"TX NO", c:"var(--bad)",  i:'<path d="M6 6l12 12M18 6L6 18"/>', f:b=>meKind(b)!=="ok"}
 ];
 const meKind=b=>{ const k=fverdict(b).k; return k==="eq"?"partial":(k==="never"?"no":k); };
+const meTest=v=>{ const m=ME.find(x=>x.v===v); return m?m.f:null; };
 function paintMe(){
   const el=$("#mefilter"); if(!el) return;
-  const n={ok:0,partial:0,no:0};
-  D.forEach(b=>{ const k=meKind(b); if(n[k]!==undefined) n[k]++; });
+  const n={}; ME.forEach(m=>n[m.v]=D.filter(m.f).length);
   const sinPerfil=!hasProfile();
   el.innerHTML=
     `<div class="me-h"><span class="me-t">${sinPerfil?"Sin tu perfil, esto asume que no tienes nada":"Con tu equipo y tus licencias"}</span>
@@ -2127,7 +2136,7 @@ function matches(b){
   if(FAVONLY&&!FAV.has(b.id))return false;
   if(F.tx!=="all"&&b.tx.s!==+F.tx)return false;
   if(F.rx!=="all"&&b.rx.s!==+F.rx)return false;
-  if(F.me!=="all"){const v=fverdict(b).k==="eq"?"partial":fverdict(b).k; if(F.me==="no" ? (v!=="no"&&v!=="never") : v!==F.me) return false;}
+  if(F.me!=="all"){const t=meTest(F.me); if(t && !t(b)) return false;}
   if(F.rf!=="all"&&b.rf!==F.rf)return false;
   if(F.cat!=="all"&&b.cat!==F.cat)return false;
   if(Q){
