@@ -626,6 +626,30 @@ details.svc .grid{padding-top:2px}
 
 .adbox{border:1px solid var(--line);border-radius:var(--r2);padding:14px;background:var(--srf2);margin-bottom:var(--s3)}
 .adbox .ad-top{margin-bottom:10px}
+
+/* ── fichas completas de proximidad ── */
+.dcards{display:flex;flex-direction:column;gap:8px}
+.dcard2{border:1px solid var(--line);border-radius:var(--r2);padding:11px 13px;background:var(--srf)}
+.dcard2.hot{border-color:color-mix(in srgb,var(--bad) 38%,transparent);background:color-mix(in srgb,var(--bad) 5%,var(--srf))}
+.dhead2{display:flex;align-items:baseline;gap:11px}
+.dd{font-family:var(--f-mono);font-size:12.5px;font-weight:700;color:var(--fg2);flex:none;min-width:58px}
+.dcard2.hot .dd{color:var(--bad)}
+.dn{flex:1;min-width:0}
+.dn b{display:block;font-size:14px;font-weight:640;line-height:1.28;letter-spacing:-.018em}
+.dn span{display:block;font-family:var(--f-mono);font-size:11px;color:var(--fg3);margin-top:2px}
+.fchips{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+.fchip{display:inline-flex;align-items:baseline;gap:5px;padding:4px 9px;border-radius:6px;background:var(--srf2);border:1px solid var(--line)}
+.fchip i{font-style:normal;font-family:var(--f-mono);font-size:9px;font-weight:700;letter-spacing:.07em;color:var(--fg3)}
+.fchip b{font-family:var(--f-mono);font-size:12.5px;font-weight:650;color:var(--acc)}
+.fchip.more{font-family:var(--f-mono);font-size:10.5px;color:var(--fg3);padding:5px 9px}
+.dchips{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+.dchip{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border-radius:var(--r1);border:1px solid var(--line);background:var(--srf2);color:var(--fg2);font-family:var(--f-mono);font-size:11.5px;text-decoration:none;min-height:34px}
+.dchip svg{width:13px;height:13px;flex:none;color:var(--fg3)}
+.dchip:hover{border-color:var(--acc);color:var(--acc)}
+.dchip:hover svg{color:var(--acc)}
+.dchip.tel{background:var(--acc);border-color:var(--acc);color:var(--acc-fg);font-weight:650}
+.dchip.tel svg{color:var(--acc-fg)}
+@media (max-width:760px){ .dchip{flex:1;justify-content:center;min-width:110px} }
 @media print{
   .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
   body{background:#fff;color:#000;font-size:10pt}
@@ -694,7 +718,7 @@ details.svc .grid{padding-top:2px}
     </div>
   </section>
 
-  <section class="sec" id="uas-sec">
+  <section class="sec" id="uas-sec" hidden>
     <details class="card uas">
       <summary class="uas-sum">
         <span class="uas-ico">🛩️</span>
@@ -1349,21 +1373,24 @@ const USECASES=[
    no:[["Divulgar lo que oigas","Recibir es legal; difundir o aprovechar el contenido vulnera el secreto de las comunicaciones."],
        ["Transmitir","Ni con un walkie de aficionado ni para probar. Exige habilitación de radiotelefonía y licencia de estación."]]}},
 
- {e:"🛩️",t:"Radiofonista UAS",ids:["aero","lers","wifi24","fpv58","gnss"],cred:"aer_op",vuelo:1,brief:{
-   tit:"Qué te habilita, y qué no, la habilitación de radiotelefonía aeronáutica",
-   sub:"La habilitación acredita a la <b>persona</b> en fraseología y procedimientos. No autoriza por sí sola ninguna estación, ni sustituye a la autorización de la operación ante AESA y ENAIRE.",
-   si:[["Escuchar toda la banda aérea","108 – 136,975 MHz en AM","Torre, rodadura, aproximación y ATIS. Legal sin ningún permiso, y lo más recomendable antes de volar."],
-       ["Enlace de mando del dron","2400 – 2483,5 MHz","Uso común hasta 100 mW EIRP. Es lo que usa tu emisora de vuelo."],
-       ["Vídeo FPV","5725 – 5875 MHz","Uso común, pero solo hasta 25 mW EIRP. Muchos VTX vienen a 200, 600 o 1000 mW."],
+ {e:"🚁",t:"Drones · UAS",ids:["fpv58","wifi24","rc35","aero","lers","gnss"],cred:"aer_op",vuelo:1,brief:{
+   tit:"Volar un dron: qué es espectro, qué es trámite y qué te habilita tu título",
+   sub:"Volar cruza <b>dos marcos distintos</b>. La <b>operación</b> la regulan AESA y ENAIRE: registro, zonas y autorización. El <b>espectro</b> lo regula el CNAF. Cumplir uno no cubre el otro, y la mayor parte de la coordinación no se hace por radio. Si tienes habilitación de radiotelefonía, acredita a la <b>persona</b>: no autoriza por sí sola ninguna estación.",
+   si:[["Enlace de mando del dron","2400 – 2483,5 MHz","Uso común hasta 100 mW EIRP. Es lo que usa tu emisora de serie, sin licencia."],
+       ["Vídeo FPV","5725 – 5875 MHz","Uso común, pero solo hasta 25 mW EIRP."],
+       ["Escuchar torre, aproximación y ATIS","108 – 136,975 MHz en AM","Legal sin ningún permiso, y lo más recomendable antes de volar."],
+       ["Aeromodelismo clásico","34,995 – 35,225 MHz","Reservado a modelos aéreos. Pinza de frecuencia antes de encender."],
        ["Recibir GNSS","1176 / 1227 / 1575 MHz","Posicionamiento del dron. Solo recepción."]],
-   falta:[["Licencia de estación aeronáutica","Tu título habilita a la persona; esto habilita al equipo. Son permisos distintos y para hablar con ATC hacen falta los dos."],
-          ["Emisora homologada de 8,33 kHz","Icom IC-A16E, Yaesu FTA-550/850 o similar. Un walkie de aficionado no cumple ni homologación, ni canalización, ni AM real."],
-          ["Comprobar cómo se coordina tu operación","En la mayoría de vuelos en espacio aéreo controlado la coordinación se hace por teléfono con el número de la autorización, no por radio."]],
-   no:[["Emitir en bandas de radioaficionado","144–146 y 430–440 MHz exigen licencia de radioaficionado. Tu habilitación aeronáutica no sirve ahí."],
-       ["Subir la potencia del VTX","Por encima de 25 mW EIRP deja de ser uso común, aunque el equipo lo permita."],
+   falta:[["Registro de operador en AESA","El permiso de espectro no te autoriza a volar: son trámites separados."],
+          ["Consultar zonas geográficas y altura","En ENAIRE Drones, antes de cada vuelo."],
+          ["Para hablar con ATC: licencia de estación aeronáutica","Tu habilitación cubre a la persona; esto habilita al equipo, y hacen falta las dos."],
+          ["Y emisora homologada de 8,33 kHz","Icom IC-A16E, Yaesu FTA-550/850 o similar. Un walkie de aficionado no cumple ni homologación, ni canalización, ni AM real."],
+          ["Comprobar cómo se coordina tu operación","En la mayoría de vuelos en espacio aéreo controlado se coordina por teléfono con el número de la autorización, no por radio."]],
+   no:[["Subir la potencia del VTX","Se venden a 200, 600 o 1000 mW, pero por encima de 25 mW EIRP deja de ser uso común."],
+       ["Emitir en bandas de radioaficionado","144–146 y 430–440 MHz exigen licencia de radioaficionado; la habilitación aeronáutica no sirve ahí."],
        ["Usar un walkie de 5 W como PMR446","El uso común de 446 MHz exige 500 mW y antena no desmontable."],
-       ["Emitir en 121,500 MHz","Frecuencia de emergencia. Solo ante una emergencia real."]]}},
-
+       ["Emitir en 121,500 MHz","Frecuencia de emergencia. Solo ante una emergencia real."],
+       ["Usar 35 MHz para coches o barcos","Es exclusiva de modelos aéreos: puedes hacer caer el modelo de otro."]]}},
  {e:"⛵",t:"Navegar y comunicar en el mar",ids:["mar","mar-mf","epirb"],cred:"mar_op",brief:{
    tit:"Lo que puedes hacer a bordo, y con qué papeles",
    sub:"Como en aviación, hacen falta <b>dos permisos distintos</b>: el título habilita a la persona y la licencia de estación habilita al equipo instalado.",
@@ -1375,18 +1402,6 @@ const USECASES=[
    no:[["Usar voz en el canal 70","Es exclusivo de llamada selectiva digital: solo datos."],
        ["Sustituir la VHF marina por PMR446","500 mW y antena fija no dan alcance útil en el mar, y no es tráfico de socorro."],
        ["Ocupar el canal 16","Es de socorro y llamada. Establecido el contacto, se cambia a un canal de trabajo."]]}},
-
- {e:"🚁",t:"Volar un dron o FPV",ids:["fpv58","wifi24","rc35"],vuelo:1,brief:{
-   tit:"El espectro del dron es una cosa; volar, otra distinta",
-   sub:"Los enlaces de mando y vídeo son de <b>uso común</b> y no necesitan licencia. Pero la operación en sí tiene su propia normativa de AESA, que va aparte.",
-   si:[["Enlace de mando","2400 – 2483,5 MHz","Uso común hasta 100 mW EIRP: es lo que usa tu emisora de serie."],
-       ["Vídeo FPV","5725 – 5875 MHz","Uso común, pero solo hasta 25 mW EIRP."],
-       ["Aeromodelismo clásico","34,995 – 35,225 MHz · canales 60–90","Reservado en exclusiva a modelos aéreos. Pinza de frecuencia antes de encender."]],
-   falta:[["Registro de operador en AESA","El permiso de espectro no te autoriza a volar: son trámites separados."],
-          ["Consultar zonas geográficas y altura","En ENAIRE Drones, antes de cada vuelo."]],
-   no:[["Subir el VTX a 200, 600 o 1000 mW","Se venden así, pero por encima de 25 mW EIRP deja de ser legal aquí."],
-       ["Usar 35 MHz para coches o barcos","Es exclusiva de modelos aéreos: duplicar un canal ocupado hace caer el avión de otro."],
-       ["Volar en espacio aéreo controlado sin autorización","Ni aunque tengas habilitación de radiotelefonía."]]}},
 
  {e:"🎪",t:"Coordinar un evento o una obra",ids:["pmr446","dpmr446","pmr-440","micros"],cred:"pmr",brief:{
    tit:"Coordinar equipos: dónde llega el uso común y dónde empieza la concesión",
@@ -1725,7 +1740,8 @@ ucmenu.addEventListener("click",e=>{
   if(UC!==null){ F={tx:"all",rx:"all",me:"all",rf:"all",cat:"all"}; Q=""; $("#q").value=""; syncChips(); }
   ucOpen(false); paintUcBtn(); render();
   const u=UC!==null?USECASES[UC]:null;
-  if(u && u.vuelo) planVuelo();                       // volar dron o radiofonista: lo útil es qué hay cerca
+  $("#uas-sec").hidden = !(u && u.vuelo);             // el planificador solo aparece si vas a volar
+  if(u && u.vuelo) planVuelo();
   else if(UC!==null) setTimeout(()=>$("#results").scrollIntoView({behavior:"smooth",block:"start"}),60);
 });
 document.addEventListener("click",e=>{ if(!ucmenu.hidden && !ucmenu.contains(e.target) && e.target!==ucbtn) ucOpen(false); });
@@ -1827,7 +1843,7 @@ function render(){
       <summary class="svc-h"><h3>${esc(c)}</h3><span class="ln"></span><span class="qt">${arr.length}</span>
         <svg class="caret" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></summary>
       <div class="grid">${arr.map(cardHTML).join("")}</div>
-      ${c==="RC y drones"?`<a class="golink" href="#uas-sec"><span><b>¿Vas a volar un dron?</b>Abre el planificador: qué aeródromos y helipuertos hay cerca de tu punto, con sus frecuencias y teléfonos, y qué trámite toca.</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>`:""}
+      ${c==="RC y drones"?`<a class="golink" href="#uas-sec" id="goUas"><span><b>¿Vas a volar un dron?</b>Abre el planificador: qué aeródromos y helipuertos hay cerca de tu punto, con sus frecuencias y teléfonos, y qué trámite toca.</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>`:""}
     </details>`).join("");
   $$("#results details.svc").forEach(d=>d.addEventListener("toggle",()=>{
     if(filtrando)return;                       // no memorizar aperturas automáticas
@@ -1837,6 +1853,9 @@ function render(){
   }));
 }
 $("#results").addEventListener("click",e=>{
+  if(e.target.closest("#goUas")){e.preventDefault();
+    const i=USECASES.findIndex(u=>u.vuelo); if(i>=0){UC=i;F={tx:"all",rx:"all",me:"all",rf:"all",cat:"all"};Q="";$("#q").value="";syncChips();paintUcBtn();render();planVuelo();}
+    return;}
   if(e.target.closest("[data-perfil]")){e.preventDefault();e.stopPropagation();openProfile(false);return;}
   if(e.target.closest("#bcred")){const uc=USECASES[UC]; if(uc&&uc.cred){PROFILE.add(uc.cred);saveProfile();paintProfileBtn();paintStats();render();} return;}
   const f=e.target.closest("[data-fav]");
@@ -2559,8 +2578,18 @@ adSel.innerHTML =
   `<optgroup label="Aeropuertos y aeródromos con frecuencia publicada">${adCodes.filter(c => !esHeli(c)).map(opt).join("")}</optgroup>` +
   `<optgroup label="Helipuertos con servicio ATS (solo 10 en toda España)">${adCodes.filter(esHeli).map(opt).join("")}</optgroup>`;
 
-const cacheGet = c => { try { const v = JSON.parse(localStorage.getItem(AD_CACHE + c)); return (v && Date.now() - v.t < AD_TTL) ? v : null; } catch { return null; } };
-const cacheSet = (c, v) => { try { localStorage.setItem(AD_CACHE + c, JSON.stringify(v)); } catch {} };
+/* Caché en dos niveles: memoria primero, disco si el navegador lo permite.
+   Sin el nivel de memoria, un navegador con almacenamiento bloqueado
+   volvería a descargar lo mismo una y otra vez. */
+const MEM = new Map();
+const cacheGet = c => {
+  const m = MEM.get(c);
+  if (m && Date.now() - m.t < AD_TTL) return m;
+  try { const v = JSON.parse(localStorage.getItem(AD_CACHE + c));
+        if (v && Date.now() - v.t < AD_TTL) { MEM.set(c, v); return v; } } catch {}
+  return null;
+};
+const cacheSet = (c, v) => { MEM.set(c, v); try { localStorage.setItem(AD_CACHE + c, JSON.stringify(v)); } catch {} };
 const svcClass = s => /EMERG/i.test(s) ? "em" : /ATIS|VDF/i.test(s) ? "at" : "";
 const fdec = n => dec(n.toFixed(3));
 
@@ -2630,6 +2659,29 @@ function adSpin(on) {
   adBtn.innerHTML = on
     ? `<span class="spin"></span>Consultando…`
     : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M20 11.5A8.5 8.5 0 106.6 18.4M20 5v6h-6"/></svg>Actualizar desde el AIP`;
+}
+/* Lectura silenciosa: refresca la caché sin tocar la interfaz principal.
+   La usa el planificador para que las fichas de proximidad estén al día. */
+const adInFlight = new Map();
+function adFetchQuiet(code){
+  const a = AD[code]; if(!a || !a.u) return Promise.resolve(false);
+  const c = cacheGet(code); if (c) return Promise.resolve(false);
+  if (adInFlight.has(code)) return adInFlight.get(code);
+  const p = (async () => {
+    const ctl = new AbortController(); const timer = setTimeout(()=>ctl.abort(), AD_TIMEOUT);
+    try{
+      const r = await fetch(AIP_BASE + a.u, { cache:"no-store", signal: ctl.signal });
+      if(!r.ok) throw 0;
+      const rows = await AIPX.pdfRows(await r.arrayBuffer());
+      const parsed = AIPX.parseComms(rows).map(x=>({s:x.svc,c:x.call,m:x.mhz,h:x.chan||0,r:[x.hr,x.rem].filter(Boolean).join(" · ")}));
+      let amdt=""; for(const row of rows){ const m=/(AIRAC\s+)?AMDT\s+\d+\/\d+/i.exec(row.text); if(m){amdt=m[0];break;} }
+      let contacto=null; try{ contacto=AIPX.parseAdmin(rows); }catch{}
+      if(parsed.length >= (a.f||[]).length){ cacheSet(code,{f:parsed,amdt,c:contacto,t:Date.now()}); return true; }
+      return false;
+    }catch{ return false; }
+    finally{ clearTimeout(timer); adInFlight.delete(code); }
+  })();
+  adInFlight.set(code,p); return p;
 }
 let adSeq = 0;
 async function adFetchLive(code, manual) {
@@ -2833,29 +2885,71 @@ $("#rstUpd").addEventListener("click", () => rstLive(true));
 /* ═══════════════ Qué hay cerca del punto de vuelo ═══════════════ */
 const nearOut=$("#nearOut"), nearQ=$("#nearQ");
 function nearRender(pos, etiqueta){
-  if(!pos){ nearOut.innerHTML=`<p class="hint2" style="margin:0">Comparte tu posición o escribe una población y verás qué aeródromos y helipuertos pueden afectar a tu vuelo.</p>`; return; }
+  if(!pos){ nearOut.innerHTML=`<p class="hint2" style="margin:0">Comparte tu posición o escribe una población o unas coordenadas, y verás qué aeródromos y helipuertos pueden afectar a tu vuelo, con todos sus datos de contacto.</p>`; return; }
   const ads=Object.entries(AD).filter(([,a])=>a.p)
-    .map(([c,a])=>({c,n:a.n,f:a.f||[],tel:(a.c&&a.c.tel&&a.c.tel[0])||"",d:km(pos.la,pos.lo,a.p[0],a.p[1]),heli:/(^|\/)AD3\//.test(a.u||"")}))
+    .map(([c,a])=>({c,a,d:km(pos.la,pos.lo,a.p[0],a.p[1])}))
     .filter(x=>x.d<=30).sort((a,b)=>a.d-b.d);
   const rst=RST.map(x=>({...x,d:km(pos.la,pos.lo,x.la,x.lo)})).filter(x=>x.d<=15).sort((a,b)=>a.d-b.d);
-  const pk=(f,re)=>{const x=f.find(y=>re.test((y.s||"").trim()));return x?fdec(x.m):null;};
-  const riesgo = ads.some(x=>x.d<=8) ? "alto" : ads.length||rst.length ? "medio" : "bajo";
+  const riesgo = ads.some(x=>x.d<=8) ? "alto" : (ads.length||rst.length) ? "medio" : "bajo";
   const RC={alto:"var(--bad)",medio:"var(--warn)",bajo:"var(--ok)"};
   const RT={alto:"Hay un aeródromo a menos de 8 km",medio:"Hay instalaciones aeronáuticas en el entorno",bajo:"Sin instalaciones publicadas en el entorno"};
+
+  const tel=t=>`<a class="dchip tel" href="tel:${t.replace(/[^\d+]/g,"")}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6.5 3.5h3l1.5 4-2 1.5a12 12 0 006 6l1.5-2 4 1.5v3a2 2 0 01-2.2 2A17.5 17.5 0 014.5 5.7 2 2 0 016.5 3.5z"/></svg>${esc(t)}</a>`;
+  const mail=e=>`<a class="dchip" href="mailto:${esc(e)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6 8.5-6"/></svg>${esc(e)}</a>`;
+  const mapa=(la,lo)=>`<a class="dchip" href="https://www.google.com/maps?q=${la},${lo}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 21s7-6.3 7-11a7 7 0 10-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>${la}, ${lo}</a>`;
+
+  // frecuencias: primero las operativas, y si hay más se indica cuántas
+  const ORD=[/^TWR$/i,/^(APP\/TWR|TWR\/APP)$/i,/^ATIS$/i,/^APP$/i,/^(GMC|GND)$/i,/^AFIS$/i,/^(A\/G|RADIO|INFO)/i];
+  const freqChips=f=>{
+    const util=f.filter(x=>!/EMERG/i.test((x.r||"")+(x.s||""))&&x.m!==121.5&&x.m!==243);
+    const key=[]; const rest=[];
+    util.forEach(x=>{ const i=ORD.findIndex(re=>re.test((x.s||"").trim())); (i>=0?key:rest).push({...x,o:i<0?99:i}); });
+    key.sort((a,b)=>a.o-b.o);
+    const show=key.slice(0,5);
+    const extra=util.length-show.length;
+    return show.map(x=>`<span class="fchip"><i>${esc((x.s||"").replace(/^APP\/TWR$/,"TWR"))}</i><b>${fdec(x.m)}</b></span>`).join("")
+      + (extra>0?`<span class="fchip more">+${extra} más</span>`:"");
+  };
+
+  const adCard=x=>{
+    const a=x.a, c=a.c||{}, f=(cacheGet(x.c)&&cacheGet(x.c).f)||a.f||[];
+    return `<div class="dcard2 ${x.d<=8?"hot":""}">
+      <div class="dhead2"><span class="dd">${x.d.toFixed(1)} km</span>
+        <span class="dn"><b>${esc(a.n)}</b><span>${x.c}${/(^|\/)AD3\//.test(a.u||"")?" · helipuerto":""}${c.aftn?" · AFTN "+esc(c.aftn):""}</span></span></div>
+      ${f.length?`<div class="fchips">${freqChips(f)}</div>`:`<div class="hint2" style="margin:6px 0 0">Sin frecuencias publicadas en el AIP.</div>`}
+      <div class="dchips">${(c.tel||[]).slice(0,2).map(tel).join("")}${(c.email||[]).slice(0,1).map(mail).join("")}${mapa(a.p[0],a.p[1])}</div>
+    </div>`;
+  };
+  const rsCard=x=>`<div class="dcard2">
+      <div class="dhead2"><span class="dd">${x.d<1?Math.round(x.d*1000)+" m":x.d.toFixed(1)+" km"}</span>
+        <span class="dn"><b>${esc(x.n)}</b><span>${x.i?esc(x.i)+" · ":""}${esc(x.o||"sin titular publicado")}</span></span></div>
+      <div class="dchips">${(x.t||[]).slice(0,2).map(tel).join("")}${mapa(x.la,x.lo)}</div>
+    </div>`;
+
   nearOut.innerHTML=
    `<div class="nearhead" style="--c:${RC[riesgo]}"><i class="ui"></i><b>${esc(RT[riesgo])}</b><span>${esc(etiqueta)}</span></div>`+
-   (ads.length?`<div class="nlist">${ads.map(x=>{
-      const twr=pk(x.f,/^TWR$/i)||pk(x.f,/^(APP\/TWR|TWR\/APP)$/i)||pk(x.f,/TWR/i), atis=pk(x.f,/^ATIS$/i);
-      return `<div class="nrow"><span class="nd ${x.d<=8?"hot":""}">${x.d.toFixed(1)} km</span>
-        <span class="nn"><b>${esc(x.n)}</b><span>${x.c}${twr?" · Torre "+twr:""}${atis?" · ATIS "+atis:""}</span></span>
-        ${x.tel?`<a class="rlink" href="tel:${x.tel.replace(/[^\d+]/g,"")}">📞</a>`:""}</div>`;}).join("")}</div>`
+   (ads.length?`<div class="dcards">${ads.map(adCard).join("")}</div>`
     :`<p class="hint2" style="margin:8px 0 0">Ningún aeródromo con frecuencia publicada a menos de 30 km.</p>`)+
    (rst.length?`<div class="nsub">Helipuertos restringidos a menos de 15 km · sin frecuencia propia, pero con tráfico posible</div>
-     <div class="nlist">${rst.map(x=>`<div class="nrow"><span class="nd">${x.d<1?Math.round(x.d*1000)+" m":x.d.toFixed(1)+" km"}</span>
-       <span class="nn"><b>${esc(x.n)}</b><span>${x.i||""}${x.o?" · "+esc(x.o.slice(0,52)):""}</span></span>
-       ${x.t&&x.t[0]?`<a class="rlink" href="tel:${x.t[0].replace(/[^\d+]/g,"")}">📞</a>`:""}</div>`).join("")}</div>`:"")+
-   `<p class="hint2" style="margin:10px 0 0">Distancias en línea recta desde el punto indicado. Esto no sustituye a la consulta de zonas geográficas en ENAIRE Drones: hay restricciones que no dependen de la distancia a un aeródromo.</p>`;
+     <div class="dcards">${rst.map(rsCard).join("")}</div>`:"")+
+   `<p class="hint2" id="nearFoot" style="margin:10px 0 0">Distancias en línea recta desde el punto indicado. Esto no sustituye a la consulta de zonas geográficas en ENAIRE Drones: hay restricciones que no dependen de la distancia a un aeródromo.</p>`;
+
+  // verificar con el AIP los aeródromos mostrados, y repintar si cambian
+  const pend = ads.map(x=>x.c).filter(c=>!cacheGet(c) && !nearTried.has(c));
+  if(pend.length){
+    const foot=$("#nearFoot"); if(foot) foot.insertAdjacentHTML("beforebegin",
+      `<p class="hint2" id="nearSync" style="margin:8px 0 0"><span class="spin" style="width:11px;height:11px;display:inline-block;vertical-align:-1px"></span> Comprobando ${pend.length} ${pend.length===1?"aeródromo":"aeródromos"} con el AIP…</p>`);
+    pend.forEach(c=>nearTried.add(c));
+    const token = ++nearSeq;
+    Promise.all(pend.slice(0,6).map(adFetchQuiet)).then(res=>{
+      if(token!==nearSeq) return;                    // el usuario ya cambió de punto
+      if(res.some(Boolean)) nearRender(pos, etiqueta);
+      else { const s=$("#nearSync"); if(s) s.remove(); }
+    });
+  }
 }
+let nearSeq = 0;
+const nearTried = new Set();   // evita reintentar en bucle si la lectura falla
 $("#nearGeo").addEventListener("click",()=>{
   if(!navigator.geolocation){ nearOut.innerHTML=`<p class="hint2">Tu navegador no permite geolocalización. Escribe una población.</p>`; return; }
   nearOut.innerHTML=`<p class="hint2" style="margin:0">Obteniendo tu posición…</p>`;
@@ -2880,6 +2974,7 @@ nearQ.addEventListener("input",()=>{
 });
 /* Punto de entrada desde "voy a volar un dron": abre, enfoca y localiza */
 function planVuelo(){
+  $("#uas-sec").hidden=false;
   const s=$("#uas-sec").querySelector("details.uas");
   s.open=true;
   s.scrollIntoView({behavior:"smooth",block:"start"});
