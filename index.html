@@ -650,6 +650,11 @@ details.svc .grid{padding-top:2px}
 .dchip.tel{background:var(--acc);border-color:var(--acc);color:var(--acc-fg);font-weight:650}
 .dchip.tel svg{color:var(--acc-fg)}
 @media (max-width:760px){ .dchip{flex:1;justify-content:center;min-width:110px} }
+
+/* ── ficha compacta del aeródromo ── */
+.adhead{margin-bottom:8px}
+.adhead .dn b{font-size:15px}
+.cnote2{font-size:11.5px;color:var(--fg3);line-height:1.45;margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
 @media print{
   .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
   body{background:#fff;color:#000;font-size:10pt}
@@ -2623,26 +2628,29 @@ function adStatus(kind, txt) {
     (u ? ` · <a href="${AIP_BASE + u}" target="_blank" rel="noopener">ver PDF oficial</a>` : "");
 }
 function adContact(code) {
-  const live = cacheGet(code), c = (live && live.c) || AD[code].c;
-  if (!c || (!c.tel || !c.tel.length) && !(c.email || []).length) return "";
-  const tel = (c.tel || []).map(t => `<a class="cchip tel" href="tel:${t.replace(/[^\d+]/g, "")}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6.5 3.5h3l1.5 4-2 1.5a12 12 0 006 6l1.5-2 4 1.5v3a2 2 0 01-2.2 2A17.5 17.5 0 014.5 5.7 2 2 0 016.5 3.5z"/></svg>${esc(t)}</a>`).join("");
-  const mail = (c.email || []).slice(0, 2).map(e => `<a class="cchip" href="mailto:${esc(e)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6 8.5-6"/></svg>${esc(e)}</a>`).join("");
-  const fr=adBest(code).f||[];
-  // el contacto de voz principal: torre antes que aproximación, y nunca una de emergencia
-  const util=f=>!/EMERG/i.test((f.r||"")+(f.s||"")) && f.m!==121.5 && f.m!==243;
-  const row=re=>fr.find(f=>util(f)&&re.test((f.s||"").trim()));
-  const voz=row(/^TWR$/i)||row(/^(APP\/TWR|TWR\/APP)$/i)||row(/^AFIS$/i)||row(/^(A\/G|RADIO|INFO)/i)||row(/^APP$/i)||row(/TWR/i);
-  const atisR=fr.find(f=>/ATIS/i.test((f.s||"").trim())&&!/D-ATIS/i.test((f.s||"").trim())&&f.m);
-  const et=voz?(/TWR/i.test(voz.s)?"Torre":/AFIS/i.test(voz.s)?"AFIS":/APP/i.test(voz.s)?"Aproximación":(voz.s||"Voz")):"";
-  const freqs=(voz||atisR)?`<div class="cfreqs">${voz?`<span class="cf"><i>${esc(et)}</i><b>${fdec(voz.m)}</b><u>MHz</u></span>`:""}${atisR?`<span class="cf"><i>ATIS</i><b>${fdec(atisR.m)}</b><u>MHz</u></span>`:""}</div>`:"";
-  return `<div class="contact">
-    <div class="ch2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 8v5M12 16v.01"/><circle cx="12" cy="12" r="9"/></svg>Coordinación por teléfono<span class="kind">${esHeli(code) ? "🚁 Helipuerto" : "✈️ Aeródromo"}</span></div>
-    <p>En la mayoría de operaciones con dron la coordinación con el aeródromo <b>no se hace por radio, sino por teléfono</b>. Estos son los contactos que publica el AIP.</p>
-    ${freqs}
-    <div class="cchips">${tel}${mail}</div>
-    <div class="cnote"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 8v5M12 16v.01"/><circle cx="12" cy="12" r="9"/></svg><span>Es el contacto que el AIP publica <b>para el aeródromo</b> —normalmente el gestor o la oficina de coordinación—, no necesariamente el número directo de la torre. El teléfono concreto para coordinar tu vuelo suele venir en tu propia autorización.</span></div>
-    ${c.adm || c.aftn ? `<div class="cmeta">${c.adm ? "Gestor: " + esc(c.adm) : ""}${c.adm && c.aftn ? " · " : ""}${c.aftn ? "AFTN: " + esc(c.aftn) : ""}${c.dir ? "<br>" + esc(c.dir) : ""}</div>` : ""}
+  const a = AD[code], live = cacheGet(code), c = (live && live.c) || a.c || {};
+  const fr = adBest(code).f || [];
+  const util = f => !/EMERG/i.test((f.r||"")+(f.s||"")) && f.m !== 121.5 && f.m !== 243;
+  const row = re => fr.find(f => util(f) && re.test((f.s||"").trim()));
+  const voz = row(/^TWR$/i)||row(/^(APP\/TWR|TWR\/APP)$/i)||row(/^AFIS$/i)||row(/^(A\/G|RADIO|INFO)/i)||row(/^APP$/i)||row(/TWR/i);
+  const atis = fr.find(f => /^ATIS$/i.test((f.s||"").trim()));
+  const et = voz ? (/TWR/i.test(voz.s)?"Torre":/AFIS/i.test(voz.s)?"AFIS":/APP/i.test(voz.s)?"Aprox.":(voz.s||"Voz")) : "";
+  const tel = (c.tel||[]).slice(0,2).map(t=>`<a class="dchip tel" href="tel:${t.replace(/[^\d+]/g,"")}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6.5 3.5h3l1.5 4-2 1.5a12 12 0 006 6l1.5-2 4 1.5v3a2 2 0 01-2.2 2A17.5 17.5 0 014.5 5.7 2 2 0 016.5 3.5z"/></svg>${esc(t)}</a>`).join("");
+  const mail = (c.email||[]).slice(0,1).map(e=>`<a class="dchip" href="mailto:${esc(e)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6 8.5-6"/></svg>${esc(e)}</a>`).join("");
+  const mapa = a.p ? `<a class="dchip" href="https://www.google.com/maps?q=${a.p[0]},${a.p[1]}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 21s7-6.3 7-11a7 7 0 10-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>${a.p[0]}, ${a.p[1]}</a>` : "";
+  const sub = [code, esHeli(code)?"helipuerto":null, c.aftn?"AFTN "+esc(c.aftn):null].filter(Boolean).join(" · ");
+  return `<div class="dcard2 adhead">
+    <div class="dhead2"><span class="dn"><b>${esc(a.n)}</b><span>${sub}</span></span></div>
+    ${(voz||atis)?`<div class="fchips">${voz?`<span class="fchip"><i>${esc(et)}</i><b>${fdec(voz.m)}</b></span>`:""}${atis?`<span class="fchip"><i>ATIS</i><b>${fdec(atis.m)}</b></span>`:""}</div>`:""}
+    ${(tel||mail||mapa)?`<div class="dchips">${tel}${mail}${mapa}</div>`:""}
+    ${tel?`<div class="cnote2">El teléfono es el que el AIP publica para el aeródromo, normalmente el gestor o la oficina de coordinación, no el directo de la torre.</div>`:""}
   </div>`;
+}
+function adStatus(kind, txt) {
+  const col = { live: "var(--ok)", snap: "var(--warn)", err: "var(--bad)", load: "var(--info)" }[kind] || "var(--fg3)";
+  const u = AD[adSel.value] && AD[adSel.value].u;
+  adState.innerHTML = `<span class="pipdot" style="--c:${col}"></span>${txt}` +
+    (u ? ` · <a href="${AIP_BASE + u}" target="_blank" rel="noopener">ver PDF oficial</a>` : "");
 }
 function adRender(code) {
   const b = adBest(code);
