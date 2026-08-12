@@ -420,6 +420,23 @@ footer .end{margin-top:var(--s5);padding-top:var(--s4);border-top:1px solid var(
 .eqt .e{font-size:19px;line-height:1}
 .eqt b{font-size:13.2px;font-weight:620;letter-spacing:-.012em}
 .eqt span{font-size:11.5px;color:var(--fg2);line-height:1.35}
+
+/* ── ficha de rol ── */
+.brief{background:var(--srf);border:1px solid var(--line);border-radius:var(--r3);padding:var(--s5);margin-bottom:var(--s5);box-shadow:var(--sh1)}
+.brief h3{font-size:17px;letter-spacing:-.03em;margin-bottom:7px}
+.brief .bsub{font-size:13.4px;color:var(--fg2);line-height:1.6;margin-bottom:var(--s4);max-width:80ch}
+.brief .bsub b{color:var(--fg);font-weight:600}
+.bcols{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--s3)}
+.bcol{border:1px solid var(--line);border-radius:var(--r2);padding:14px 15px;background:var(--card,var(--srf2))}
+.bcol .bh{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;color:var(--c);margin-bottom:11px;font-family:var(--f-mono);letter-spacing:.06em;text-transform:uppercase}
+.bcol .bh svg{width:14px;height:14px;flex:none}
+.bi{padding:9px 0;border-top:1px solid var(--line)}
+.bi:first-of-type{border-top:0;padding-top:0}
+.bi b{display:block;font-size:13.2px;font-weight:600;margin-bottom:2px;line-height:1.35}
+.bi .bf{font-family:var(--f-mono);font-size:11.5px;color:var(--acc);font-weight:560;display:block;margin-bottom:3px}
+.bi span{font-size:12.4px;color:var(--fg2);line-height:1.5}
+.bcta{margin-top:var(--s4);display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.bcta .note2{font-size:12.3px;color:var(--fg3)}
 @media print{
   .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
   body{background:#fff;color:#000;font-size:10pt}
@@ -1034,6 +1051,20 @@ const USECASES=[
  {e:"🏔️",t:"Hablar con mi grupo en la montaña",ids:["pmr446","dpmr446","lpd"]},
  {e:"📡",t:"Máximo alcance legal sin licencia",ids:["cb","pmr446"]},
  {e:"✈️",t:"Escuchar aviones y torres",ids:["aero","lers","meteo"]},
+ {e:"🛩️",t:"Radiofonista UAS",ids:["aero","lers","wifi24","fpv58","gnss"],cred:"aer_op",brief:{
+   tit:"Qué te habilita, y qué no, la habilitación de radiotelefonía aeronáutica",
+   sub:"La habilitación acredita a la <b>persona</b> en fraseología y procedimientos. No autoriza por sí sola ninguna estación, ni sustituye a la autorización de la operación ante AESA y ENAIRE.",
+   si:[["Escuchar toda la banda aérea","108 – 136,975 MHz en AM","Torre, rodadura, aproximación y ATIS. Legal sin ningún permiso, y lo más recomendable antes de volar."],
+       ["Enlace de mando del dron","2400 – 2483,5 MHz","Uso común hasta 100 mW EIRP. Es lo que usa tu emisora de vuelo."],
+       ["Vídeo FPV","5725 – 5875 MHz","Uso común, pero solo hasta 25 mW EIRP. Muchos VTX vienen a 200, 600 o 1000 mW."],
+       ["Recibir GNSS","1176 / 1227 / 1575 MHz","Posicionamiento del dron. Solo recepción."]],
+   falta:[["Licencia de estación aeronáutica","Tu título habilita a la persona; esto habilita al equipo. Son permisos distintos y para hablar con ATC hacen falta los dos."],
+          ["Emisora homologada de 8,33 kHz","Icom IC-A16E, Yaesu FTA-550/850 o similar. Un walkie de aficionado no cumple ni homologación, ni canalización, ni AM real."],
+          ["Comprobar cómo se coordina tu operación","En la mayoría de vuelos en espacio aéreo controlado la coordinación se hace por teléfono con el número de la autorización, no por radio."]],
+   no:[["Emitir en bandas de radioaficionado","144–146 y 430–440 MHz exigen licencia de radioaficionado. Tu habilitación aeronáutica no sirve aquí."],
+       ["Subir la potencia del VTX","Por encima de 25 mW EIRP deja de ser uso común, aunque el equipo lo permita."],
+       ["Usar un walkie de 5 W como PMR446","El uso común de 446 MHz exige 500 mW y antena no desmontable."],
+       ["Emitir en 121,500 MHz","Frecuencia de emergencia. Solo ante una emergencia real."]]}},
  {e:"⛵",t:"Navegar y comunicar en el mar",ids:["mar","mar-mf","epirb"]},
  {e:"🚁",t:"Volar un dron o FPV",ids:["fpv58","wifi24","rc35"]},
  {e:"🎪",t:"Coordinar un evento o una obra",ids:["pmr446","dpmr446","pmr-440","micros"]},
@@ -1365,13 +1396,28 @@ function render(){
     return;
   }
   const groups=cats.map(c=>[c,list.filter(b=>b.cat===c)]).filter(([,a])=>a.length);
-  $("#results").innerHTML=groups.map(([c,arr])=>`
+  const uc=UC!==null?USECASES[UC]:null;
+  const col=(k,tit,items,icon)=>`<div class="bcol" style="--c:${k}"><div class="bh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">${icon}</svg>${tit}</div>${
+    items.map(it=>`<div class="bi"><b>${esc(it[0])}</b>${it.length>2?`<span class="bf">${esc(it[1])}</span><span>${esc(it[2])}</span>`:`<span>${esc(it[1])}</span>`}</div>`).join("")}</div>`;
+  const brief=uc&&uc.brief?`<section class="brief">
+      <h3>${esc(uc.brief.tit)}</h3>
+      <p class="bsub">${uc.brief.sub}</p>
+      <div class="bcols">
+        ${col("var(--ok)","Sí puedes",uc.brief.si,'<path d="M4 12.5l5 5L20 6.5"/>')}
+        ${col("var(--warn)","Además necesitas",uc.brief.falta,'<path d="M12 7v6M12 17v.01"/>')}
+        ${col("var(--bad)","No te habilita a",uc.brief.no,'<path d="M6 6l12 12M18 6L6 18"/>')}
+      </div>
+      ${uc.cred&&!PROFILE.has(uc.cred)?`<div class="bcta"><button class="btn pri" id="bcred">Tengo esta habilitación · añadir a mi perfil</button><span class="note2">Ajustará el veredicto de cada banda a tu caso.</span></div>`:
+        uc.cred?`<div class="bcta"><span class="note2">✓ ${esc(CRED[uc.cred].t)} ya consta en tu perfil.</span></div>`:""}
+    </section>`:"";
+  $("#results").innerHTML=brief+groups.map(([c,arr])=>`
     <section class="svc">
       <div class="svc-h"><h3>${esc(c)}</h3><span class="ln"></span><span class="qt">${arr.length}</span></div>
       <div class="grid">${arr.map(cardHTML).join("")}</div>
     </section>`).join("");
 }
 $("#results").addEventListener("click",e=>{
+  if(e.target.closest("#bcred")){const uc=USECASES[UC]; if(uc&&uc.cred){PROFILE.add(uc.cred);saveProfile();paintProfileBtn();paintStats();render();} return;}
   const f=e.target.closest("[data-fav]");
   if(f){e.preventDefault();e.stopPropagation();const id=f.dataset.fav;FAV.has(id)?FAV.delete(id):FAV.add(id);LS.set("espectro:fav",[...FAV]);render();return;}
   const c=e.target.closest(".bc"); if(c)openBand(c.dataset.id);
