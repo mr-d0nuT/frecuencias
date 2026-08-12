@@ -750,7 +750,6 @@ details.svc .grid{padding-top:2px}
         </button>
       </div>
       <div class="ad-state" id="adstate"></div>
-      <button class="golink" id="toRst" style="width:100%;text-align:left;margin:0 0 12px"><span><b>¿Buscas el helipuerto de un hospital, un hotel o un parque de bomberos?</b>No salen aquí porque no tienen frecuencia ni servicio ATS. Hay 318 en toda España, y los tienes justo debajo con su emplazamiento y su teléfono.</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg></button>
       <div id="adout"></div>
     </div>
 
@@ -2821,11 +2820,6 @@ function rstRender() {
   }).join("")}</div>`;
 }
 rq.addEventListener("input", rstRender);
-$("#toRst").addEventListener("click", () => {
-  const s = $("#rst-sec"); s.open = true;
-  s.scrollIntoView({ behavior: "smooth", block: "start" });
-  setTimeout(() => rq.focus({ preventScroll: true }), 400);
-});
 $("#rstgeo").addEventListener("click", () => {
   if (!navigator.geolocation) { rstate.textContent = "Tu navegador no permite geolocalización."; return; }
   rstate.textContent = "Obteniendo tu posición…";
