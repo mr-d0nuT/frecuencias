@@ -92,7 +92,7 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;-webki
 .stat .l{font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--fg3);margin-top:2px}
 
 /* ════════════════ SECCIONES ════════════════ */
-.sec{margin:var(--s5) 0}
+.sec{margin:var(--s4) 0}
 .sec-h{display:flex;align-items:baseline;gap:10px;margin-bottom:var(--s4);flex-wrap:wrap}
 .sec-h h2{font-size:clamp(18px,4vw,21px)}
 .sec-h .sub{color:var(--fg3);font-size:13.5px}
@@ -111,7 +111,7 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;-webki
 /* casos de uso */
 
 /* lookup */
-.lk{padding:var(--s4) var(--s5)}
+.lk{padding:12px 13px}
 .lk-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .lk-row .kicker{width:100%;margin-bottom:2px}
 .lk input{height:42px;padding:0 12px;border-radius:var(--r1);border:1px solid var(--line);background:var(--bg-e);color:var(--fg);font-family:var(--f-mono);font-size:16px;width:150px;outline:none}
@@ -129,8 +129,8 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;-webki
 .empty{color:var(--fg2);font-size:13.5px;padding:4px 2px;line-height:1.6}
 
 /* espectro */
-.spec{padding:var(--s4) var(--s5) var(--s3)}
-.spec-h{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:var(--s3)}
+.spec{padding:11px 13px 12px}
+.spec-h{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
 .tog{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--bg-e)}
 .tog button{padding:6px 12px;font-family:var(--f-mono);font-size:11px;font-weight:600;color:var(--fg3);letter-spacing:.04em}
 .tog button.on{background:var(--acc);color:var(--acc-fg)}
@@ -139,9 +139,9 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;-webki
 .specbar{position:relative;height:56px;border-radius:10px;background:var(--bg-e);overflow:hidden;border:1px solid var(--line)}
 .seg{position:absolute;top:0;bottom:0;min-width:3px;opacity:.9;cursor:pointer;transition:opacity .14s,filter .14s}
 .seg:hover{opacity:1;filter:brightness(1.28);z-index:3}
-.axis{position:relative;height:16px;margin-top:5px}
+.axis{position:relative;height:14px;margin-top:3px}
 .axis span{position:absolute;transform:translateX(-50%);font-family:var(--f-mono);font-size:9.5px;color:var(--fg3);white-space:nowrap}
-.regions{position:relative;height:15px;margin-top:2px}
+.regions{position:relative;height:13px;margin-top:1px}
 .regions i{position:absolute;font-family:var(--f-mono);font-size:9.5px;color:var(--fg3);font-style:normal;letter-spacing:.08em;border-top:1px solid var(--line2);padding-top:2px;text-align:center;opacity:.75}
 .tip{position:fixed;z-index:90;pointer-events:none;background:var(--srf3);border:1px solid var(--line2);border-radius:9px;padding:8px 11px;font-size:12px;box-shadow:var(--sh2);opacity:0;transition:opacity .12s;max-width:250px}
 .tip .tn{font-weight:620;margin-bottom:3px}
@@ -165,7 +165,7 @@ html[data-theme="light"] .ch.on[data-c]{color:#fff}
 
 /* ════════════════ RESULTADOS ════════════════ */
 .svc{margin-bottom:var(--s6)}
-.svc-h{display:flex;align-items:center;gap:10px;margin:0 0 var(--s3);padding-top:var(--s2)}
+.svc-h{display:flex;align-items:center;gap:10px;margin:0;padding-top:0}
 .svc-h h3{font-size:13px;font-weight:640;letter-spacing:-.01em}
 .svc-h .ln{flex:1;height:1px;background:var(--line)}
 .svc-h .qt{font-family:var(--f-mono);font-size:10.5px;color:var(--fg3)}
@@ -487,7 +487,7 @@ details.svc>summary h3{transition:color .15s}
 details.svc{margin-bottom:2px;border-bottom:1px solid var(--line)}
 details.svc:last-child{border-bottom:0}
 details.svc[open]{margin-bottom:var(--s3);padding-bottom:2px}
-details.svc>summary.svc-h{margin:0;padding:13px 2px;gap:12px}
+details.svc>summary.svc-h{margin:0;padding:10px 2px;gap:12px}
 details.svc[open]>summary.svc-h{padding-bottom:11px}
 details.svc>summary.svc-h h3{font-size:14px}
 details.svc .grid{padding-top:2px}
@@ -658,7 +658,7 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
 
 /* ── barra de facetas ── */
 .facets{position:sticky;top:calc(var(--hdr) + env(safe-area-inset-top));z-index:58;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);margin-top:var(--s5)}
-.fc-in{display:flex;align-items:center;gap:7px;padding:9px 0;flex-wrap:wrap}
+.fc-in{display:flex;align-items:center;gap:7px;padding:7px 0;flex-wrap:wrap}
 .fc{position:relative}
 .fcb{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 11px;border:1px solid var(--line);background:var(--srf);border-radius:9px;font-size:13px;font-weight:560;color:var(--fg2);transition:.14s;white-space:nowrap}
 .fcb:hover{border-color:var(--line2);color:var(--fg)}
@@ -739,12 +739,12 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
 .lkinline input{width:120px;height:32px;padding:0 9px;border-radius:8px;border:1px solid var(--line);background:var(--bg-e);color:var(--fg);font-family:var(--f-mono);font-size:14px;outline:none}
 .lkinline input:focus{border-color:var(--acc)}
 .lkinline select{height:32px;padding:0 6px;border-radius:8px;border:1px solid var(--line);background:var(--bg-e);color:var(--fg);font-size:12.5px;outline:none}
-#lkres{margin-top:10px}
+#lkres:not(:empty){margin-top:9px}
 @media (max-width:640px){ .lkinline{order:3;flex:1 1 100%;margin:8px 0 0} .lkl{display:none} .lkinline input{flex:1;width:auto} }
 /* ── socorro plegable ── */
 
 /* ── socorro: desplegable selectivo ── */
-.sos{padding:var(--s4)}
+.sos{padding:11px 13px}
 .sos-h{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
 .sos-t{font-size:14.5px;font-weight:650;letter-spacing:-.02em;flex:none}
 .sos-h select{flex:1;min-width:190px;height:36px;padding:0 9px;border-radius:9px;border:1px solid color-mix(in srgb,var(--bad) 30%,var(--line));background:var(--bg-e);color:var(--fg);font-size:14px;outline:none}
@@ -755,7 +755,7 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
 .sosi.big .sl{font-size:12.5px;margin-top:3px}
 
 /* ── control personal: lo primero que se ve ── */
-.mefilter{padding:11px 0 4px}
+.mefilter{padding:8px 0 2px}
 .me-h{display:flex;align-items:baseline;gap:9px;margin-bottom:8px;flex-wrap:wrap}
 .me-t{font-family:var(--f-mono);font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--fg3)}
 .me-cfg{font-size:12px;color:var(--acc);text-decoration:underline;text-underline-offset:3px;padding:2px}
@@ -771,14 +771,12 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
 .me-tile.on .ml{color:var(--fg)}
 @media (max-width:760px){ .me-tiles{grid-template-columns:1fr 1fr} .mefilter{padding:9px 0 2px} }
 
-/* ── etiqueta de lectura sobre el espectro ── */
-.specin{padding-top:46px}
-.spectag{position:absolute;top:0;transform:translateX(-50%);display:none;flex-direction:column;align-items:center;gap:2px;pointer-events:none;z-index:6;white-space:nowrap}
+/* ── etiqueta de lectura, flotando sobre la barra ── */
+.spectag{position:absolute;top:5px;transform:translateX(-50%);display:none;align-items:center;gap:7px;padding:4px 9px;border-radius:7px;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(6px);border:1px solid var(--line2);box-shadow:var(--sh2);pointer-events:none;z-index:7;white-space:nowrap;max-width:92%}
 .spectag.on{display:flex}
-.spectag::after{content:"";width:1px;height:6px;background:var(--fg);opacity:.4}
-.st-f{font-family:var(--f-mono);font-size:13px;font-weight:700;color:var(--acc);letter-spacing:-.02em}
-.st-n{font-size:11.5px;font-weight:620;color:var(--fg);max-width:230px;overflow:hidden;text-overflow:ellipsis}
-.st-p{display:flex;gap:7px}
+.st-f{font-family:var(--f-mono);font-size:12.5px;font-weight:700;color:var(--acc);letter-spacing:-.02em}
+.st-n{font-size:11.5px;font-weight:600;color:var(--fg);overflow:hidden;text-overflow:ellipsis}
+.st-p{display:flex;gap:6px}
 .st-p .stt{font-size:9.5px}
 .st-p .stt .g{width:5px;height:5px;box-shadow:none}
 @media print{
@@ -919,7 +917,6 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
         </div>
       </div>
       <div class="specscroll"><div class="specin">
-        <div class="spectag" id="spectag"></div>
         <div class="specbar" id="specbar"></div>
         <div class="axis" id="axis"></div>
         <div class="regions" id="regions"></div>
@@ -2235,12 +2232,15 @@ document.addEventListener("keydown",e=>{
 const L0=Math.log10(0.1), L1=Math.log10(100000);
 const pos=f=>(Math.log10(Math.max(f,0.1))-L0)/(L1-L0)*100;
 const specbar=$("#specbar"), tip=$("#tip");
+let specline=null, specTag=null;   // se reinsertan tras cada repintado de la barra
 function drawSpec(){
   specbar.innerHTML=D.map(b=>{
     const a=pos(b.lo), w=Math.max(pos(b.hi)-a,0.4);
     const col=MODE==="tx"?(b.tx.r>=3?"var(--bad)":TXL[b.tx.s].c):RXL[b.rx.s].c;
     return `<i class="seg" data-id="${b.id}" style="left:${a}%;width:${w}%;background:${col}"></i>`;
   }).join("");
+  if(specline) specbar.appendChild(specline);
+  if(specTag) specbar.appendChild(specTag);
 }
 $("#axis").innerHTML=[[0.5,"500 kHz"],[3,"3 MHz"],[30,"30 MHz"],[300,"300 MHz"],[3000,"3 GHz"],[30000,"30 GHz"]]
   .map(([f,l])=>`<span style="left:${pos(f)}%">${l}</span>`).join("");
@@ -2266,8 +2266,9 @@ if(window.matchMedia("(hover:hover)").matches){
    Se integra una densidad gaussiana centrada en el puntero y se remapean
    los bordes de cada segmento con la acumulada, de modo que lo señalado
    se ensancha y el resto se comprime sin salirse de la barra. */
-const specTag=$("#spectag");
-const specline=document.createElement("i"); specline.className="specline"; specbar.appendChild(specline);
+specline=document.createElement("i"); specline.className="specline";
+specTag=document.createElement("div"); specTag.className="spectag"; specTag.id="spectag";
+specbar.append(specline, specTag);
 const N=240, dens=new Float64Array(N+1), acc=new Float64Array(N+1);
 const K=6.5, W=7;                       // intensidad y anchura de la lupa, en % de la barra
 function lensMap(c){
@@ -2314,9 +2315,9 @@ function lensAt(px){
 /* Etiqueta sobre la barra: la misma para el puntero y para la frecuencia tecleada */
 function marcaEspectro(xpc, fmt, b){
   specTag.classList.add("on");
-  specTag.style.left=xpc+"%";
+  specTag.style.left=Math.max(6,Math.min(94,xpc))+"%";
   specTag.innerHTML=`<span class="st-f">${dec(fmt)}</span>`+
-    (b?`<span class="st-n">${esc(b.nom)}</span><span class="st-p">${pill(b.rx,RXL)}${pill(b.tx,TXL,txLabel(b))}</span>`
+    (b?`<span class="st-n">${esc(b.nom)}</span><span class="st-p">${pill(b.tx,TXL,txLabel(b))}</span>`
       :`<span class="st-n" style="color:var(--fg3)">sin banda catalogada</span>`);
 }
 /* Al teclear una frecuencia, se señala en el espectro */
