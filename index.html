@@ -265,7 +265,7 @@ footer .end{margin-top:var(--s5);padding-top:var(--s4);border-top:1px solid var(
   .stat .n{font-size:18px}
   .sec{margin:var(--s6) 0}
   .exp{padding:var(--s4)}
-  .lk,.spec,.sos,.leg{padding:var(--s4)}
+  .lk,.spec,.sos,.leg{padding:10px 12px}
   .lk input{flex:1;min-width:120px;width:auto}
   .lk .hint{display:none}
   .grid{grid-template-columns:1fr;gap:10px}
@@ -733,7 +733,7 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
 .lkinline input:focus{border-color:var(--acc)}
 .lkinline select{height:32px;padding:0 6px;border-radius:8px;border:1px solid var(--line);background:var(--bg-e);color:var(--fg);font-size:12.5px;outline:none}
 #lkres:not(:empty){margin-top:9px}
-@media (max-width:640px){ .lkinline{order:3;flex:1 1 100%;margin:8px 0 0} .lkl{display:none} .lkinline input{flex:1;width:auto} }
+@media (max-width:640px){ .lkinline{order:3;flex:1 1 100%;margin:6px 0 0} .lkl{display:none} .lkinline input{flex:1;width:auto} }
 /* ── socorro plegable ── */
 
 /* ── socorro: desplegable selectivo ── */
@@ -851,6 +851,71 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
 .me-tile .mi svg{width:11px;height:11px}
 @media (max-width:760px){ .me-tiles{grid-template-columns:repeat(5,1fr)} .me-tile{padding:6px 3px} .me-tile .mn{font-size:15px} .me-tile .ml{font-size:8.5px} }
 @media (max-width:430px){ .me-tile .ml{font-size:8px} .me-tile .mn{font-size:14px} .me-tile .mi{display:none} }
+
+.me-h{gap:7px;flex-wrap:nowrap;min-width:0}
+.me-t.vacio{color:var(--warn)}
+.me-sep{color:var(--fg3);flex:none}
+.me-v{font-size:12px;color:var(--fg);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.me-cfg{flex:none;white-space:nowrap}
+.me-cfg .ico{display:none}
+@media (max-width:640px){
+  .me-h .pfx{display:none}
+  .me-cfg .ico{display:inline;font-size:13px}
+  .me-v{font-size:10.5px}
+  .me-h{gap:6px}
+}
+
+/* ── ritmo vertical único: nada de márgenes dobles ni huecos sueltos ── */
+.sec{margin:0 0 10px}
+.hero{padding:10px 0 0}
+.keys{margin:8px 0 0}
+.facets{margin-top:8px}
+.fbar{margin-top:8px}
+.mefilter{padding:6px 0 2px}
+.fc-in{padding:5px 0}
+#results{margin-top:2px}
+.grid{padding:4px 0 2px}
+details.svc{margin-bottom:0}
+details.svc[open]{margin-bottom:8px;padding-bottom:0}
+details.svc>summary.svc-h{padding:9px 2px}
+footer{margin-top:10px;padding:14px 0 calc(28px + env(safe-area-inset-bottom))}
+footer .end{margin-top:var(--s3);padding-top:var(--s3)}
+.card+.card{margin-top:8px}
+.uas-body{padding:12px 13px 13px}
+.uas-body h5{margin:14px 0 7px}
+.uas-body h5:first-of-type{margin-top:0}
+@media (max-width:760px){ .sec{margin:0 0 9px} .hero{padding:8px 0 0} }
+
+/* ── interior de cards: sin aire muerto ── */
+.spec,.sos,.lk,.leg{padding:10px 12px!important}
+.spec-h{margin-bottom:6px;gap:8px}
+.axis{margin-top:2px}
+.regions{margin-top:0}
+.sos-h select{height:34px}
+#lkres:not(:empty){margin-top:7px}
+.sosi.big{margin-top:8px;padding:11px;gap:7px}
+.lkbox{margin-top:8px;padding-top:9px}
+.ad-alt{margin:11px 0 6px}
+
+/* ── panel UAS: sin aire muerto ── */
+.uas-body{padding:11px 12px 12px!important}
+.near{margin-bottom:10px}
+.steps{margin:0 0 10px;gap:7px}
+.uas-intro{margin-bottom:10px}
+#uasRadio{margin-bottom:10px}
+.uas-body>.c-nt:last-child,.uas-body>*:last-child{margin-bottom:0}
+.uc-panel,.uas-wrap{margin-bottom:0}
+
+/* ── cierre: márgenes finales a cero y ritmo interno del panel UAS ── */
+.uas-body>*:last-child,.card>*:last-child,.uas-sec:last-child,#results>*:last-child{margin-bottom:0!important}
+.c-nt{margin-bottom:9px}
+.uas-sec{margin-bottom:8px}
+.rst-sec{margin-top:8px}
+.uas-body{padding-bottom:10px!important}
+
+.uas-body .c-nt{margin-top:10px}
+#uas-sec{margin-bottom:6px}
+.uas-body{padding-bottom:9px!important}
 @media print{
   .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
   body{background:#fff;color:#000;font-size:10pt}
@@ -955,7 +1020,7 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
       <div class="uas-radio" id="uasRadio"></div>
 
       <div class="uas-intro">
-        <p>Volar un dron cruza <b>dos marcos distintos</b> que se confunden a menudo. La <b>operación</b> la regulan AESA y ENAIRE: registro, zonas geográficas y autorización. El <b>espectro</b> lo regula el CNAF: qué frecuencias puedes usar. Cumplir uno no te cubre el otro, y la mayor parte de la coordinación no se hace por radio.</p>
+        <p>Volar un dron cruza <b>dos marcos distintos</b> que se confunden a menudo. La <b>operación</b> la regulan AESA y ENAIRE: registro, zonas geográficas y autorización. El <b>espectro</b> lo regula el CNAF: qué frecuencias están permitidas. Cumplir uno no te cubre el otro, y la mayor parte de la coordinación no se hace por radio.</p>
       </div>
 
       <h5>El trámite, por orden</h5>
@@ -1032,16 +1097,16 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
     <div class="fgrp">
       <span class="fl">► Transmitir</span>
       <button class="ch on" data-f="tx" data-v="all">Todo</button>
-      <button class="ch" data-c data-f="tx" data-v="0" style="--cc:var(--ok)"><i class="dot"></i>Libre, sin licencia</button>
-      <button class="ch" data-c data-f="tx" data-v="1" style="--cc:var(--info)"><i class="dot"></i>Requiere licencia</button>
-      <button class="ch" data-c data-f="tx" data-v="2" style="--cc:var(--bad)"><i class="dot"></i>No transmitir nunca</button>
+      <button class="ch" data-c data-f="tx" data-v="0" style="--cc:var(--ok)"><i class="dot"></i>TX libre</button>
+      <button class="ch" data-c data-f="tx" data-v="1" style="--cc:var(--info)"><i class="dot"></i>TX con licencia</button>
+      <button class="ch" data-c data-f="tx" data-v="2" style="--cc:var(--bad)"><i class="dot"></i>TX prohibida</button>
     </div>
     <div class="fgrp">
       <span class="fl">◄ Escuchar</span>
       <button class="ch on" data-f="rx" data-v="all">Todo</button>
-      <button class="ch" data-c data-f="rx" data-v="0" style="--cc:var(--ok)"><i class="dot"></i>Escucha libre</button>
-      <button class="ch" data-c data-f="rx" data-v="1" style="--cc:var(--warn)"><i class="dot"></i>Legal, no divulgable</button>
-      <button class="ch" data-c data-f="rx" data-v="2" style="--cc:var(--bad)"><i class="dot"></i>Escucha ilícita</button>
+      <button class="ch" data-c data-f="rx" data-v="0" style="--cc:var(--ok)"><i class="dot"></i>RX libre</button>
+      <button class="ch" data-c data-f="rx" data-v="1" style="--cc:var(--warn)"><i class="dot"></i>RX legal · no divulgable</button>
+      <button class="ch" data-c data-f="rx" data-v="2" style="--cc:var(--bad)"><i class="dot"></i>RX ilícita</button>
     </div>
     <div class="fgrp">
       <span class="fl">Banda RF</span>
@@ -1138,7 +1203,7 @@ const CHREUS=[
 
 /* ═══════════════ textos comunes ═══════════════ */
 const RX_LIB="Difusión abierta o banda de uso común: escucha totalmente libre, sin condiciones.";
-const RX_NOD="Recibir es legal y tener el receptor también. Lo que la ley protege es el contenido: no puedes divulgarlo, difundirlo ni aprovecharte de él.";
+const RX_NOD="Recibir es legal y tener el receptor también. Lo que la ley protege es el contenido: está prohibido divulgarlo, difundirlo o aprovecharse de él.";
 
 /* ═══════════════ BASE DE DATOS ═══════════════
    rx / tx → s: 0 libre · 1 condicionado · 2 vetado   |   r: riesgo 0-3
@@ -1250,7 +1315,7 @@ const D=[
  desc:"Imágenes de satélites polares NOAA y Meteor-M, recibibles con un SDR de 20 € y una antena en V.",
  rx:{s:0,r:0,n:RX_LIB+" Uno de los mejores proyectos para empezar con SDR."},
  tx:{s:2,r:3,n:"Enlace descendente de satélite: solo operadores espaciales. Interferir afecta a la recepción de datos meteorológicos."},
- notas:["NOAA-15: 137,620 · NOAA-18: 137,912 · NOAA-19: 137,100 MHz."],alt:"Escucha libre."},
+ notas:["NOAA-15: 137,620 · NOAA-18: 137,912 · NOAA-19: 137,100 MHz."],alt:"RX libre."},
 
 {id:"ham-2m",nom:"Radioaficionado · 2 metros",cat:"Radioafición",rf:"VHF",lo:144,hi:146,txt:"144 – 146 MHz",
  pot:"Según autorización",modo:"FM · SSB · CW · digitales · satélite",
@@ -1274,7 +1339,7 @@ const D=[
  canales:MAR,colch:["Canal","MHz","Tipo y uso"],hlch:16,
  rx:{s:1,r:0,n:"Escuchar desde tierra o desde un barco es legal y muy habitual; un receptor no interfiere al canal 16 ni a nadie. El límite, de nuevo, es divulgar el contenido."},
  tx:{s:1,r:3,n:"Necesitas dos cosas: título de operador (SRC para VHF con DSC) y licencia de estación de barco. Emitir sin ellas puede tapar una llamada de socorro real."},
- notas:["Canal 16 (156,800): socorro y llamada, con escucha permanente obligatoria a bordo.","Canal 70 (156,525): solo llamada selectiva digital. Nunca voz.","Canales 15, 17, 75 y 76 son de baja potencia: 1 W máximo.","AIS en 161,975 y 162,025 MHz: con un SDR puedes ver el tráfico marítimo sobre un mapa."],
+ notas:["Canal 16 (156,800): socorro y llamada, con escucha permanente obligatoria a bordo.","Canal 70 (156,525): solo llamada selectiva digital. Nunca voz.","Canales 15, 17, 75 y 76 son de baja potencia: 1 W máximo.","AIS en 161,975 y 162,025 MHz: con un SDR se ve el tráfico marítimo sobre un mapa."],
  alt:"El título SRC se obtiene en un curso corto. Sin él, PMR446 es legal pero de alcance muy limitado en el mar."},
 
 {id:"srd169",nom:"SRD 169 MHz · telelectura y ayudas auditivas",cat:"Datos, WiFi e IoT",rf:"VHF",lo:169.4,hi:169.8125,txt:"169,4 – 169,8125 MHz",
@@ -1333,7 +1398,7 @@ const D=[
  pot:"500 mW ERP · antena integrada obligatoria",modo:"FM 12,5 kHz",
  desc:"El estándar europeo de walkie sin licencia: ocio, montaña, eventos, obra y coordinación de equipos.",
  canales:PMR16,colch:["Canal","MHz","Nota"],
- rx:{s:1,r:0,n:"Escuchar la banda es libre. Ten presente que las conversaciones ajenas siguen siendo comunicaciones privadas: puedes oírlas, no difundirlas."},
+ rx:{s:1,r:0,n:"Escuchar la banda es libre. Ten presente que las conversaciones ajenas siguen siendo comunicaciones privadas: se pueden oír, no difundir."},
  tx:{s:0,r:0,n:"Uso común: sin licencia, sin tasas y sin examen. Solo equipo homologado europeo con su antena original."},
  notas:["Prohibido: antena externa, amplificador, repetidor o uso desde estación fija con antena elevada.","Alcance real: 1–2 km en ciudad, 5–10 km en campo abierto y mucho más de cima a cima.","Los tonos CTCSS/DCS no dan privacidad: solo silencian tu altavoz, cualquiera te sigue oyendo.","Si necesitas más alcance legal sin licencia, la CB-27 con antena exterior es la vía."],
  alt:"—"},
@@ -1342,7 +1407,7 @@ const D=[
  pot:"500 mW ERP",modo:"dPMR · DMR Tier 1 · 6,25 kHz",
  desc:"Versión digital del PMR446: audio limpio hasta el límite de cobertura y llamadas selectivas por grupo.",
  canales:DPMR16,colch:["Canal","MHz","Nota"],
- rx:{s:1,r:0,n:"Escucha libre con equipo compatible. El contenido sigue protegido por el secreto de las comunicaciones."},
+ rx:{s:1,r:0,n:"RX libre con equipo compatible. El contenido sigue protegido por el secreto de las comunicaciones."},
  tx:{s:0,r:0,n:"Uso común, sin licencia, con equipo homologado."},
  notas:["No es interoperable con el PMR446 analógico.","El cifrado que ofrecen algunos equipos no otorga derechos adicionales: sigue siendo banda compartida."],
  alt:"—"},
@@ -1375,8 +1440,8 @@ const D=[
 
 {id:"micros",nom:"Micrófonos inalámbricos de uso común",cat:"Micrófonos y audio",rf:"UHF",lo:823,hi:832,txt:"823 – 832 MHz · y 1785 – 1805 MHz",
  pot:"20 mW portátil · 50 mW",modo:"FM · digital",
- desc:"Las subbandas donde puedes usar micrófonos y petacas inalámbricos sin pedir permiso.",
- rx:{s:1,r:0,n:"Escucha libre de la banda; el contenido de una producción ajena sigue siendo privado."},
+ desc:"Subbandas para micrófonos y petacas inalámbricos sin pedir permiso.",
+ rx:{s:1,r:0,n:"RX libre de la banda; el contenido de una producción ajena sigue siendo privado."},
  tx:{s:0,r:0,n:"Uso común con equipo homologado dentro del límite de potencia."},
  notas:["Muchos micros antiguos trabajan en 700–800 MHz y hoy son ilegales tras el dividendo digital: comprueba el rango de tu equipo antes de usarlo.","Para producciones grandes en 470–694 MHz se solicita autorización PMSE temporal."],
  alt:"—"},
@@ -1385,7 +1450,7 @@ const D=[
  pot:"25 mW ERP típico · ciclo de trabajo limitado",modo:"LoRa · FSK · Sigfox",
  desc:"La banda europea de dispositivos de corto alcance: sensores, alarmas, domótica, telemetría y redes LoRaWAN.",
  rx:{s:0,r:0,n:RX_LIB},
- tx:{s:0,r:0,n:"Uso común, pero con límite de ciclo de trabajo (0,1 %, 1 % o 10 % según subbanda): no puedes transmitir de forma continua."},
+ tx:{s:0,r:0,n:"Uso común, pero con límite de ciclo de trabajo (0,1 %, 1 % o 10 % según subbanda): la transmisión continua no está permitida."},
  notas:["868,1 / 868,3 / 868,5 MHz: canales LoRaWAN por defecto en la región EU868.","Mejor alcance y mucho menos ruido que 433 MHz para telemetría."],
  alt:"—"},
 
@@ -1400,7 +1465,7 @@ const D=[
  rx:{s:0,r:0,n:RX_LIB+" Cualquier receptor GNSS o SDR puede recibirlas: es la base de la navegación civil."},
  tx:{s:2,r:3,n:"Los jammers de GPS son ilegales. Un solo inhibidor en una carretera afecta a aviación, transporte y emergencias en un radio de kilómetros."},
  notas:["L1 = 1575,42 MHz · L2 = 1227,60 MHz · L5 = 1176,45 MHz."],
- alt:"Escucha libre. No existe uso legal de emisión en esta banda para particulares."},
+ alt:"RX libre. No existe uso legal de emisión en esta banda para particulares."},
 
 {id:"ham-23",nom:"Radioaficionado · microondas (23 cm y superiores)",cat:"Radioafición",rf:"SHF",lo:1240,hi:24250,txt:"1240–1300 · 2300–2450 · 5650–5850 MHz · 10 y 24 GHz",
  pot:"Según autorización",modo:"FM · SSB · ATV · digitales",
@@ -1497,10 +1562,10 @@ function txLabel(b){
   if(b.tx.s!==1) return TXL[b.tx.s].t;
   const req=(b.tx.req||[]).filter(r=>TXPH[r]);
   if(!req.length) return TXL[1].t;
-  return "Requiere "+(TXPAIR[req.join("+")]||req.map(r=>TXPH[r]).join(" + "));
+  return "TX con "+(TXPAIR[req.join("+")]||req.map(r=>TXPH[r]).join(" + "));
 }
-const RXL=[{t:"Escucha libre",c:"var(--ok)"},{t:"Legal · no divulgable",c:"var(--warn)"},{t:"Escucha ilícita",c:"var(--bad)"}];
-const TXL=[{t:"Libre, sin licencia",c:"var(--ok)"},{t:"Requiere licencia",c:"var(--info)"},{t:"No transmitir nunca",c:"var(--bad)"}];
+const RXL=[{t:"RX libre",c:"var(--ok)"},{t:"RX legal · no divulgable",c:"var(--warn)"},{t:"RX ilícita",c:"var(--bad)"}];
+const TXL=[{t:"TX libre",c:"var(--ok)"},{t:"TX con licencia",c:"var(--info)"},{t:"TX prohibida",c:"var(--bad)"}];
 const RISK=[{t:"Nulo",c:"var(--ok)"},{t:"Bajo",c:"var(--warn)"},{t:"Alto",c:"var(--hot)"},{t:"Crítico",c:"var(--bad)"}];
 const ORDER=["Walkies y uso personal","Radioafición","Aviación","Náutica y marina","Redes profesionales (PMR)","Emergencias","Radio y televisión","Datos, WiFi e IoT","RC y drones","Micrófonos y audio","Telefonía móvil","Satélite y espacio"];
 const USECASES=[
@@ -1517,7 +1582,7 @@ const USECASES=[
        ["Usar un walkie de 5 W en 446 MHz","Aunque acierte la frecuencia, no cumple potencia ni antena: no es PMR446 legal."]]}},
 
  {e:"📡",t:"Máximo alcance legal sin licencia",ids:["cb","pmr446"],brief:{
-   tit:"Hasta dónde puedes llegar sin sacarte nada",
+   tit:"Hasta dónde se llega sin licencia",
    sub:"La respuesta es la <b>CB-27</b>. Es la única banda de uso común que permite antena exterior, y de ahí sale toda la diferencia de alcance.",
    si:[["Banda Ciudadana CB-27","26,965 – 27,405 MHz · 40 canales","4 W en AM/FM y 12 W PEP en banda lateral, sin licencia, sin tasas y sin examen."],
        ["Antena exterior permitida","—","La gran diferencia con PMR446. Alcance típico en FM: de 5 a 20 km."],
@@ -1533,7 +1598,7 @@ const USECASES=[
    sub:"Un receptor <b>no radia energía</b>: no interfieres a nadie ni pones en riesgo ninguna operación. Tener un escáner o un SDR es perfectamente legal en España.",
    si:[["Escuchar toda la banda aérea","108 – 136,975 MHz en AM","Torre, rodadura, aproximación, ruta y ATIS. Sin permiso de ningún tipo."],
        ["Empezar por el ATIS","La frecuencia de tu aeródromo","Información automática en bucle: pista en servicio, viento, QNH y estado del campo."],
-       ["Ver el tráfico real","1090 MHz (ADS-B)","Con un SDR barato y software libre puedes situar los aviones sobre un mapa."]],
+       ["Ver el tráfico real","1090 MHz (ADS-B)","Con un SDR barato y software libre, los aviones se sitúan sobre un mapa."]],
    falta:[["Un receptor que demodule AM","La aviación va en AM. Una radio de FM comercial no la reproduce: necesitas escáner o SDR."],
           ["Contar con la separación de 8,33 kHz","Verás frecuencias como 118,105 o 132,180: no son erratas."]],
    no:[["Divulgar lo que oigas","Recibir es legal; difundir o aprovechar el contenido vulnera el secreto de las comunicaciones."],
@@ -1556,12 +1621,12 @@ const USECASES=[
        ["Emitir en bandas de radioaficionado","144–146 y 430–440 MHz exigen licencia de radioaficionado; la habilitación aeronáutica no sirve ahí."],
        ["Usar un walkie de 5 W como PMR446","El uso común de 446 MHz exige 500 mW y antena no desmontable."],
        ["Emitir en 121,500 MHz","Frecuencia de emergencia. Solo ante una emergencia real."],
-       ["Usar 35 MHz para coches o barcos","Es exclusiva de modelos aéreos: puedes hacer caer el modelo de otro."]]}},
+       ["Usar 35 MHz para coches o barcos","Es exclusiva de modelos aéreos: puede hacer caer el modelo de otro."]]}},
  {e:"⛵",t:"Navegar y comunicar en el mar",ids:["mar","mar-mf","epirb"],cred:"mar_op",brief:{
-   tit:"Lo que puedes hacer a bordo, y con qué papeles",
+   tit:"Qué está permitido a bordo, y con qué papeles",
    sub:"Como en aviación, hacen falta <b>dos permisos distintos</b>: el título habilita a la persona y la licencia de estación habilita al equipo instalado.",
    si:[["Escuchar la banda marina","156,000 – 162,025 MHz","Legal desde tierra o a bordo. El canal 16 es socorro y llamada, con escucha obligatoria."],
-       ["Ver el tráfico marítimo","161,975 y 162,025 MHz (AIS)","Con un SDR puedes situar los buques sobre un mapa."],
+       ["Ver el tráfico marítimo","161,975 y 162,025 MHz (AIS)","Con un SDR, los buques se sitúan sobre un mapa."],
        ["Llevar una baliza PLB registrada","406,0 – 406,1 MHz","Comprarla y registrarla es legal y muy recomendable. Solo se activa ante peligro real."]],
    falta:[["Título de operador (SRC, LRC o GOC)","Habilita a la persona. El SRC se obtiene en un curso corto."],
           ["Licencia de estación de barco","Habilita al equipo instalado a bordo."]],
@@ -1582,7 +1647,7 @@ const USECASES=[
 
  {e:"📻",t:"Empezar en radioafición",ids:["ham-hf","ham-2m","ham-70","ham-6"],cred:"ham",brief:{
    tit:"El camino más corto al acceso legal más amplio del espectro",
-   sub:"Escuchar puedes hacerlo <b>desde hoy mismo</b>. Para emitir hace falta un examen único del Ministerio: no se exige Morse desde 2005.",
+   sub:"Escuchar, <b>desde hoy mismo</b>. Para emitir hace falta un examen único del Ministerio: no se exige Morse desde 2005.",
    si:[["Escuchar todo el servicio de aficionado","135,7 kHz – 24 GHz","Es público por definición, y existen indicativos de escucha (SWL) reconocidos."],
        ["Con la licencia, 13 bandas de HF","1,8 · 3,5 · 7 · 14 · 21 · 28 MHz y más","Comunicación mundial sin infraestructura, con hasta 1.500 W PEP según banda."],
        ["Y también VHF, UHF y microondas","144–146 · 430–440 · 1240–1300 MHz","Repetidores, redes digitales enlazadas y contactos vía satélite."]],
@@ -1598,12 +1663,12 @@ const USECASES=[
        ["LPD433 para mandos y sensores","433,05 – 434,79 MHz","10 mW. Es donde vive medio catálogo de domótica barata."],
        ["2,4 GHz para WiFi, BLE y Zigbee","2400 – 2483,5 MHz","100 mW EIRP. Canales 1, 6 y 11 son los que no se solapan."],
        ["169 MHz para telelectura","169,4 – 169,8125 MHz","Contadores inteligentes y ayudas auditivas."]],
-   falta:[["Respetar el ciclo de trabajo","En 868 MHz hay límites de 0,1 %, 1 % o 10 % según subbanda: no puedes transmitir en continuo."]],
+   falta:[["Respetar el ciclo de trabajo","En 868 MHz hay límites de 0,1 %, 1 % o 10 % según subbanda: la transmisión continua no está permitida."]],
    no:[["Amplificar por encima del límite","Los amplificadores WiFi de más de 100 mW EIRP no son legales aunque se vendan online."],
        ["Contar con un canal limpio","Son bandas compartidas y saturadas: diseña el protocolo para tolerar colisiones."]]}},
 
  {e:"🛰️",t:"Escuchar satélites con un SDR",ids:["meteo","gnss","satrx"],brief:{
-   tit:"Qué puedes recibir del espacio con muy poco dinero",
+   tit:"Qué se recibe del espacio con muy poco dinero",
    sub:"Todo esto es <b>solo recepción</b>, y por tanto libre. Un SDR de 20 € y una antena casera dan para mucho más de lo que parece.",
    si:[["Imágenes meteorológicas en directo","137 – 138 MHz","Satélites polares NOAA y Meteor-M. Uno de los mejores proyectos para empezar."],
        ["Señales de posicionamiento","1176 / 1227 / 1575 MHz","GPS, Galileo y GLONASS. La base de la navegación civil."],
@@ -1613,7 +1678,7 @@ const USECASES=[
        ["Interferir el GNSS","Los jammers de GPS son ilegales: un solo inhibidor afecta a aviación, transporte y emergencias en kilómetros."]]}},
 
  {e:"🎙️",t:"Micrófonos inalámbricos",ids:["micros","tdt"],cred:"pmse",brief:{
-   tit:"Dónde puedes usar micrófonos sin pedir permiso",
+   tit:"Dónde usar micrófonos sin pedir permiso",
    sub:"Hay dos subbandas de <b>uso común</b> pensadas justo para esto. El resto del espectro de audio profesional necesita autorización temporal.",
    si:[["Uso común, sin trámite","823 – 832 y 1785 – 1805 MHz","20 mW en portátil y 50 mW. Suficiente para charlas, bodas y salas pequeñas."]],
    falta:[["Autorización PMSE","Para producciones grandes que necesiten 470 – 694 MHz."],
@@ -1632,12 +1697,12 @@ const SOS=[["✈️","121,500","MHz","Emergencia aeronáutica"],
  ["📻","433,500","MHz","Llamada 70 cm aficionado"],
  ["📞","112","","Emergencias por teléfono"]];
 const LEGEND=[
- ["RX","Escucha libre","var(--ok)","Servicio de difusión abierta o banda de uso común. Puedes escuchar y comentar sin límite."],
- ["RX","Legal · no divulgable","var(--warn)","Recibir es lícito y tener el receptor también. Lo que no puedes es divulgar ni aprovechar el contenido de comunicaciones ajenas."],
- ["RX","Escucha ilícita","var(--bad)","Señal cifrada o telecomunicación privada: descifrarla o interceptarla es delito de descubrimiento y revelación de secretos."],
- ["TX","Libre, sin licencia","var(--ok)","Uso común: puedes emitir con equipo homologado CE respetando potencia y tipo de antena."],
- ["TX","Requiere licencia","var(--info)","Necesitas título o autorización: radioaficionado, marítimo, aeronáutico o concesión de uso privativo."],
- ["TX","No transmitir nunca","var(--bad)","Espectro reservado a operadores o a servicios de seguridad. Ningún particular puede emitir aquí bajo ningún supuesto."]
+ ["RX","RX libre","var(--ok)","Servicio de difusión abierta o banda de uso común: escuchar y comentar sin límite."],
+ ["RX","RX legal · no divulgable","var(--warn)","Recibir es lícito y tener el receptor también. Lo prohibido es divulgar o aprovechar el contenido de comunicaciones ajenas."],
+ ["RX","RX ilícita","var(--bad)","Señal cifrada o telecomunicación privada: descifrarla o interceptarla es delito de descubrimiento y revelación de secretos."],
+ ["TX","TX libre","var(--ok)","Uso común: emisión permitida con equipo homologado CE, respetando potencia y tipo de antena."],
+ ["TX","TX con licencia","var(--info)","Exige título o autorización: radioaficionado, marítimo, aeronáutico o concesión de uso privativo."],
+ ["TX","TX prohibida","var(--bad)","Espectro reservado a operadores o a servicios de seguridad. Ningún particular puede emitir aquí bajo ningún supuesto."]
 ];
 
 /* ═══════════════ estado ═══════════════ */
@@ -1668,7 +1733,7 @@ const KEYS=[
   p:["Toda banda tiene dos regímenes distintos: el de <b>escuchar</b> y el de <b>transmitir</b>. Confundirlos es el error más común de las guías al uso. Aquí cada banda lleva las dos valoraciones independientes —legalidad y riesgo real— junto a sus canales, potencias y modos."]},
  {k:"RX", c:"var(--ok)", t:"Escuchar no emite nada",
   p:["Un receptor no radia energía: <b>no interfiere, no ocupa el canal y no puede poner en riesgo a nadie</b>. Escuchar la banda aérea, la marina o a los radioaficionados no es una infracción, y tener un escáner o un SDR es perfectamente legal en España.",
-     "El límite está en el <b>contenido</b>, no en la escucha: la Constitución protege el secreto de las comunicaciones, así que no puedes divulgar ni aprovechar lo que oigas de comunicaciones no destinadas al público. Descifrar señales cifradas sí es delito."]},
+     "El límite está en el <b>contenido</b>, no en la escucha: la Constitución protege el secreto de las comunicaciones, así que no está permitido divulgar ni aprovechar lo que se oiga de comunicaciones no destinadas al público. Descifrar señales cifradas sí es delito."]},
  {k:"TX", c:"var(--hot)", t:"Transmitir sí ocupa espectro",
   p:["Al emitir usas un recurso público limitado y compartido. Fuera de las bandas de uso común hace falta título habilitante; sin él es infracción de la Ley General de Telecomunicaciones, con sanción económica y decomiso del equipo.",
      "Y el daño no es igual en todas partes: pisar un canal de taxi molesta, pero <b>pisar el canal 16 de marina o una frecuencia de torre puede costar vidas</b>, y eso pasa del terreno administrativo al penal."]},
@@ -1734,16 +1799,16 @@ const hasProfile = () => PROFILE.size > 0 || MYEQ !== "none";
 
 /* Veredicto personal para una banda concreta */
 function verdict(b) {
-  if (b.tx.s === 0) return { k: "ok", t: "Puedes transmitir", d: "Banda de uso común: no necesitas ninguna licencia." };
+  if (b.tx.s === 0) return { k: "ok", t: "TX libre", d: "Banda de uso común: no exige ninguna licencia." };
   const req = b.tx.req || [];
   if (!req.length || req.includes("estado"))
-    return { k: "never", t: "No habilitable", d: "Espectro reservado a operadores o a servicios del Estado. Ningún particular puede emitir aquí." };
+    return { k: "never", t: "TX prohibida", d: "Espectro reservado a operadores o a servicios del Estado. Ningún particular puede emitir aquí." };
   const missing = req.filter(r => !PROFILE.has(r));
   if (!missing.length)
-    return { k: "ok", t: "Habilitado con tu licencia", d: "Tienes todo lo que esta banda exige. Recuerda respetar potencia, canalización y modo." };
+    return { k: "ok", t: "TX habilitada con tu licencia", d: "Tienes todo lo que esta banda exige. Recuerda respetar potencia, canalización y modo." };
   const names = missing.map(r => CRED[r] ? CRED[r].s : r);
   if (missing.length < req.length)
-    return { k: "partial", t: "Te falta: " + names.join(" y "), d: "Es un permiso administrativo, distinto de tener el equipo: hay que solicitarlo. Sin él no puedes emitir legalmente aunque la emisora cumpla.", missing };
+    return { k: "partial", t: "Te falta: " + names.join(" y "), d: "Es un permiso administrativo, distinto de tener el equipo: hay que solicitarlo. Sin él la emisión no es legal aunque la emisora cumpla.", missing };
   return { k: "no", t: "Necesitas: " + names.join(" y "), d: "No consta en tu perfil ninguna habilitación para esta banda.", missing };
 }
 const VK = { ok: "var(--ok)", partial: "var(--warn)", no: "var(--info)", never: "var(--bad)" };
@@ -1824,7 +1889,7 @@ function fverdict(b) {
   if (lic.k === "never") return lic;
   const eq = eqVerdict(b);
   if (!eq) return lic;
-  if (lic.k === "ok" && eq.k === "ok") return { k: "ok", t: b.tx.s === 0 ? "Puedes transmitir" : "Habilitado con tu equipo y licencia", d: lic.d };
+  if (lic.k === "ok" && eq.k === "ok") return { k: "ok", t: b.tx.s === 0 ? "TX libre" : "TX habilitada con tu equipo y licencia", d: lic.d };
   if (eq.k === "no" && lic.k === "ok") return { k: "eq", t: eq.t, d: eq.d };
   if (eq.k === "no") { const et = eq.t.charAt(0).toLowerCase() + eq.t.slice(1); return { k: lic.k === "partial" ? "partial" : "no", t: lic.t + " · " + et, d: lic.d + " " + (eq.d || "") }; }
   return lic;
@@ -1854,7 +1919,7 @@ function openProfile(first) {
       <button class="x" id="px" aria-label="Cerrar"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       <div class="kicker">${first ? "Antes de empezar" : "Perfil"}</div>
       <h2>${first ? "¿Con qué vas a transmitir?" : "¿Qué te habilita a transmitir?"}</h2>
-      <div class="rng">${first ? "Dinos tu equipo y tus licencias: sin esto, la app no puede decirte qué puedes usar de verdad" : "Marca lo que tengas y la app ajustará el veredicto de cada banda"}</div>
+      <div class="rng">${first ? "Dinos tu equipo y tus licencias: sin esto, la app no puede decirte qué está a tu alcance de verdad" : "Marca lo que tengas y la app ajustará el veredicto de cada banda"}</div>
     </div>
     <div class="sh-b">
       <div class="cal c-nt" style="margin-bottom:18px"><span class="kicker">Cómo funciona</span>Un <b>título de operador</b> habilita a la persona; una <b>licencia de estación</b> habilita al equipo. Muchas bandas exigen las dos cosas, así que se marcan por separado: así la app puede decirte exactamente qué te falta.</div>
@@ -2031,9 +2096,9 @@ mq.addEventListener?.("change",applyMQ); applyMQ();
 /* ═══════════════ Barra de facetas (escritorio) ═══════════════
    Misma información que la hoja de filtros del móvil, en una línea. */
 const FACETS=[
- {f:"tx", lab:"Transmitir", opts:[["all","Todo"],["0","Libre, sin licencia"],["1","Requiere licencia"],["2","No transmitir nunca"]],
+ {f:"tx", lab:"Transmitir", opts:[["all","Todo"],["0","TX libre"],["1","TX con licencia"],["2","TX prohibida"]],
   col:{"0":"var(--ok)","1":"var(--info)","2":"var(--bad)"}},
- {f:"rx", lab:"Escuchar", opts:[["all","Todo"],["0","Escucha libre"],["1","Legal, no divulgable"],["2","Escucha ilícita"]],
+ {f:"rx", lab:"Escuchar", opts:[["all","Todo"],["0","RX libre"],["1","RX legal · no divulgable"],["2","RX ilícita"]],
   col:{"0":"var(--ok)","1":"var(--warn)","2":"var(--bad)"}},
  {f:"rf", lab:"Banda", opts:[["all","Todas"],["LF/MF","LF/MF"],["HF","HF"],["VHF","VHF"],["UHF","UHF"],["SHF","SHF · µondas"]]},
  {f:"cat", lab:"Servicio", opts:[["all","Todos"]].concat(cats.map(c=>[c,c]))}
@@ -2051,7 +2116,7 @@ function facetBtn(fa){
     <button class="fcb"><span class="lab">${esc(fa.lab)}</span><span class="val">${esc(txt)}</span><span class="car">▼</span></button></div>`;
 }
 
-/* ═══ Qué puedes hacer tú: lo primero y con números ═══ */
+/* ═══ Tu situación: lo primero y con números ═══ */
 const ME=[
  {v:"rxsi", t:"RX SÍ", c:"var(--ok)",   i:'<path d="M4 12.5l5 5L20 6.5"/>', f:b=>b.rx.s!==2},
  {v:"rxno", t:"RX NO", c:"var(--bad)",  i:'<path d="M6 6l12 12M18 6L6 18"/>', f:b=>b.rx.s===2},
@@ -2060,13 +2125,20 @@ const ME=[
 ];
 const meKind=b=>{ const k=fverdict(b).k; return k==="eq"?"partial":(k==="never"?"no":k); };
 const meTest=v=>{ const m=ME.find(x=>x.v===v); return m?m.f:null; };
+/* Resumen de una línea: qué equipo y qué licencias constan */
+function perfilDetalle(){
+  const eq = MYEQ!=="none" ? EQ[MYEQ].t : "sin equipo declarado";
+  const lic = PROFILE.size ? [...PROFILE].map(k=>(CRED[k]&&(CRED[k].k||CRED[k].s))||k).join(" + ") : "sin licencias";
+  return eq+" · "+lic;
+}
 function paintMe(){
   const el=$("#mefilter"); if(!el) return;
   const n={}; ME.forEach(m=>n[m.v]=D.filter(m.f).length);
   const sinPerfil=!hasProfile();
   el.innerHTML=
-    `<div class="me-h"><span class="me-t">${sinPerfil?"Sin tu perfil, esto asume que no tienes nada":"Con tu equipo y tus licencias"}</span>
-       <button class="me-cfg" id="meCfg">${sinPerfil?"Dinos qué tienes":"Cambiar perfil"}</button></div>
+    `<div class="me-h">${sinPerfil
+        ? `<span class="me-t vacio">Perfil vacío</span><span class="me-sep">—</span><button class="me-cfg" id="meCfg">Rellena tu perfil</button>`
+        : `<span class="me-t pfx">Perfil</span><span class="me-sep pfx">—</span><span class="me-v" title="${esc(perfilDetalle())}">${esc(perfilDetalle())}</span><button class="me-cfg" id="meCfg" title="Cambiar perfil"><span class="pfx">Cambiar</span><span class="ico">✎</span></button>`}</div>
      <div class="me-tiles">
        <button class="me-tile ${F.me==="all"?"on":""}" data-me="all"><span class="mn">${D.length}</span><span class="ml">Todas las bandas</span></button>
        ${ME.map(m=>`<button class="me-tile ${F.me===m.v?"on":""}" data-me="${m.v}" style="--c:${m.c}">
@@ -2183,9 +2255,9 @@ function render(){
       <h3>${esc(uc.brief.tit)}</h3>
       <p class="bsub">${uc.brief.sub}</p>
       <div class="bcols">
-        ${col("var(--ok)","Sí puedes",uc.brief.si,'<path d="M4 12.5l5 5L20 6.5"/>')}
-        ${col("var(--warn)","Además necesitas",uc.brief.falta,'<path d="M12 7v6M12 17v.01"/>')}
-        ${col("var(--bad)","No te habilita a",uc.brief.no,'<path d="M6 6l12 12M18 6L6 18"/>')}
+        ${col("var(--ok)","Permitido",uc.brief.si,'<path d="M4 12.5l5 5L20 6.5"/>')}
+        ${col("var(--warn)","Además exige",uc.brief.falta,'<path d="M12 7v6M12 17v.01"/>')}
+        ${col("var(--bad)","No habilita a",uc.brief.no,'<path d="M6 6l12 12M18 6L6 18"/>')}
       </div>
       ${uc.cred&&!PROFILE.has(uc.cred)?`<div class="bcta"><button class="btn pri" id="bcred">Tengo esta habilitación · añadir a mi perfil</button><span class="note2">Ajustará el veredicto de cada banda a tu caso.</span></div>`:
         uc.cred?`<div class="bcta"><span class="note2">✓ ${esc(CRED[uc.cred].t)} ya consta en tu perfil.</span></div>`:""}
@@ -2260,7 +2332,7 @@ function openBand(id,push=true){
     ${(()=>{const e=eqVerdict(b); if(!e||!hasProfile()) return "";
       return `<div class="cal" style="background:color-mix(in srgb,${VK[e.k==="ok"?"ok":"eq"]} 10%,transparent);border-color:color-mix(in srgb,${VK[e.k==="ok"?"ok":"eq"]} 32%,transparent)"><span class="kicker">Tu equipo · ${esc(EQ[MYEQ].t)}</span><b>${esc(e.t)}.</b> ${esc(e.d||"")}</div>`;})()}
     ${(()=>{const v=verdict(b), req=b.tx.req||[];
-      if(b.tx.s===0) return `<div class="cal c-ok"><span class="kicker">Tu situación · puedes transmitir</span>Banda de uso común: no necesitas ninguna licencia. Solo equipo con marcado CE, y respetar potencia y tipo de antena.</div>`;
+      if(b.tx.s===0) return `<div class="cal c-ok"><span class="kicker">Tu situación · TX libre</span>Banda de uso común: no necesitas ninguna licencia. Solo equipo con marcado CE, y respetar potencia y tipo de antena.</div>`;
       const head=`<div class="cal" style="background:color-mix(in srgb,${VK[v.k]} 10%,transparent);border-color:color-mix(in srgb,${VK[v.k]} 32%,transparent)"><span class="kicker">Tu situación · ${esc(v.t)}</span>${esc(v.d)}</div>`;
       if(!req.length||req.includes("estado")) return head;
       const list=req.map(r=>{const c=CRED[r]||{t:r},ok=PROFILE.has(r);
@@ -2275,7 +2347,7 @@ function openBand(id,push=true){
       <div class="spc"><div class="k">Rango</div><div class="v mono" style="font-size:12px">${rngTxt(b)}</div></div>
       <div class="spc"><div class="k">Servicio</div><div class="v">${esc(b.cat)} · ${b.rf}</div></div>
     </div>
-    ${b.tx.s===0?`<div class="cal c-ok"><span class="kicker">Puedes emitir aquí</span>Banda de uso común: sin licencia, sin tasas y sin examen. Solo debes respetar la potencia máxima, el tipo de antena permitido y usar equipo con marcado CE.</div>`:""}
+    ${b.tx.s===0?`<div class="cal c-ok"><span class="kicker">TX libre</span>Banda de uso común: sin licencia, sin tasas y sin examen. Solo debes respetar la potencia máxima, el tipo de antena permitido y usar equipo con marcado CE.</div>`:""}
     ${b.alt&&b.alt!=="—"?`<div class="cal c-nt"><span class="kicker">Alternativa legal equivalente</span>${esc(b.alt)}</div>`:""}
     ${(b.notas&&b.notas.length)?`<h5>Claves prácticas</h5><ul class="pts">${b.notas.map(n=>`<li>${esc(n)}</li>`).join("")}</ul>`:""}
     ${b.canales?`<h5>Canales · ${b.canales.length}</h5><div class="tblwrap"><div class="tblscroll"><table>
@@ -3213,8 +3285,8 @@ function paintUas(){
   el.innerHTML=filas.map(x=>{
     const b=band(x.id);
     let k,t;
-    if(x.solorx){ k="ok"; t="escucha libre"; }
-    else { const v=x.propio?verdict(b):fverdict(b); k=v.k; t=v.k==="ok"?"puedes":v.k==="never"?"no habilitable":v.t.replace(/^(Te falta|Necesitas):\s*/,"falta "); }
+    if(x.solorx){ k="ok"; t="RX libre"; }
+    else { const v=x.propio?verdict(b):fverdict(b); k=v.k; t=v.k==="ok"?"TX libre":v.k==="never"?"TX prohibida":v.t.replace(/^(Te falta|Necesitas):\s*/,"falta "); }
     return `<div class="urow" style="--c:${VK[k]}"><i class="ui"></i><span class="un">${esc(x.n)}</span><span class="uf">${esc(x.f)}</span><span class="uv">${esc(t)}</span></div>`;
   }).join("");
 }
@@ -3287,7 +3359,7 @@ $("#rstgeo").addEventListener("click", () => {
   rstate.textContent = "Obteniendo tu posición…";
   navigator.geolocation.getCurrentPosition(
     p => { RSTPOS = { la: p.coords.latitude, lo: p.coords.longitude }; rstRender(); },
-    () => { rstate.textContent = "No se ha podido obtener la posición. Puedes buscar por nombre."; },
+    () => { rstate.textContent = "No se ha podido obtener la posición. Busca por nombre."; },
     { timeout: 12000, maximumAge: 60000 });
 });
 rstRender();
