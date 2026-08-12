@@ -678,7 +678,11 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
 .fc-count{margin-left:auto;font-family:var(--f-mono);font-size:11.5px;color:var(--fg3)}
 .fc-clear{font-size:12.5px;color:var(--fg3);text-decoration:underline;text-underline-offset:3px;padding:4px}
 .fc-clear:hover{color:var(--acc)}
-@media (max-width:760px){ .facets{display:none} }
+@media (max-width:760px){
+  .facets{position:static;background:none;backdrop-filter:none;border:0;margin-top:var(--s4)}
+  .facets .fc-in{display:none}
+  .me-tiles{grid-template-columns:1fr 1fr}
+}
 @media (min-width:761px){ .fpanel{display:none} }
 
 /* ── iconos de situación, en la propia cabecera ── */
@@ -759,6 +763,23 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
 .sosi.big .se{font-size:19px}
 .sosi.big .sf{font-size:22px}
 .sosi.big .sl{font-size:12.5px;margin-top:3px}
+
+/* ── control personal: lo primero que se ve ── */
+.mefilter{padding:11px 0 4px}
+.me-h{display:flex;align-items:baseline;gap:9px;margin-bottom:8px;flex-wrap:wrap}
+.me-t{font-family:var(--f-mono);font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--fg3)}
+.me-cfg{font-size:12px;color:var(--acc);text-decoration:underline;text-underline-offset:3px;padding:2px}
+.me-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.me-tile{display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:9px 12px;border-radius:var(--r2);border:1px solid var(--line);background:var(--srf);transition:.15s;text-align:left;position:relative;overflow:hidden}
+.me-tile::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--c,var(--line2))}
+.me-tile:hover{border-color:var(--line2)}
+.me-tile.on{border-color:var(--c,var(--fg));background:color-mix(in srgb,var(--c,var(--fg)) 9%,var(--srf))}
+.me-tile .mi{position:absolute;right:9px;top:9px;color:var(--c);opacity:.5}
+.me-tile .mi svg{width:13px;height:13px}
+.me-tile .mn{font-size:20px;font-weight:700;letter-spacing:-.04em;line-height:1.1;color:var(--c,var(--fg))}
+.me-tile .ml{font-size:11.5px;color:var(--fg2);line-height:1.25}
+.me-tile.on .ml{color:var(--fg)}
+@media (max-width:760px){ .me-tiles{grid-template-columns:1fr 1fr} .mefilter{padding:9px 0 2px} }
 @media print{
   .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
   body{background:#fff;color:#000;font-size:10pt}
@@ -919,7 +940,10 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
     </article>
   </section>
 
-  <div class="facets" id="facets"><div class="wrap fc-in"></div></div>
+  <div class="facets" id="facets"><div class="wrap">
+    <div class="mefilter" id="mefilter"></div>
+    <div class="fc-in"></div>
+  </div></div>
 
   <div class="fbar" id="fbar">
     <button class="fbtn" id="openf">
@@ -934,6 +958,13 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
   <div class="fpanel" id="fpanel">
    <div class="wrap">
     <div class="fgrp">
+      <span class="fl">Con mi licencia</span>
+      <button class="ch on" data-f="me" data-v="all">Todo</button>
+      <button class="ch" data-c data-f="me" data-v="ok" style="--cc:var(--ok)"><i class="dot"></i>Puedo transmitir</button>
+      <button class="ch" data-c data-f="me" data-v="partial" style="--cc:var(--warn)"><i class="dot"></i>Me falta algo</button>
+      <button class="ch" data-c data-f="me" data-v="no" style="--cc:var(--info)"><i class="dot"></i>No habilitado</button>
+    </div>
+    <div class="fgrp">
       <span class="fl">► Transmitir</span>
       <button class="ch on" data-f="tx" data-v="all">Todo</button>
       <button class="ch" data-c data-f="tx" data-v="0" style="--cc:var(--ok)"><i class="dot"></i>Libre, sin licencia</button>
@@ -946,13 +977,6 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
       <button class="ch" data-c data-f="rx" data-v="0" style="--cc:var(--ok)"><i class="dot"></i>Escucha libre</button>
       <button class="ch" data-c data-f="rx" data-v="1" style="--cc:var(--warn)"><i class="dot"></i>Legal, no divulgable</button>
       <button class="ch" data-c data-f="rx" data-v="2" style="--cc:var(--bad)"><i class="dot"></i>Escucha ilícita</button>
-    </div>
-    <div class="fgrp">
-      <span class="fl">Con mi licencia</span>
-      <button class="ch on" data-f="me" data-v="all">Todo</button>
-      <button class="ch" data-c data-f="me" data-v="ok" style="--cc:var(--ok)"><i class="dot"></i>Puedo transmitir</button>
-      <button class="ch" data-c data-f="me" data-v="partial" style="--cc:var(--warn)"><i class="dot"></i>Me falta algo</button>
-      <button class="ch" data-c data-f="me" data-v="no" style="--cc:var(--info)"><i class="dot"></i>No habilitado</button>
     </div>
     <div class="fgrp">
       <span class="fl">Banda RF</span>
@@ -1796,13 +1820,13 @@ function openProfile(first) {
   povl.querySelectorAll("[data-eq]").forEach(t => t.addEventListener("click", () => {
     MYEQ = t.dataset.eq; LS.set("espectro:equipo", MYEQ);
     povl.querySelectorAll("[data-eq]").forEach(x => x.classList.toggle("on", x === t));
-    paintProfileBtn(); render(); paintStats(); paintUas();
+    paintProfileBtn(); render(); paintStats(); paintUas(); paintMe();
   }));
   povl.querySelectorAll("[data-cred]").forEach(i => i.addEventListener("change", e => {
     const id = e.target.dataset.cred;
     e.target.checked ? PROFILE.add(id) : PROFILE.delete(id);
     e.target.closest(".cred").classList.toggle("on", e.target.checked);
-    saveProfile(); paintProfileBtn(); render(); paintStats(); paintUas(); paintUas();
+    saveProfile(); paintProfileBtn(); render(); paintStats(); paintUas(); paintMe(); paintUas();
   }));
 }
 let povlOpened = 0;
@@ -1942,14 +1966,11 @@ const FACETS=[
   col:{"0":"var(--ok)","1":"var(--info)","2":"var(--bad)"}},
  {f:"rx", lab:"Escuchar", opts:[["all","Todo"],["0","Escucha libre"],["1","Legal, no divulgable"],["2","Escucha ilícita"]],
   col:{"0":"var(--ok)","1":"var(--warn)","2":"var(--bad)"}},
- {f:"me", lab:"Mi licencia", opts:[["all","Todo"],["ok","Puedo transmitir"],["partial","Me falta algo"],["no","No habilitado"]],
-  col:{ok:"var(--ok)",partial:"var(--warn)",no:"var(--info)"}},
  {f:"rf", lab:"Banda", opts:[["all","Todas"],["LF/MF","LF/MF"],["HF","HF"],["VHF","VHF"],["UHF","UHF"],["SHF","SHF · µondas"]]},
  {f:"cat", lab:"Servicio", opts:[["all","Todos"]].concat(cats.map(c=>[c,c]))}
 ];
 const fcIn=$("#facets .fc-in");
 const FGROUPS=[
-  { g:"mia",  ids:["me"] },
   { g:"reg",  ids:["tx","rx"] },
   { g:"amb",  ids:["rf","cat"] }
 ];
@@ -1959,6 +1980,33 @@ function facetBtn(fa){
   const c=act&&fa.col?fa.col[v]:null;
   return `<div class="fc ${act?"on":""}" data-fc="${fa.f}" ${c?`style="--c:${c}"`:""}>
     <button class="fcb"><span class="lab">${esc(fa.lab)}</span><span class="val">${esc(txt)}</span><span class="car">▼</span></button></div>`;
+}
+
+/* ═══ Qué puedes hacer tú: lo primero y con números ═══ */
+const ME=[
+ {v:"ok",      t:"Puedes transmitir", c:"var(--ok)",   i:'<path d="M4 12.5l5 5L20 6.5"/>'},
+ {v:"partial", t:"Te falta algo",     c:"var(--warn)", i:'<path d="M12 7v6M12 17v.01"/>'},
+ {v:"no",      t:"No puedes",         c:"var(--bad)",  i:'<path d="M6 6l12 12M18 6L6 18"/>'}
+];
+const meKind=b=>{ const k=fverdict(b).k; return k==="eq"?"partial":(k==="never"?"no":k); };
+function paintMe(){
+  const el=$("#mefilter"); if(!el) return;
+  const n={ok:0,partial:0,no:0};
+  D.forEach(b=>{ const k=meKind(b); if(n[k]!==undefined) n[k]++; });
+  const sinPerfil=!hasProfile();
+  el.innerHTML=
+    `<div class="me-h"><span class="me-t">${sinPerfil?"Sin tu perfil, esto asume que no tienes nada":"Con tu equipo y tus licencias"}</span>
+       <button class="me-cfg" id="meCfg">${sinPerfil?"Dinos qué tienes":"Cambiar perfil"}</button></div>
+     <div class="me-tiles">
+       <button class="me-tile ${F.me==="all"?"on":""}" data-me="all"><span class="mn">${D.length}</span><span class="ml">Todas las bandas</span></button>
+       ${ME.map(m=>`<button class="me-tile ${F.me===m.v?"on":""}" data-me="${m.v}" style="--c:${m.c}">
+          <span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round">${m.i}</svg></span>
+          <span class="mn">${n[m.v]}</span><span class="ml">${m.t}</span></button>`).join("")}
+     </div>`;
+  el.querySelectorAll("[data-me]").forEach(b=>b.addEventListener("click",()=>{
+    F.me=b.dataset.me; syncChips(); paintMe(); paintFacets(); render();
+  }));
+  const cfg=$("#meCfg"); if(cfg) cfg.addEventListener("click",()=>openProfile(false));
 }
 function paintFacets(){
   const n=Object.values(F).filter(v=>v!=="all").length;
@@ -1972,7 +2020,7 @@ function paintFacets(){
 }
 let lastCount="";
 fcIn.addEventListener("click",e=>{
-  if(e.target.closest("#fclear3")){F={tx:"all",rx:"all",me:"all",rf:"all",cat:"all"};syncChips();paintFacets();render();return;}
+  if(e.target.closest("#fclear3")){F={tx:"all",rx:"all",me:"all",rf:"all",cat:"all"};syncChips();paintMe();paintFacets();render();return;}
   const host=e.target.closest("[data-fc]"); if(!host)return;
   const abierto=host.querySelector(".fcm");
   fcIn.querySelectorAll(".fcm").forEach(m=>m.remove());
@@ -1987,6 +2035,7 @@ fcIn.addEventListener("click",e=>{
   host.appendChild(m);
 });
 document.addEventListener("click",e=>{ if(!e.target.closest("#facets")) fcIn.querySelectorAll(".fcm").forEach(m=>m.remove()); });
+paintMe();
 paintFacets();
 
 
