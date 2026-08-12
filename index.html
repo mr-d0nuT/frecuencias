@@ -695,10 +695,23 @@ details.svc .grid{padding-top:2px}
     <details class="card uas">
       <summary class="uas-sum">
         <span class="uas-ico">🛩️</span>
-        <span class="uas-tt"><b>Coordinación de un vuelo UAS</b><span>Qué es trámite y qué es radio · pasos, teléfonos y permisos</span></span>
+        <span class="uas-tt"><b>Planificar un vuelo UAS</b><span>Qué hay cerca, qué radio necesitas y qué trámite toca</span></span>
         <svg class="caret" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
       </summary>
       <div class="uas-body">
+      <h5 style="margin-top:0">Qué hay cerca de donde vas a volar</h5>
+      <div class="near">
+        <div class="near-top">
+          <button class="btn pri" id="nearGeo"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M12 21s7-6.3 7-11a7 7 0 10-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/></svg>Usar mi posición</button>
+          <input id="nearQ" type="search" placeholder="o escribe una población o unas coordenadas (41.3874, 2.1686)" aria-label="Población o coordenadas">
+        </div>
+        <div id="nearOut"></div>
+      </div>
+
+      <h5>La radio: qué necesitas de verdad</h5>
+      <p class="hint2">El enlace de mando y el vídeo van en el propio dron; el resto depende de tu perfil.</p>
+      <div class="uas-radio" id="uasRadio"></div>
+
       <div class="uas-intro">
         <p>Volar un dron cruza <b>dos marcos distintos</b> que se confunden a menudo. La <b>operación</b> la regulan AESA y ENAIRE: registro, zonas geográficas y autorización. El <b>espectro</b> lo regula el CNAF: qué frecuencias puedes usar. Cumplir uno no te cubre el otro, y la mayor parte de la coordinación no se hace por radio.</p>
       </div>
@@ -711,19 +724,6 @@ details.svc .grid{padding-top:2px}
         <li><b>Coordina con la dependencia</b><span>Aquí está la clave: <b>normalmente por teléfono</b>, con el número que figura en tu propia autorización. La radio con ATC es la excepción, no la norma.</span></li>
         <li><b>Antes de despegar, escucha</b><span>El ATIS y la torre te dan pista en servicio, viento y tráfico real. Escuchar es libre y no exige ningún permiso.</span></li>
       </ol>
-
-      <h5>Qué hay cerca de donde vas a volar</h5>
-      <div class="near">
-        <div class="near-top">
-          <button class="btn pri" id="nearGeo"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M12 21s7-6.3 7-11a7 7 0 10-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/></svg>Usar mi posición</button>
-          <input id="nearQ" type="search" placeholder="o escribe una población" aria-label="Población">
-        </div>
-        <div id="nearOut"></div>
-      </div>
-
-      <h5>La radio: qué necesitas de verdad</h5>
-      <p class="hint2">El enlace de mando y el vídeo van en el propio dron; el resto depende de tu perfil.</p>
-      <div class="uas-radio" id="uasRadio"></div>
 
       <a class="golink" href="#aero-sec"><span><b>Frecuencias y teléfono de tu aeródromo</b>Elige cualquiera de los 72 aeródromos y helipuertos en el apartado siguiente: torre, ATIS y contacto de coordinación, leídos del AIP.</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
 
@@ -1352,7 +1352,7 @@ const USECASES=[
    no:[["Divulgar lo que oigas","Recibir es legal; difundir o aprovechar el contenido vulnera el secreto de las comunicaciones."],
        ["Transmitir","Ni con un walkie de aficionado ni para probar. Exige habilitación de radiotelefonía y licencia de estación."]]}},
 
- {e:"🛩️",t:"Radiofonista UAS",ids:["aero","lers","wifi24","fpv58","gnss"],cred:"aer_op",brief:{
+ {e:"🛩️",t:"Radiofonista UAS",ids:["aero","lers","wifi24","fpv58","gnss"],cred:"aer_op",vuelo:1,brief:{
    tit:"Qué te habilita, y qué no, la habilitación de radiotelefonía aeronáutica",
    sub:"La habilitación acredita a la <b>persona</b> en fraseología y procedimientos. No autoriza por sí sola ninguna estación, ni sustituye a la autorización de la operación ante AESA y ENAIRE.",
    si:[["Escuchar toda la banda aérea","108 – 136,975 MHz en AM","Torre, rodadura, aproximación y ATIS. Legal sin ningún permiso, y lo más recomendable antes de volar."],
@@ -1379,7 +1379,7 @@ const USECASES=[
        ["Sustituir la VHF marina por PMR446","500 mW y antena fija no dan alcance útil en el mar, y no es tráfico de socorro."],
        ["Ocupar el canal 16","Es de socorro y llamada. Establecido el contacto, se cambia a un canal de trabajo."]]}},
 
- {e:"🚁",t:"Volar un dron o FPV",ids:["fpv58","wifi24","rc35"],brief:{
+ {e:"🚁",t:"Volar un dron o FPV",ids:["fpv58","wifi24","rc35"],vuelo:1,brief:{
    tit:"El espectro del dron es una cosa; volar, otra distinta",
    sub:"Los enlaces de mando y vídeo son de <b>uso común</b> y no necesitan licencia. Pero la operación en sí tiene su propia normativa de AESA, que va aparte.",
    si:[["Enlace de mando","2400 – 2483,5 MHz","Uso común hasta 100 mW EIRP: es lo que usa tu emisora de serie."],
@@ -1727,7 +1727,9 @@ ucmenu.addEventListener("click",e=>{
   UC = i<0 ? null : i;
   if(UC!==null){ F={tx:"all",rx:"all",me:"all",rf:"all",cat:"all"}; Q=""; $("#q").value=""; syncChips(); }
   ucOpen(false); paintUcBtn(); render();
-  if(UC!==null) setTimeout(()=>$("#results").scrollIntoView({behavior:"smooth",block:"start"}),60);
+  const u=UC!==null?USECASES[UC]:null;
+  if(u && u.vuelo) planVuelo();                       // volar dron o radiofonista: lo útil es qué hay cerca
+  else if(UC!==null) setTimeout(()=>$("#results").scrollIntoView({behavior:"smooth",block:"start"}),60);
 });
 document.addEventListener("click",e=>{ if(!ucmenu.hidden && !ucmenu.contains(e.target) && e.target!==ucbtn) ucOpen(false); });
 document.addEventListener("keydown",e=>{ if(e.key==="Escape" && !ucmenu.hidden) ucOpen(false); });
@@ -2854,11 +2856,26 @@ $("#nearGeo").addEventListener("click",()=>{
     {timeout:12000,maximumAge:60000,enableHighAccuracy:true});
 });
 nearQ.addEventListener("input",()=>{
-  const q=norm(nearQ.value.trim());
+  const raw=nearQ.value.trim();
+  // coordenadas pegadas de un mapa: lo más práctico para planificar otro punto
+  const cc=/^(-?\d{1,2}(?:[.,]\d+)?)\s*[,;\s]\s*(-?\d{1,3}(?:[.,]\d+)?)$/.exec(raw);
+  if(cc){
+    const la=parseFloat(cc[1].replace(",",".")), lo=parseFloat(cc[2].replace(",","."));
+    if(Math.abs(la)<=90&&Math.abs(lo)<=180){ nearRender({la,lo},`desde ${la.toFixed(4)}, ${lo.toFixed(4)}`); return; }
+  }
+  const q=norm(raw);
   if(q.length<3){ nearRender(null); return; }
   const c=CIUDADES.find(x=>norm(x[0]).startsWith(q));
-  c?nearRender({la:c[1],lo:c[2]},"desde "+c[0]):nearOut.innerHTML=`<p class="hint2" style="margin:0">No encuentro esa población. Prueba con una capital o usa tu posición.</p>`;
+  c?nearRender({la:c[1],lo:c[2]},"desde "+c[0])
+   :nearOut.innerHTML=`<p class="hint2" style="margin:0">No encuentro esa población. Prueba con una capital, o pega las coordenadas del punto de vuelo.</p>`;
 });
+/* Punto de entrada desde "voy a volar un dron": abre, enfoca y localiza */
+function planVuelo(){
+  const s=$("#uas-sec").querySelector("details.uas");
+  s.open=true;
+  s.scrollIntoView({behavior:"smooth",block:"start"});
+  setTimeout(()=>{ if(!nearOut.querySelector(".nearhead")) $("#nearGeo").click(); },450);
+}
 nearRender(null);
 
 /* ═══════════════ arranque ═══════════════ */
