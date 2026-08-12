@@ -604,6 +604,7 @@ details.svc .grid{padding-top:2px}
 .rbot{font-size:12.1px;color:var(--fg2);margin-top:3px;line-height:1.45}
 .rlinks{display:flex;gap:7px;flex-wrap:wrap;margin-top:6px}
 .rnone{font-size:11px;color:var(--fg3);margin-top:5px;font-style:italic}
+.rnone a,.cnote2 a{color:var(--acc);font-style:normal}
 .rlink{display:inline-flex;align-items:center;gap:5px;font-family:var(--f-mono);font-size:11px;padding:4px 9px;border-radius:6px;border:1px solid var(--line);background:var(--srf2);color:var(--fg2);text-decoration:none}
 .rlink:hover{border-color:var(--acc);color:var(--acc)}
 
@@ -761,7 +762,7 @@ details.svc .grid{padding-top:2px}
         <svg class="caret" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
       </summary>
       <div class="uas-body">
-        <div class="cal c-nt" style="margin-bottom:14px"><span class="kicker">Qué son y por qué no tienen frecuencia</span>El AIP publica solo <b>10 helipuertos con datos aeronáuticos completos</b>; el resto —hospitales, parques de bomberos, puertos, hoteles y empresas— son de <b>uso restringido</b> y aparecen únicamente en el índice AD 1.3, con su emplazamiento y su titular. <b>No tienen frecuencia propia ni servicio ATS</b>: el helicóptero que opera ahí habla con la dependencia del espacio aéreo que corresponda, no con el helipuerto. Para volar un dron cerca, lo relevante es saber que existen y que puede aparecer tráfico sanitario sin previo aviso. Ojo: el índice recoge las instalaciones <b>autorizadas</b>; las eventuales que no requieren autorización no se publican, así que la lista no es exhaustiva. Valencia, por ejemplo, no tiene ninguna en el índice.</div>
+        <div class="cal c-nt" style="margin-bottom:14px"><span class="kicker">Qué son y por qué no tienen frecuencia</span>El AIP publica solo <b>10 helipuertos con datos aeronáuticos completos</b>; el resto —hospitales, parques de bomberos, puertos, hoteles y empresas— son de <b>uso restringido</b> y aparecen únicamente en el índice AD 1.3, con su emplazamiento y su titular. <b>No tienen frecuencia propia ni servicio ATS</b>: el helicóptero que opera ahí habla con la dependencia del espacio aéreo que corresponda, no con el helipuerto. Para volar un dron cerca, lo relevante es saber que existen y que puede aparecer tráfico sanitario sin previo aviso. <b>Llamar al titular no sustituye a nada</b>: quien opera ahí habla con la dependencia del espacio aéreo, no con el hospital. Lo que protege tu vuelo es la consulta de zonas en ENAIRE Drones y las condiciones de tu autorización; el teléfono, cuando lo hay, sirve para avisar o coordinar una actividad concreta, no para obtener permiso. Ojo: el índice recoge las instalaciones <b>autorizadas</b>; las eventuales que no requieren autorización no se publican, así que la lista no es exhaustiva. Valencia, por ejemplo, no tiene ninguna en el índice.</div>
         <div class="rst-top">
           <input id="rstq" type="search" placeholder="Escribe una población (Barcelona) o un nombre (Sant Pau)" aria-label="Buscar instalación restringida">
           <button class="btn" id="rstgeo">Cerca de mí</button>
@@ -2819,7 +2820,7 @@ function rstRender() {
       <div class="rtop"><b>${esc(x.n)}</b><span class="rk ${cls}">${lab}</span>${x.i ? `<span class="rico">${esc(x.i)}</span>` : ""}${x.d !== undefined ? `<span class="rdist">${x.d < 1 ? Math.round(x.d * 1000) + " m" : x.d.toFixed(1) + " km"}</span>` : ""}</div>
       ${x.o ? `<div class="rbot">${esc(x.o)}</div>` : ""}
       <div class="rlinks"><a class="rlink" href="https://www.google.com/maps?q=${x.la},${x.lo}" target="_blank" rel="noopener">📍 ${x.la}, ${x.lo}</a>${tel}</div>
-      ${tel?"":`<div class="rnone">Sin contacto publicado en el AIP</div>`}
+      ${tel?"":`<div class="rnone">Sin contacto publicado en el AIP · <a href="https://duckduckgo.com/?q=${encodeURIComponent((x.o||x.n)+" teléfono")}" target="_blank" rel="noopener">buscar al titular ↗</a></div>`}
     </div>`;
   }).join("")}</div>`;
 }
@@ -2930,7 +2931,7 @@ function nearRender(pos, etiqueta){
       <div class="dhead2"><span class="dd">${x.d<1?Math.round(x.d*1000)+" m":x.d.toFixed(1)+" km"}</span>
         <span class="dn"><b>${esc(x.n)}</b><span>${x.i?esc(x.i)+" · ":""}${esc(x.o||"sin titular publicado")}</span></span></div>
       <div class="dchips">${cont}${mapa(x.la,x.lo)}</div>
-      ${cont?"":`<div class="cnote2">El AIP no publica contacto para esta instalación: solo consta el titular.</div>`}
+      ${cont?"":`<div class="cnote2">El AIP no publica contacto para esta instalación: solo consta el titular. <a href="https://duckduckgo.com/?q=${encodeURIComponent((x.o||x.n)+" teléfono")}" target="_blank" rel="noopener">Buscar al titular en la web ↗</a> — resultado de una búsqueda, no un dato oficial.</div>`}
     </div>`;};
 
   nearOut.innerHTML=
