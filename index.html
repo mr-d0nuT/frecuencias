@@ -411,6 +411,15 @@ footer .end{margin-top:var(--s5);padding-top:var(--s4);border-top:1px solid var(
 .lede-d[open]>summary .caret{transform:rotate(180deg)}
 .lede-d p{padding:0 14px 13px;margin:0;font-size:13.5px;color:var(--fg2);line-height:1.6}
 .lede-d p b{color:var(--fg);font-weight:600}
+
+/* ── selector de equipo ── */
+.eqgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:6px}
+.eqt{display:flex;flex-direction:column;gap:3px;padding:12px 13px;border:1px solid var(--line);border-radius:var(--r2);background:var(--srf);text-align:left;transition:.14s;cursor:pointer}
+.eqt:hover{border-color:var(--line2)}
+.eqt.on{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 8%,var(--srf));box-shadow:0 0 0 1px var(--acc) inset}
+.eqt .e{font-size:19px;line-height:1}
+.eqt b{font-size:13.2px;font-weight:620;letter-spacing:-.012em}
+.eqt span{font-size:11.5px;color:var(--fg2);line-height:1.35}
 @media print{
   .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
   body{background:#fff;color:#000;font-size:10pt}
@@ -768,7 +777,7 @@ const D=[
  desc:"Torre, rodadura, aproximación, ruta, ATIS y ayudas a la navegación. La banda favorita de los spotters.",
  canales:AERO,colch:["·","Frecuencia","Servicio"],
  rx:{s:1,r:0,n:"Escucharla NO es infracción y tener un escáner de banda aérea es legal. Recibir no radia nada: no interfieres a nadie ni pones ninguna vida en riesgo. El único límite es el contenido: no divulgues ni aproveches lo que oigas."},
- tx:{s:2,r:3,n:"Ningún particular puede emitir aquí. Una transmisión espuria puede tapar una instrucción de control en una fase crítica del vuelo: además de sanción, puede constituir delito contra la seguridad del tráfico aéreo."},
+ tx:{s:1,r:3,n:"Exige dos permisos distintos y los dos a la vez: habilitación de radiotelefonía (a la persona) y licencia de estación aeronáutica con equipo homologado de 8,33 kHz (al equipo). Sin ellos, una transmisión espuria puede tapar una instrucción de control en una fase crítica del vuelo: además de sanción, puede constituir delito contra la seguridad del tráfico aéreo."},
  notas:["Es AM, no FM: un receptor de FM comercial no la demodula. Necesitas escáner o SDR en modo AM.","121,500 MHz es la frecuencia de emergencia: ni pruebas ni bromas.","La separación de canal es de 8,33 kHz, así que verás frecuencias como 118,105 o 132,180.","Muy usada por spotters junto a ADS-B en 1090 MHz para seguir tráfico real."],
  alt:"Para escuchar no necesitas nada más que el receptor. Para hablar: licencia de piloto o de operador aeronáutico."},
 
@@ -778,7 +787,7 @@ const D=[
  desc:"Frecuencias publicadas de Reus según el AIP España AD 2-LERS. Torre y aproximación comparten portadora; ATIS emite información automática en bucle.",
  canales:CHREUS,colch:["Servicio","Sintoniza","Indicativo y notas"],
  rx:{s:1,r:0,n:"Escucha plenamente legal. Un receptor no radia: no interfieres a torre ni pones en riesgo ninguna operación. El único límite es el contenido — no divulgues ni aproveches lo que oigas."},
- tx:{s:2,r:3,n:"Requiere estación aeronáutica homologada con 8,33 kHz y licencia de estación. El título de operador habilita a la persona; la licencia de estación habilita al equipo. Son dos permisos distintos y hacen falta los dos."},
+ tx:{s:1,r:3,n:"Requiere estación aeronáutica homologada con 8,33 kHz y licencia de estación. El título de operador habilita a la persona; la licencia de estación habilita al equipo. Son dos permisos distintos y hacen falta los dos."},
  notas:["Ojo con el canal frente a la frecuencia: el AIP publica canales de 8,33 kHz (la «C» final), no portadoras. Torre figura como canal 128.880 pero la portadora real es 128,875 MHz. Igual con 121.705 → 121,700 y 120.255 → 120,250. En un escáner o SDR se sintoniza la portadora; en una emisora aeronáutica de 8,33 se marca el canal.",
    "Torre y aproximación son la misma frecuencia: Reus no tiene APP separada.",
    "Todo el servicio ATS es en horario de torre (HR ATS), no H24. Las radioayudas sí son H24.",
@@ -1096,7 +1105,7 @@ D.forEach(b => { b.tx.req = TXREQ[b.id] || []; });
 
 let PROFILE = new Set(LS.get("espectro:perfil", []));
 const saveProfile = () => LS.set("espectro:perfil", [...PROFILE]);
-const hasProfile = () => PROFILE.size > 0;
+const hasProfile = () => PROFILE.size > 0 || MYEQ !== "none";
 
 /* Veredicto personal para una banda concreta */
 function verdict(b) {
@@ -1121,13 +1130,91 @@ const VICON = {
 };
 const vBadge = v => `<span class="vd" style="--c:${VK[v.k]}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">${VICON[v.k]}</svg>${esc(v.t)}</span>`;
 
+/* ═══════════════ EQUIPO ═══════════════
+   Un solo toque. Nada de formularios: perfiles cerrados que cubren
+   los casos reales, con sus límites técnicos ya dentro.            */
+const EQ = {
+  none: { e: "❔", t: "Sin especificar", d: "No comprobar el equipo", skip: 1 },
+  rx:   { e: "📻", t: "Solo receptor", d: "Escáner, SDR o receptor de banda aérea", rxonly: 1 },
+  pmr:  { e: "🚶", t: "Walkie PMR446", d: "Homologado: 500 mW y antena fija",
+          tx: [[446, 446.2]], pwr: 0.5, ant: "fija", modes: ["FM"], cert: ["pmr446"] },
+  ht:   { e: "📱", t: "Walkie UHF/VHF", d: "Tipo Baofeng, Quansheng o TIDRADIO: 5 W, antena desmontable",
+          tx: [[136, 174], [400, 470]], pwr: 5, ant: "desmontable", modes: ["FM"], cert: ["ce"] },
+  cb:   { e: "🛻", t: "Emisora CB-27", d: "4 W en AM/FM, 12 W en banda lateral",
+          tx: [[26.9, 27.5]], pwr: 12, ant: "exterior", modes: ["AM", "FM", "SSB"], cert: ["ce"] },
+  ham:  { e: "🗼", t: "Equipo de radioafición", d: "Multibanda HF, VHF y UHF con antena exterior",
+          tx: [[0.13, 30], [50, 52], [70.1, 70.3], [144, 146], [430, 440], [1240, 1300]], pwr: 100, ant: "exterior",
+          modes: ["AM", "FM", "SSB", "CW"], cert: ["ce"] },
+  aer:  { e: "✈️", t: "Emisora aeronáutica", d: "Homologada, con canalización de 8,33 kHz",
+          tx: [[118, 137]], pwr: 6, ant: "fija", modes: ["AM"], cert: ["etso"], ch833: 1 },
+  mar:  { e: "⛵", t: "Emisora marina VHF", d: "Con llamada selectiva digital",
+          tx: [[156, 162.1]], pwr: 25, ant: "exterior", modes: ["FM"], cert: ["marino"] }
+};
+
+/* Exigencias técnicas por banda. Solo donde el equipo es determinante. */
+const EQREQ = {
+  pmr446:  { pwr: 0.5, ant: "fija", cert: "pmr446", modes: ["FM"], w: "500 mW y antena integrada no desmontable" },
+  dpmr446: { pwr: 0.5, ant: "fija", cert: "pmr446", modes: ["FM"], w: "500 mW y antena integrada no desmontable" },
+  lpd:     { pwr: 0.01, ant: "fija", w: "10 mW y antena integrada" },
+  cb:      { pwr: 12, modes: ["AM", "FM", "SSB"], w: "4 W en AM/FM o 12 W PEP en SSB" },
+  aero:    { cert: "etso", modes: ["AM"], ch833: 1, w: "emisora aeronáutica homologada con canalización de 8,33 kHz" },
+  lers:    { cert: "etso", modes: ["AM"], ch833: 1, w: "emisora aeronáutica homologada con canalización de 8,33 kHz" },
+  mar:     { cert: "marino", modes: ["FM"], w: "emisora marina homologada" },
+  "mar-mf":{ cert: "marino", w: "equipo marítimo de MF con llamada selectiva" },
+  micros:  { pwr: 0.05, w: "50 mW" },
+  fpv58:   { pwr: 0.025, w: "25 mW EIRP" },
+  epirb:   { cert: "baliza", w: "baliza homologada COSPAS-SARSAT" },
+  srd169:  { pwr: 0.5, w: "el límite de la subbanda" }
+};
+const EQNA = new Set(["srd868", "wifi24", "wifi5", "wifi6e", "dect", "radar24", "gnss", "satrx", "meteo", "ndb", "tdt", "dab", "fm", "om", "oc", "tetra", "movil-700", "movil-800", "movil-900", "movil-2100", "5g-35"]);
+
+let MYEQ = LS.get("espectro:equipo", "none");
+const eqCur = () => EQ[MYEQ] || EQ.none;
+
+/* ¿Llega el equipo a esta banda? */
+const eqCovers = (q, b) => (q.tx || []).some(([a, z]) => z >= b.lo && a <= b.hi);
+
+/* Veredicto del equipo para una banda */
+function eqVerdict(b) {
+  const q = eqCur();
+  if (q.skip) return null;
+  if ((b.tx.req || []).includes("estado")) return null;
+  if (q.rxonly) return { k: "no", t: "Tu equipo solo recibe", d: "Un receptor, un escáner o un SDR no transmiten. Para emitir necesitas una emisora." };
+  if (EQNA.has(b.id)) return null;
+  if (!eqCovers(q, b)) return { k: "no", t: "Tu equipo no llega a esta banda", d: `${q.t}: su margen de transmisión no cubre ${b.txt}.` };
+  const r = EQREQ[b.id]; if (!r) return { k: "ok", t: "Tu equipo sirve" };
+  const fail = [];
+  if (r.pwr && q.pwr > r.pwr + 1e-9) fail.push("potencia");
+  if (r.ant === "fija" && q.ant !== "fija") fail.push("antena fija");
+  if (r.cert && !(q.cert || []).includes(r.cert)) fail.push("homologación");
+  if (r.ch833 && !q.ch833) fail.push("canalización de 8,33 kHz");
+  if (r.modes && !r.modes.some(m => (q.modes || []).includes(m))) fail.push("modo de modulación");
+  if (!fail.length) return { k: "ok", t: "Tu equipo cumple" };
+  return { k: "no", t: "Tu equipo no cumple: " + fail.join(", "), d: `Esta banda exige ${r.w}. Estar en la frecuencia correcta no basta: si el equipo no cumple, el uso sigue siendo ilegal.` };
+}
+
+/* Veredicto final: manda el obstáculo más grave */
+function fverdict(b) {
+  const lic = verdict(b);
+  if (lic.k === "never") return lic;
+  const eq = eqVerdict(b);
+  if (!eq) return lic;
+  if (lic.k === "ok" && eq.k === "ok") return { k: "ok", t: b.tx.s === 0 ? "Puedes transmitir" : "Habilitado con tu equipo y licencia", d: lic.d };
+  if (eq.k === "no" && lic.k === "ok") return { k: "eq", t: eq.t, d: eq.d };
+  if (eq.k === "no") { const et = eq.t.charAt(0).toLowerCase() + eq.t.slice(1); return { k: lic.k === "partial" ? "partial" : "no", t: lic.t + " · " + et, d: lic.d + " " + (eq.d || "") }; }
+  return lic;
+}
+VK.eq = "var(--hot)";
+VICON.eq = '<path d="M12 7v6M12 17v.01"/>';
+
 /* ── panel de perfil ── */
 const povl = $("#povl"), pbtn = $("#pbtn");
 function profileLabel() {
-  if (!PROFILE.size) return "Sin licencia";
-  const keys = [...PROFILE];
-  if (keys.length <= 2) return keys.map(k => CRED[k].s).join(" + ");
-  return keys.length + " habilitaciones";
+  const eq = MYEQ !== "none" ? EQ[MYEQ].t : "";
+  let lic = "";
+  if (PROFILE.size) { const k = [...PROFILE]; lic = k.length <= 2 ? k.map(x => CRED[x].s).join(" + ") : k.length + " habilitaciones"; }
+  if (eq && lic) return eq + " · " + lic;
+  return eq || lic || "Mi perfil";
 }
 function paintProfileBtn() {
   pbtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M7 11V8a5 5 0 0110 0v3"/><rect x="4.5" y="11" width="15" height="9.5" rx="2.2"/></svg><span>${esc(profileLabel())}</span>`;
@@ -1146,6 +1233,11 @@ function openProfile() {
     </div>
     <div class="sh-b">
       <div class="cal c-nt" style="margin-bottom:18px"><span class="kicker">Cómo funciona</span>Un <b>título de operador</b> habilita a la persona; una <b>licencia de estación</b> habilita al equipo. Muchas bandas exigen las dos cosas, así que se marcan por separado: así la app puede decirte exactamente qué te falta.</div>
+      <h5>Tu equipo · un solo toque</h5>
+      <div class="eqgrid">${Object.entries(EQ).map(([id, q]) => `
+        <button class="eqt ${MYEQ === id ? "on" : ""}" data-eq="${id}">
+          <span class="e">${q.e}</span><b>${esc(q.t)}</b><span>${esc(q.d)}</span>
+        </button>`).join("")}</div>
       ${Object.entries(groups).map(([g, items]) => `
         <h5>${esc(g)}</h5>
         <div class="creds">${items.map(([id, c]) => `
@@ -1160,6 +1252,11 @@ function openProfile() {
   povl.classList.add("on"); document.body.style.overflow = "hidden";
   povl.querySelector("#px").onclick = closeProfile;
   povl.querySelector("#pclose").onclick = closeProfile;
+  povl.querySelectorAll("[data-eq]").forEach(t => t.addEventListener("click", () => {
+    MYEQ = t.dataset.eq; LS.set("espectro:equipo", MYEQ);
+    povl.querySelectorAll("[data-eq]").forEach(x => x.classList.toggle("on", x === t));
+    paintProfileBtn(); render(); paintStats();
+  }));
   povl.querySelectorAll("[data-cred]").forEach(i => i.addEventListener("change", e => {
     const id = e.target.dataset.cred;
     e.target.checked ? PROFILE.add(id) : PROFILE.delete(id);
@@ -1175,7 +1272,7 @@ paintProfileBtn();
 
 function paintStats(){
   const ch=D.reduce((a,b)=>a+(b.canales?b.canales.length:0),0);
-  const puedo=D.filter(b=>verdict(b).k==="ok").length;
+  const puedo=D.filter(b=>fverdict(b).k==="ok").length;
   const esc0=D.filter(b=>b.rx.s===0).length;
   const items=hasProfile()
     ? [[D.length,"bandas"],[puedo,"puedes transmitir"],[esc0,"de escucha libre"],[ch,"canales listados"]]
@@ -1228,7 +1325,7 @@ function matches(b){
   if(FAVONLY&&!FAV.has(b.id))return false;
   if(F.tx!=="all"&&b.tx.s!==+F.tx)return false;
   if(F.rx!=="all"&&b.rx.s!==+F.rx)return false;
-  if(F.me!=="all"){const v=verdict(b).k; if(F.me==="no" ? (v!=="no"&&v!=="never") : v!==F.me) return false;}
+  if(F.me!=="all"){const v=fverdict(b).k==="eq"?"partial":fverdict(b).k; if(F.me==="no" ? (v!=="no"&&v!=="never") : v!==F.me) return false;}
   if(F.rf!=="all"&&b.rf!==F.rf)return false;
   if(F.cat!=="all"&&b.cat!==F.cat)return false;
   if(Q){
@@ -1246,7 +1343,7 @@ function cardHTML(b){
     <span class="rt">
       <span class="rtr"><i class="rtk">RX</i>${pill(b.rx,RXL)}<i class="rmini">no radia</i></span>
       <span class="rtr"><i class="rtk">TX</i>${pill(b.tx,TXL)}${b.tx.r?bars(b.tx.r):'<i class="rmini">sin riesgo</i>'}</span>
-      ${hasProfile()?`<span class="rtr me" style="--c:${VK[verdict(b).k]}"><i class="rtk">TÚ</i>${vBadge(verdict(b))}</span>`:""}
+      ${hasProfile()?(()=>{const v=fverdict(b);return `<span class="rtr me" style="--c:${VK[v.k]}"><i class="rtk">TÚ</i>${vBadge(v)}</span>`;})():""}
     </span>
     <span class="foot"><span>${esc(b.pot.split("·")[0].trim())}</span><span>${esc(b.modo.split("·")[0].trim())}</span>${b.canales?`<span>${b.canales.length} canales</span>`:""}</span>
     <button class="fav ${FAV.has(b.id)?"on":""}" data-fav="${b.id}" aria-label="Marcar como favorito" aria-pressed="${FAV.has(b.id)}">
@@ -1318,6 +1415,8 @@ function openBand(id,push=true){
         <div class="rr" style="--rc:${RISK[b.tx.r].c}"><span class="k">Riesgo</span>${bars(b.tx.r)}<span class="v">${RISK[b.tx.r].t}</span></div>
       </div>
     </div>
+    ${(()=>{const e=eqVerdict(b); if(!e||!hasProfile()) return "";
+      return `<div class="cal" style="background:color-mix(in srgb,${VK[e.k==="ok"?"ok":"eq"]} 10%,transparent);border-color:color-mix(in srgb,${VK[e.k==="ok"?"ok":"eq"]} 32%,transparent)"><span class="kicker">Tu equipo · ${esc(EQ[MYEQ].t)}</span><b>${esc(e.t)}.</b> ${esc(e.d||"")}</div>`;})()}
     ${(()=>{const v=verdict(b), req=b.tx.req||[];
       if(b.tx.s===0) return `<div class="cal c-ok"><span class="kicker">Tu situación · puedes transmitir</span>Banda de uso común: no necesitas ninguna licencia. Solo equipo con marcado CE, y respetar potencia y tipo de antena.</div>`;
       const head=`<div class="cal" style="background:color-mix(in srgb,${VK[v.k]} 10%,transparent);border-color:color-mix(in srgb,${VK[v.k]} 32%,transparent)"><span class="kicker">Tu situación · ${esc(v.t)}</span>${esc(v.d)}</div>`;
