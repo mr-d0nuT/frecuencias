@@ -796,30 +796,45 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
 
 /* ── marca y título en la cabecera ── */
 .brand{gap:7px;min-width:0}
-.brand .bn{font-weight:700;font-size:15px;letter-spacing:-.03em;flex:none}
-.brand .bsep{color:var(--fg3);font-weight:400;flex:none}
-.brand .bt{font-size:13px;font-weight:600;letter-spacing:-.02em;color:var(--fg);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.brand .bt{font-size:16px;font-weight:600;letter-spacing:-.02em;color:var(--fg);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .brand .bflag{font-size:1.05em;line-height:1;margin-left:2px;vertical-align:-1px}
 @media (max-width:760px){
   .brand{flex:1;min-width:0;gap:5px}
-  .brand .bn{font-size:12.5px}
-  .brand .bsep{font-size:11px}
-  .brand .bt{font-size:10.5px}
+  .brand .bt{font-size:14px}
   .brand .mark{width:17px;height:17px}
   .hbtns{gap:3px}
   .hbtns .ib,.hbtns .pbtn{height:30px;min-width:30px;border-radius:8px}
   .hbtns .ib svg{width:15px;height:15px}
 }
 @media (max-width:430px){
-  .brand{gap:4px}
-  .brand .mark{width:16px;height:16px}
-  .brand .bn{font-size:11.5px}
-  .brand .bsep{font-size:10px;margin:0 -1px}
-  .brand .bt{font-size:9.5px}
+  .brand{gap:5px}
+  .brand .mark{width:18px;height:18px}
+  .brand .bt{font-size:12.5px}
   .hbtns{gap:2px}
   .hbtns .ib,.hbtns .pbtn{height:28px;min-width:28px}
   .hbtns .ib svg{width:14px;height:14px}
 }
+
+/* ── centrado horizontal de tarjetas y grupos de botones ──
+   Se centran píldoras, fichas y controles; el texto corrido se deja
+   alineado a la izquierda, que es como mejor se lee. */
+.keys{justify-content:center}
+.me-h{justify-content:center}
+.me-tile{align-items:center;text-align:center}
+.me-tile::before{display:none}
+.me-tile .mi{position:static;margin-bottom:1px}
+.fc-in{justify-content:center}
+.sos-h{justify-content:center}
+.fchips,.dchips,.cchips,.cfreqs,.rlinks{justify-content:center}
+.adtop{justify-content:center}
+.dhead2{justify-content:center;text-align:center}
+.dn{flex:0 1 auto;text-align:center}
+.near-top,.rst-top,.ad-top,.lk-row{justify-content:center}
+.bcta{justify-content:center}
+.uas-sum{justify-content:center}
+.uas-tt{flex:0 1 auto;text-align:center}
+.svc-h{justify-content:center}
+@media (max-width:760px){ .qb-in{justify-content:space-between} }
 @media print{
   .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
   body{background:#fff;color:#000;font-size:10pt}
@@ -838,7 +853,7 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
         <path d="M9.4 9.4a9.3 9.3 0 000 13.2M22.6 9.4a9.3 9.3 0 010 13.2" stroke="var(--acc)" stroke-width="2" stroke-linecap="round" opacity=".5"/>
         <path d="M5.6 5.6a14.7 14.7 0 000 20.8M26.4 5.6a14.7 14.7 0 010 20.8" stroke="var(--acc)" stroke-width="1.7" stroke-linecap="round" opacity=".22"/>
       </svg>
-      <b class="bn">Espectro</b><span class="bsep">—</span><span class="bt">Frecuencias de radio <span class="bflag" role="img" aria-label="España">🇪🇸</span></span>
+      <span class="bt">Frecuencias de radio <span class="bflag" role="img" aria-label="España">🇪🇸</span></span>
     </div>
     <div class="wrap qb-in" id="qbar"></div>
     <div class="hsearch" id="hsearch" hidden>
@@ -864,7 +879,6 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
 <main class="wrap" id="top">
 
   <section class="hero">
-    <div class="stats" id="stats"></div>
     <div class="keys" id="keys"></div>
   </section>
 
@@ -1878,7 +1892,8 @@ paintProfileBtn();
 
 
 function paintStats(){
-  const st=$("#stats"); if(st) st.hidden = UC!==null;
+  const st=$("#stats"); if(!st) return;   // las cifras viven ahora en las tarjetas de arriba
+  st.hidden = UC!==null;
   const ch=D.reduce((a,b)=>a+(b.canales?b.canales.length:0),0);
   const puedo=D.filter(b=>fverdict(b).k==="ok").length;
   const esc0=D.filter(b=>b.rx.s===0).length;
