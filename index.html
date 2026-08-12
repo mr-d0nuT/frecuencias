@@ -702,6 +702,17 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
 .kpill{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px;border-radius:20px;border:1px solid color-mix(in srgb,var(--c) 34%,transparent);background:color-mix(in srgb,var(--c) 9%,transparent);color:var(--c);font-family:var(--f-mono);font-size:10.5px;font-weight:700;letter-spacing:.09em;transition:.14s}
 .kpill:hover{background:color-mix(in srgb,var(--c) 17%,transparent)}
 .kpill i{font-style:normal;opacity:.6;font-size:11px}
+
+/* ── búsqueda desplegable ── */
+.hsearch{position:relative;flex:1;min-width:0;display:flex;align-items:center}
+.hsearch .si{position:absolute;left:11px;color:var(--fg3);pointer-events:none}
+.hsearch input{width:100%;height:36px;padding:0 34px;border-radius:10px;border:1px solid var(--acc);background:var(--srf);color:var(--fg);font-size:16px;outline:none}
+.hsearch input::placeholder{color:var(--fg3);font-size:14px}
+.hsx{position:absolute;right:6px;width:26px;height:26px;border-radius:7px;color:var(--fg3);font-size:13px}
+.hsx:hover{background:var(--srf2);color:var(--fg)}
+.ucsearch{position:relative;padding:4px 4px 8px;border-bottom:1px solid var(--line);margin-bottom:5px}
+.ucsearch input{width:100%;height:36px;padding:0 12px;border-radius:8px;border:1px solid var(--line);background:var(--srf);color:var(--fg);font-size:15px;outline:none}
+.ucsearch input:focus{border-color:var(--acc)}
 @media print{
   .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
   body{background:#fff;color:#000;font-size:10pt}
@@ -723,7 +734,15 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
       Espectro<small>·ES</small>
     </div>
     <div class="wrap qb-in" id="qbar"></div>
+    <div class="hsearch" id="hsearch" hidden>
+      <svg class="si" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6" stroke-linecap="round"/></svg>
+      <input id="q" type="search" placeholder="Buscar banda, servicio, nota…" autocomplete="off" aria-label="Buscar">
+      <button class="hsx" id="hsx" aria-label="Cerrar búsqueda">✕</button>
+    </div>
     <div class="hbtns">
+      <button class="ib" id="sbtn" aria-label="Buscar" title="Buscar (/)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6" stroke-linecap="round"/></svg>
+      </button>
       <button class="pbtn" id="pbtn" aria-label="Mis habilitaciones"></button>
       <button class="ib" id="favbtn" aria-label="Mostrar solo favoritos" title="Solo favoritos">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M12 3.6l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8L3.5 9.8l5.9-.9z"/></svg>
@@ -849,6 +868,14 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
     </div>
   </section>
 
+  <section class="sec">
+    <article class="card sos">
+      <h3>Frecuencias de socorro</h3>
+      <p>Escucharlas es legal y no molesta a nadie. Emitir en ellas fuera de una emergencia real moviliza helicópteros y equipos de rescate, y se sanciona con severidad. En tierra, el teléfono de emergencias es el <b>112</b>.</p>
+      <div class="sosg" id="sosg"></div>
+    </article>
+  </section>
+
   <div class="facets" id="facets"><div class="wrap fc-in"></div></div>
 
   <div class="fbar" id="fbar">
@@ -905,13 +932,6 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
 
   <div id="results"></div>
 
-  <section class="sec">
-    <article class="card sos">
-      <h3>Frecuencias de socorro</h3>
-      <p>Escucharlas es legal y no molesta a nadie. Emitir en ellas fuera de una emergencia real moviliza helicópteros y equipos de rescate, y se sanciona con severidad. En tierra, el teléfono de emergencias es el <b>112</b>.</p>
-      <div class="sosg" id="sosg"></div>
-    </article>
-  </section>
 
   <section class="sec">
     <article class="card leg">
@@ -1770,6 +1790,7 @@ function paintUcBtn(){
 }
 function paintUcMenu(){
   ucmenu.innerHTML=
+    `<div class="ucsearch"><input id="ucq" type="search" placeholder="O busca por texto: esporádica, CTCSS, dividendo…" aria-label="Buscar"></div>`+
     `<button class="ucopt ${UC===null?"sel":""}" data-uc="-1" role="option"><span class="uce">🎯</span><span class="uco"><b>Todas las bandas</b><span>sin filtrar · ${D.length} bandas</span></span>${TICK}</button>
      <div class="ucsep"></div>`+
     USECASES.map((u,i)=>`<button class="ucopt ${UC===i?"sel":""}" data-uc="${i}" role="option">
@@ -1778,7 +1799,15 @@ function paintUcMenu(){
 }
 function ucOpen(v){
   ucmenu.hidden=!v; ucbtn.setAttribute("aria-expanded",v?"true":"false");
-  if(v) paintUcMenu();
+  if(!v) return;
+  paintUcMenu();
+  const ui=$("#ucq");
+  if(ui){
+    ui.value = Q;
+    ui.addEventListener("input", e => setQ(e.target.value));
+    ui.addEventListener("click", e => e.stopPropagation());
+    ui.addEventListener("keydown", e => { if(e.key==="Enter"||e.key==="Escape") ucOpen(false); });
+  }
 }
 ucbtn.addEventListener("click",e=>{e.stopPropagation();ucOpen(ucmenu.hidden);});
 ucmenu.addEventListener("click",e=>{
@@ -1885,6 +1914,28 @@ fcIn.addEventListener("click",e=>{
 });
 document.addEventListener("click",e=>{ if(!e.target.closest("#facets")) fcIn.querySelectorAll(".fcm").forEach(m=>m.remove()); });
 paintFacets();
+
+
+/* Búsqueda por texto: lupa en la cabecera y campo en el desplegable */
+const hsearch=$("#hsearch"), qEl=$("#q");
+function setQ(v){
+  Q=(v||"").trim().toLowerCase();
+  if(Q && UC!==null){ UC=null; paintUcBtn(); paintQbar(); }
+  render();
+}
+function showSearch(on){
+  hsearch.hidden=!on; qbar.hidden=on;
+  $("#sbtn").classList.toggle("on",on);
+  if(on) setTimeout(()=>qEl.focus(),20);
+  else { qEl.value=""; setQ(""); }
+}
+$("#sbtn").addEventListener("click",()=>showSearch(hsearch.hidden));
+$("#hsx").addEventListener("click",()=>showSearch(false));
+qEl.addEventListener("input",e=>setQ(e.target.value));
+qEl.addEventListener("keydown",e=>{ if(e.key==="Escape") showSearch(false); });
+document.addEventListener("keydown",e=>{
+  if(e.key==="/" && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)){ e.preventDefault(); showSearch(true); }
+});
 
 /* ═══════════════ resultados ═══════════════ */
 function matches(b){
@@ -2850,7 +2901,6 @@ async function adFetchLive(code, manual) {
 function adSelect(code, manual) {
   if (!code || !AD[code]) { adSel.value = ""; adRender(""); try { localStorage.removeItem("espectro:ad"); } catch {} return; }
   adSel.value = code;
-  try { localStorage.setItem("espectro:ad", code); } catch {}
   adRender(code);
   const fresh = cacheGet(code);
   if (manual || !fresh) adFetchLive(code, manual);   // se actualiza solo, sin pedir nada al usuario
@@ -2858,9 +2908,7 @@ function adSelect(code, manual) {
 }
 adSel.addEventListener("change", () => adSelect(adSel.value, false));
 adBtn.addEventListener("click", () => adSelect(adSel.value, true));
-let adStart = "";
-try { const v = localStorage.getItem("espectro:ad"); if (v && AD[v]) adStart = v; } catch {}
-adSelect(adStart, false);
+adSelect("", false);   // siempre en blanco al abrir: se elige a propósito
 
 
 
