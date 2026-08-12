@@ -941,6 +941,13 @@ footer .end{margin-top:var(--s3);padding-top:var(--s3)}
 .rtr.me{flex-wrap:wrap;row-gap:0}
 .mewhy{flex:1 1 100%;font-style:normal;font-size:11.6px;line-height:1.5;color:var(--fg2);padding:3px 0 2px 28px;letter-spacing:-.005em}
 @media (max-width:520px){ .mewhy{font-size:11.2px;padding-left:0;padding-top:4px} }
+
+/* ── ajuste de cada situación al perfil, en el propio selector ── */
+.ucfit{flex:none;font-family:var(--f-mono);font-size:9px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;padding:3px 7px;border-radius:6px;white-space:nowrap;margin-left:8px}
+.ucfit.ok{color:var(--ok);background:color-mix(in srgb,var(--ok) 13%,transparent);border:1px solid color-mix(in srgb,var(--ok) 30%,transparent)}
+.ucfit.part{color:var(--warn);background:color-mix(in srgb,var(--warn) 13%,transparent);border:1px solid color-mix(in srgb,var(--warn) 30%,transparent)}
+.ucfit.no{color:var(--fg3);background:color-mix(in srgb,var(--fg3) 10%,transparent);border:1px solid var(--line)}
+@media (max-width:520px){ .ucfit{font-size:8.4px;padding:2px 5px;margin-left:6px} }
 @media print{
   .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
   body{background:#fff;color:#000;font-size:10pt}
@@ -1208,23 +1215,6 @@ const HAM=[["2200 m","135,7 – 137,8 kHz","CW y digitales · 1 W EIRP"],["630 m
 
 const AERO=[["108,000 – 111,975 MHz","ILS localizador y VOR"],["112,000 – 117,975 MHz","VOR / DME"],["118,000 – 121,400 MHz","Torre, aproximación y control"],["121,500 MHz","EMERGENCIA AERONÁUTICA"],["121,600 – 121,975 MHz","Rodadura (ground) y ATIS"],["122,000 – 123,050 MHz","Información de vuelo"],["123,100 MHz","SAR · búsqueda y salvamento"],["123,450 MHz","Aire-aire (uso informal)"],["123,500 – 136,975 MHz","Ruta, compañías, ATIS, VOLMET"],["225 – 400 MHz","Aeronáutico militar en AM"],["243,000 MHz","Emergencia militar"],["328,6 – 335,4 MHz","ILS senda de planeo"],["978 / 1090 MHz","ADS-B y radar secundario"]].map(([f,nota])=>({n:"·",f,nota,raw:1}));
 
-/* Reus (LERS) — AIP España AD 2-LERS, AMDT 409/26 (06-AGO-2026).
-   El AIP publica canales de 8,33 kHz; aquí se lista la PORTADORA que hay que sintonizar. */
-const CHREUS=[
- ["TWR / APP","128,875 MHz","Reus TWR · canal publicado 128.880 · torre y aproximación"],
- ["Rodadura GMC","121,700 MHz","Reus TWR · canal publicado 121.705"],
- ["ATIS","120,250 MHz","Reus Information · canal publicado 120.255 · bucle continuo"],
- ["Emergencia","121,500 MHz","EMERGENCIA aeronáutica · solo escucha"],
- ["VDF gonio","128,875 MHz","Reus gonio · radiogoniómetro sobre la portadora de torre"],
- ["Militar","257,800 MHz","Aeronáutico militar UHF en AM"],
- ["Emergencia MIL","243,000 MHz","EMERGENCIA militar"],
- ["DVOR","116,850 MHz","Identificativo RES en Morse · H24 · cobertura 40 NM"],
- ["DME","Canal 115Y","RES · emparejado con el DVOR · H24"],
- ["NDB","424,000 kHz","Identificativo RUS en Morse · H24"],
- ["ILS LOC 25","110,100 MHz","Identificativo IRS · CAT I · H24"],
- ["ILS GP 25","334,400 MHz","Senda de planeo · 3° · H24"],
- ["ILS/DME 25","Canal 38X","IRS · referencia umbral 25 · H24"]
-].map(([n,f,nota])=>({n,f,nota,raw:1}));
 
 /* ═══════════════ textos comunes ═══════════════ */
 const RX_LIB="Difusión abierta o banda de uso común: escucha totalmente libre, sin condiciones.";
@@ -1318,22 +1308,6 @@ const D=[
  tx:{s:1,r:3,n:"Exige dos permisos distintos y los dos a la vez: habilitación de radiotelefonía (a la persona) y licencia de estación aeronáutica con equipo homologado de 8,33 kHz (al equipo). Sin ellos, una transmisión espuria puede tapar una instrucción de control en una fase crítica del vuelo: además de sanción, puede constituir delito contra la seguridad del tráfico aéreo."},
  notas:["Es AM, no FM: un receptor de FM comercial no la demodula. Necesitas escáner o SDR en modo AM.","121,500 MHz es la frecuencia de emergencia: ni pruebas ni bromas.","La separación de canal es de 8,33 kHz, así que verás frecuencias como 118,105 o 132,180.","Muy usada por spotters junto a ADS-B en 1090 MHz para seguir tráfico real."],
  alt:"Para escuchar no necesitas nada más que el receptor. Para hablar: licencia de piloto o de operador aeronáutico."},
-
-{id:"lers",nom:"Aeropuerto de Reus (LERS) · escucha local",cat:"Aviación",rf:"VHF",lo:110.1,hi:128.875,
- txt:"110,100 – 128,875 MHz · torre, ATIS, ILS y radioayudas",
- pot:"Estaciones aeronáuticas autorizadas",modo:"AM · canalización 8,33 kHz",
- desc:"Frecuencias publicadas de Reus según el AIP España AD 2-LERS. Torre y aproximación comparten portadora; ATIS emite información automática en bucle.",
- canales:CHREUS,colch:["Servicio","Sintoniza","Indicativo y notas"],
- rx:{s:1,r:0,n:"Escucha plenamente legal. Un receptor no radia: no interfieres a torre ni pones en riesgo ninguna operación. El único límite es el contenido — no divulgues ni aproveches lo que oigas."},
- tx:{s:1,r:3,n:"Requiere estación aeronáutica homologada con 8,33 kHz y licencia de estación. El título de operador habilita a la persona; la licencia de estación habilita al equipo. Son dos permisos distintos y hacen falta los dos."},
- notas:["Ojo con el canal frente a la frecuencia: el AIP publica canales de 8,33 kHz (la «C» final), no portadoras. Torre figura como canal 128.880 pero la portadora real es 128,875 MHz. Igual con 121.705 → 121,700 y 120.255 → 120,250. En un escáner o SDR se sintoniza la portadora; en una emisora aeronáutica de 8,33 se marca el canal.",
-   "Torre y aproximación son la misma frecuencia: Reus no tiene APP separada.",
-   "Todo el servicio ATS es en horario de torre (HR ATS), no H24. Las radioayudas sí son H24.",
-   "Empieza siempre por el ATIS en 120,250: te da pista en servicio, viento, QNH y estado del aeródromo antes de volar, y en bucle continuo.",
-   "El «gonio» de 128,875 no es una frecuencia aparte: es el radiogoniómetro de torre sobre la misma portadora.",
-   "Recibibles con un portátil de banda aérea: 128,875 · 121,700 · 120,250 · 121,500 y, como identificativos en Morse, 116,850 (DVOR RES) y 110,100 (LOC IRS). Las militares de 243,000 y 257,800 y la senda de planeo de 334,400 quedan fuera del rango de la mayoría de portátiles.",
-   "Fuente: AIP España AD 2-LERS, AMDT 409/26 (06-AGO-2026). Las frecuencias cambian por enmienda: contrasta con el AIP vigente antes de volar."],
- alt:"Para transmitir con tu título de operador: emisora aeronáutica homologada con 8,33 kHz (Icom IC-A16E, Yaesu FTA-550/850) más la licencia de estación."},
 
 {id:"meteo",nom:"Satélites meteorológicos · APT/LRPT",cat:"Satélite y espacio",rf:"VHF",lo:137,hi:138,txt:"137 – 138 MHz",
  pot:"Operadores espaciales",modo:"APT · LRPT",
@@ -1618,7 +1592,7 @@ const USECASES=[
        ["Esperar cobertura garantizada","27 MHz depende de la propagación y sufre mucho ruido urbano."],
        ["Ocupar el canal 9","Está reservado a emergencias. El 19 es el de carretera."]]}},
 
- {e:"✈️",t:"Escuchar aviones y torres",ids:["aero","lers","meteo"],brief:{
+ {e:"✈️",t:"Escuchar aviones y torres",ids:["aero","meteo"],brief:{
    tit:"Escuchar aviación es legal, y no necesitas ningún permiso",
    sub:"Un receptor <b>no radia energía</b>: no interfieres a nadie ni pones en riesgo ninguna operación. Tener un escáner o un SDR es perfectamente legal en España.",
    si:[["Escuchar toda la banda aérea","108 – 136,975 MHz en AM","Torre, rodadura, aproximación, ruta y ATIS. Sin permiso de ningún tipo."],
@@ -1629,7 +1603,7 @@ const USECASES=[
    no:[["Divulgar lo que oigas","Recibir es legal; difundir o aprovechar el contenido vulnera el secreto de las comunicaciones."],
        ["Transmitir","Ni con un walkie de aficionado ni para probar. Exige habilitación de radiotelefonía y licencia de estación."]]}},
 
- {e:"🚁",t:"Preparación de vuelo UAS",ids:["fpv58","wifi24","rc35","aero","lers","gnss"],cred:"aer_op",vuelo:1,brief:{
+ {e:"🚁",t:"Preparación de vuelo UAS",ids:["fpv58","wifi24","rc35","aero","gnss"],cred:"aer_op",vuelo:1,brief:{
    tit:"Volar un dron: qué es espectro, qué es trámite y qué te habilita tu título",
    sub:"Volar cruza <b>dos marcos distintos</b>. La <b>operación</b> la regulan AESA y ENAIRE: registro, zonas y autorización. El <b>espectro</b> lo regula el CNAF. Cumplir uno no cubre el otro, y la mayor parte de la coordinación no se hace por radio. Si tienes habilitación de radiotelefonía, acredita a la <b>persona</b>: no autoriza por sí sola ninguna estación.",
    si:[["Enlace de mando del dron","2400 – 2483,5 MHz","Uso común hasta 100 mW EIRP. Es lo que usa tu emisora de serie, sin licencia."],
@@ -1809,7 +1783,7 @@ const TXREQ = {
   ndb: ["estado"], om: ["bcast"], "mar-mf": ["mar_op", "mar_est"], oc: ["bcast"],
   "ham-hf": ["ham"], "ham-6": ["ham"], "ham-2m": ["ham"], "ham-70": ["ham"], "ham-23": ["ham"],
   fm: ["bcast"], dab: ["bcast"], tdt: ["bcast"],
-  aero: ["aer_op", "aer_est"], lers: ["aer_op", "aer_est"],
+  aero: ["aer_op", "aer_est"],
   meteo: ["estado"], tetra: ["estado"], gnss: ["estado"],
   "movil-700": ["estado"], "movil-800": ["estado"], "movil-900": ["estado"],
   "movil-2100": ["estado"], "5g-35": ["estado"],
@@ -1877,7 +1851,6 @@ const EQREQ = {
   lpd:     { pwr: 0.01, ant: "fija", w: "10 mW y antena integrada" },
   cb:      { pwr: 12, modes: ["AM", "FM", "SSB"], w: "4 W en AM/FM o 12 W PEP en SSB" },
   aero:    { cert: "etso", modes: ["AM"], ch833: 1, w: "emisora aeronáutica homologada con canalización de 8,33 kHz" },
-  lers:    { cert: "etso", modes: ["AM"], ch833: 1, w: "emisora aeronáutica homologada con canalización de 8,33 kHz" },
   mar:     { cert: "marino", modes: ["FM"], w: "emisora marina homologada" },
   "mar-mf":{ cert: "marino", w: "equipo marítimo de MF con llamada selectiva" },
   micros:  { pwr: 0.05, w: "50 mW" },
@@ -2016,7 +1989,7 @@ function openProfile(first) {
 function perfilCambiado(){
   saveProfile();
   LS.set("espectro:equipo", MYEQ);
-  paintProfileBtn(); paintMe(); paintStats(); paintUas(); render();
+  paintProfileBtn(); paintUcBtn(); paintMe(); paintStats(); paintUas(); render();
 }
 let povlOpened = 0;
 function closeProfile() {
@@ -2048,10 +2021,77 @@ const ucDesc=u=>u.ids.map(shortNom).join(" · ");
 const CARET='<svg class="caret" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>';
 const TICK='<svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg>';
 
+/* ═══ ¿reúne tu perfil los requisitos de cada situación? ═══
+   Solo se comprueba lo que el perfil sabe de verdad: la licencia declarada
+   y el equipo declarado. Lo que depende de la conducta (ciclo de trabajo),
+   de una antena concreta o de trámites ajenos al espectro (registro de
+   operador en AESA) se marca "sin comprobar": es preferible a inventar un
+   veredicto que el usuario leería como oficial. */
+const bandaPorId = id => D.find(b => b.id === id);
+/* true = lo cumples · false = te falta · null = no comprobable */
+const eqSirve = id => {
+  if (MYEQ === "none") return null;
+  const b = bandaPorId(id); if (!b) return null;
+  const v = eqVerdict(b);
+  if (!v) return true;
+  // el motivo importa: un walkie UHF/VHF sí lleva marcado CE, lo que
+  // incumple de PMR446 es la potencia y la antena desmontable
+  return { r: v.k === "ok", why: v.k === "ok" ? eqCur().t + " cumple lo que exige esta banda" : v.t };
+};
+const recibeAM = () => {
+  if (MYEQ === "none") return null;
+  const q = eqCur();
+  if (q.rxonly) return true;                                   // escáner o SDR
+  if ((q.modes || []).includes("AM") && eqCovers(q, {lo:118, hi:137})) return true;
+  if (MYEQ === "ham") return null;   // un multibanda puede traer RX de banda aérea: no se da por sabido
+  return false;
+};
+const paso833 = () => {
+  if (MYEQ === "none") return null;
+  const q = eqCur();
+  return (q.rxonly || q.ch833) ? true : null;
+};
+const REQCHK = {
+  "Hablar con mi grupo en la montaña": { "Equipo con marcado CE": () => eqSirve("pmr446") },
+  "Máximo alcance legal sin licencia": { "Equipo con marcado CE": () => eqSirve("cb") },
+  "Escuchar aviones y torres":         { "Un receptor que demodule AM": recibeAM,
+                                         "Contar con la separación de 8,33 kHz": paso833 },
+  "Navegar y comunicar en el mar":     { "Título de operador (SRC, LRC o GOC)": () => PROFILE.has("mar_op") },
+  "Coordinar un evento o una obra":    { "Concesión de uso privativo": () => PROFILE.has("pmr") },
+  "Empezar en radioafición":           { "Licencia e indicativo": () => PROFILE.has("ham") },
+  "Micrófonos inalámbricos":           { "Autorización PMSE": () => PROFILE.has("pmse") }
+};
+
+/* ¿Cómo queda cada situación con el perfil declarado?
+   Dos cosas distintas y ambas honestas: cuántos de sus requisitos
+   comprobables reúnes (REQCHK: licencia y equipo) y en cuántas de sus
+   bandas puedes transmitir de verdad (fverdict). Devuelve null si no hay
+   perfil: sin nada declarado no hay nada que comparar. */
+function ucAjuste(u){
+  if(!hasProfile()) return null;
+  const bandas=(u.ids||[]).map(bandaPorId).filter(Boolean);
+  const req=REQCHK[u.t]||null;
+  let cumple=0, total=0;
+  if(req) Object.keys(req).forEach(k=>{
+    let v=null; try{ v=req[k](); }catch{}
+    const r=(v&&typeof v==="object")?v.r:v;
+    if(r===true){cumple++;total++;} else if(r===false){total++;}
+  });
+  const tx=bandas.filter(b=>fverdict(b).k==="ok").length, falta=total-cumple;
+  const k = falta>0 ? "part" : (tx>0 ? "ok" : (bandas.length?"no":"part"));
+  const t = falta>0 ? `te falta ${falta} de ${total}`
+          : (tx>0 ? `TX en ${tx} de ${bandas.length}` : "sin TX con tu perfil");
+  const why = falta>0 ? `Reúnes ${cumple} de ${total} requisitos comprobables de esta situación.`
+            : (tx>0 ? `Tu equipo y tus licencias te habilitan a transmitir en ${tx} de sus ${bandas.length} bandas.`
+                    : "Con tu perfil actual no hay transmisión legal en ninguna de sus bandas; escucharlas es otra cosa.");
+  return {k,t,why};
+}
+const ucChip=u=>{ const a=ucAjuste(u); return a?`<span class="ucfit ${a.k}" title="${esc(a.why)}">${esc(a.t)}</span>`:""; };
+
 function paintUcBtn(){
   const u=UC!==null?USECASES[UC]:null;
   ucbtn.innerHTML=u
-    ? `<span class="uce">${u.e}</span><span class="uct"><b>${esc(u.t)}</b><span>${esc(ucDesc(u))}</span></span>${CARET}`
+    ? `<span class="uce">${u.e}</span><span class="uct"><b>${esc(u.t)}</b><span>${esc(ucDesc(u))}</span></span>${ucChip(u)}${CARET}`
     : `<span class="uce">🎯</span><span class="uct"><b>Elige tu situación</b></span>${CARET}`;
   ucbtn.classList.toggle("on", UC!==null);
 }
@@ -2062,7 +2102,7 @@ function paintUcMenu(){
      <div class="ucsep"></div>`+
     USECASES.map((u,i)=>`<button class="ucopt ${UC===i?"sel":""}" data-uc="${i}" role="option">
        <span class="uce">${u.e}</span>
-       <span class="uco"><b>${esc(u.t)}</b><span>${esc(ucDesc(u))}</span></span>${TICK}</button>`).join("");
+       <span class="uco"><b>${esc(u.t)}</b><span>${esc(ucDesc(u))}</span></span>${ucChip(u)}${TICK}</button>`).join("");
 }
 function ucOpen(v){
   ucmenu.hidden=!v; ucbtn.setAttribute("aria-expanded",v?"true":"false");
@@ -2187,47 +2227,6 @@ function perfilDetalle(){
   const lic = PROFILE.size ? [...PROFILE].map(k=>(CRED[k]&&(CRED[k].k||CRED[k].s))||k).join(" + ") : "sin licencias";
   return eq+" · "+lic;
 }
-/* ═══ ¿reúne tu perfil los requisitos de cada situación? ═══
-   Solo se comprueba lo que el perfil sabe de verdad: la licencia declarada
-   y el equipo declarado. Lo que depende de la conducta (ciclo de trabajo),
-   de una antena concreta o de trámites ajenos al espectro (registro de
-   operador en AESA) se marca "sin comprobar": es preferible a inventar un
-   veredicto que el usuario leería como oficial. */
-const bandaPorId = id => D.find(b => b.id === id);
-/* true = lo cumples · false = te falta · null = no comprobable */
-const eqSirve = id => {
-  if (MYEQ === "none") return null;
-  const b = bandaPorId(id); if (!b) return null;
-  const v = eqVerdict(b);
-  if (!v) return true;
-  // el motivo importa: un walkie UHF/VHF sí lleva marcado CE, lo que
-  // incumple de PMR446 es la potencia y la antena desmontable
-  return { r: v.k === "ok", why: v.k === "ok" ? eqCur().t + " cumple lo que exige esta banda" : v.t };
-};
-const recibeAM = () => {
-  if (MYEQ === "none") return null;
-  const q = eqCur();
-  if (q.rxonly) return true;                                   // escáner o SDR
-  if ((q.modes || []).includes("AM") && eqCovers(q, {lo:118, hi:137})) return true;
-  if (MYEQ === "ham") return null;   // un multibanda puede traer RX de banda aérea: no se da por sabido
-  return false;
-};
-const paso833 = () => {
-  if (MYEQ === "none") return null;
-  const q = eqCur();
-  return (q.rxonly || q.ch833) ? true : null;
-};
-const REQCHK = {
-  "Hablar con mi grupo en la montaña": { "Equipo con marcado CE": () => eqSirve("pmr446") },
-  "Máximo alcance legal sin licencia": { "Equipo con marcado CE": () => eqSirve("cb") },
-  "Escuchar aviones y torres":         { "Un receptor que demodule AM": recibeAM,
-                                         "Contar con la separación de 8,33 kHz": paso833 },
-  "Navegar y comunicar en el mar":     { "Título de operador (SRC, LRC o GOC)": () => PROFILE.has("mar_op") },
-  "Coordinar un evento o una obra":    { "Concesión de uso privativo": () => PROFILE.has("pmr") },
-  "Empezar en radioafición":           { "Licencia e indicativo": () => PROFILE.has("ham") },
-  "Micrófonos inalámbricos":           { "Autorización PMSE": () => PROFILE.has("pmse") }
-};
-
 function paintMe(){
   const el=$("#mefilter"); if(!el) return;
   const n={}; ME.forEach(m=>n[m.v]=D.filter(m.f).length);
