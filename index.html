@@ -590,7 +590,7 @@ details.svc .grid{padding-top:2px}
 .rst-top input{flex:1;min-width:180px;height:42px;padding:0 13px;border-radius:var(--r1);border:1px solid var(--line);background:var(--bg-e);color:var(--fg);font-size:16px;outline:none}
 .rst-top input:focus{border-color:var(--acc)}
 .rst-state{font-size:12.3px;color:var(--fg3);margin-bottom:9px;font-family:var(--f-mono)}
-.rlist{border:1px solid var(--line);border-radius:var(--r2);overflow:hidden;background:var(--srf);max-height:430px;overflow-y:auto;overscroll-behavior:contain}
+.rlist{border:1px solid var(--line);border-radius:var(--r2);background:var(--srf);max-height:min(65vh,620px);overflow-y:auto;overscroll-behavior:contain}
 .ritem{padding:10px 13px;border-top:1px solid var(--line)}
 .ritem:first-child{border-top:0}
 .rtop{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
@@ -2751,7 +2751,7 @@ function rstRender() {
   rstate.textContent = ciudad
     ? `${list.length} a menos de 40 km de ${ciudad[0]}`
     : list.length + " de " + RST.length + (RSTPOS ? " · ordenadas por cercanía" : "");
-  rout.innerHTML = `<div class="rlist">${list.slice(0, 120).map(x => {
+  rout.innerHTML = `<div class="rlist">${list.map(x => {
     const [lab, cls] = RSTK[x.k] || RSTK.hlp;
     const tel = (x.t || []).map(t => `<a class="rlink" href="tel:${t.replace(/[^\d+]/g, "")}">📞 ${esc(t)}</a>`).join("");
     return `<div class="ritem">
@@ -2759,7 +2759,7 @@ function rstRender() {
       ${x.o ? `<div class="rbot">${esc(x.o)}</div>` : ""}
       <div class="rlinks"><a class="rlink" href="https://www.google.com/maps?q=${x.la},${x.lo}" target="_blank" rel="noopener">📍 ${x.la}, ${x.lo}</a>${tel}</div>
     </div>`;
-  }).join("")}</div>${list.length > 120 ? `<p class="hint2" style="margin-top:8px">Mostrando las 120 primeras. Afina la búsqueda para ver el resto.</p>` : ""}`;
+  }).join("")}</div>`;
 }
 rq.addEventListener("input", rstRender);
 $("#toRst").addEventListener("click", () => {
