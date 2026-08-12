@@ -1,0 +1,1792 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0c11" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#fbfbfd" media="(prefers-color-scheme: light)">
+<meta name="description" content="Cuadro de consulta de frecuencias de radio en España: bandas libres, con licencia y de escucha, con canales, potencias y régimen RX/TX independiente.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a0c11'/%3E%3Cpath d='M16 21a5 5 0 100-10 5 5 0 000 10z' fill='%232dd4bf'/%3E%3Cpath d='M8.5 8.5a10.6 10.6 0 000 15M23.5 8.5a10.6 10.6 0 010 15' stroke='%232dd4bf' stroke-width='2.2' fill='none' stroke-linecap='round' opacity='.55'/%3E%3C/svg%3E">
+<title>Espectro ES · Frecuencias de radio en España</title>
+<style>
+/* ════════════════ TOKENS ════════════════ */
+:root{
+  --bg:#0a0c11; --bg-e:#0d1017; --srf:#12161f; --srf2:#161b26; --srf3:#1c222f;
+  --fg:#e9ecf2; --fg2:#98a0b0; --fg3:#666e7e;
+  --line:#1e2430; --line2:#2a3140;
+  --acc:#2dd4bf; --acc-fg:#04201c;
+  --ok:#34c78a; --warn:#e0a336; --hot:#e8834a; --bad:#e75a63; --info:#5b93f0;
+  --sel:color-mix(in srgb,var(--acc) 22%,transparent);
+
+  --f-mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,"Cascadia Mono",Consolas,monospace;
+  --f-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,"Helvetica Neue",Arial,sans-serif;
+
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:22px; --s6:32px; --s7:48px; --s8:68px;
+  --r1:8px; --r2:12px; --r3:16px; --r4:22px;
+  --sh1:0 1px 2px rgba(0,0,0,.36);
+  --sh2:0 1px 2px rgba(0,0,0,.3),0 12px 32px -14px rgba(0,0,0,.7);
+  --sh3:0 24px 64px -12px rgba(0,0,0,.7);
+  --hdr:56px;
+}
+html[data-theme="light"]{
+  --bg:#fbfbfd; --bg-e:#f3f5f9; --srf:#ffffff; --srf2:#f7f8fc; --srf3:#eef1f7;
+  --fg:#131720; --fg2:#5a6273; --fg3:#8b93a3;
+  --line:#e5e8ef; --line2:#d2d7e2;
+  --acc:#0d9488; --acc-fg:#ffffff;
+  --ok:#0f9d68; --warn:#b07d10; --hot:#d0631f; --bad:#d33f48; --info:#2f6ee0;
+  --sh1:0 1px 2px rgba(20,26,40,.05);
+  --sh2:0 1px 2px rgba(20,26,40,.05),0 10px 28px -16px rgba(20,26,40,.35);
+  --sh3:0 24px 64px -16px rgba(20,26,40,.34);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+i{font-style:normal}
+[hidden]{display:none!important}
+body{
+  margin:0;background:var(--bg);color:var(--fg);
+  font-family:var(--f-sans);font-size:15px;line-height:1.55;letter-spacing:-.006em;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  font-variant-numeric:tabular-nums;
+  -webkit-tap-highlight-color:transparent;
+  overflow-wrap:anywhere;
+}
+h1,h2,h3,h4{margin:0;font-weight:640;letter-spacing:-.028em;line-height:1.2}
+p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:6px}
+::selection{background:var(--sel)}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:max(18px,env(safe-area-inset-left))}
+.mono{font-family:var(--f-mono)}
+.kicker{font-family:var(--f-mono);font-size:10.5px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--fg3)}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* ════════════════ HEADER ════════════════ */
+.hdr{position:sticky;top:0;z-index:70;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top)}
+.hdr-in{display:flex;align-items:center;gap:10px;height:var(--hdr)}
+.brand{display:flex;align-items:center;gap:8px;font-weight:680;font-size:15px;letter-spacing:-.03em;white-space:nowrap;flex:none}
+.brand .mark{width:22px;height:22px;flex:none}
+.brand small{color:var(--fg3);font-weight:560}
+.search{flex:1;position:relative;min-width:0;max-width:460px}
+.search input{width:100%;height:38px;padding:0 34px 0 34px;border-radius:10px;border:1px solid var(--line);background:var(--srf);color:var(--fg);font-size:16px;outline:none;font-family:inherit;transition:border-color .15s,box-shadow .15s}
+.search input::placeholder{color:var(--fg3);font-size:14px}
+.search input:focus{border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 14%,transparent)}
+.search .si{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--fg3);pointer-events:none}
+.search .sk{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-family:var(--f-mono);font-size:10px;color:var(--fg3);border:1px solid var(--line2);border-radius:5px;padding:1px 5px;pointer-events:none}
+.search input:focus~.sk,.search input:not(:placeholder-shown)~.sk{opacity:0}
+.hbtns{display:flex;gap:6px;margin-left:auto;flex:none}
+.ib{width:38px;height:38px;border:1px solid var(--line);background:var(--srf);color:var(--fg2);border-radius:10px;display:grid;place-items:center;transition:.15s}
+.ib:hover{border-color:var(--line2);color:var(--fg)}
+.ib.on{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 45%,transparent);background:color-mix(in srgb,var(--warn) 10%,var(--srf))}
+.ib svg{width:17px;height:17px}
+
+/* ════════════════ HERO ════════════════ */
+.hero{padding:var(--s7) 0 var(--s5);max-width:74ch}
+.hero h1{font-size:clamp(29px,6.2vw,50px);letter-spacing:-.042em;line-height:1.03;margin:14px 0 16px}
+.hero h1 .g{background:linear-gradient(96deg,var(--acc),var(--info));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero .lede{color:var(--fg2);font-size:clamp(15px,3.4vw,17px);line-height:1.6}
+.hero .lede b{color:var(--fg);font-weight:600}
+.stats{display:flex;flex-wrap:wrap;gap:var(--s5);margin-top:var(--s5);padding-top:var(--s4);border-top:1px solid var(--line)}
+.stat .n{font-size:21px;font-weight:660;letter-spacing:-.03em;line-height:1.1}
+.stat .l{font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--fg3);margin-top:2px}
+
+/* ════════════════ SECCIONES ════════════════ */
+.sec{margin:var(--s7) 0}
+.sec-h{display:flex;align-items:baseline;gap:10px;margin-bottom:var(--s4);flex-wrap:wrap}
+.sec-h h2{font-size:clamp(18px,4vw,21px)}
+.sec-h .sub{color:var(--fg3);font-size:13.5px}
+.card{background:var(--srf);border:1px solid var(--line);border-radius:var(--r3);box-shadow:var(--sh1)}
+
+/* explicador RX/TX */
+.duo2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:var(--s3)}
+.exp{padding:var(--s5);position:relative;overflow:hidden}
+.exp::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--c)}
+.exp .kicker{color:var(--c);display:flex;align-items:center;gap:6px}
+.exp h3{font-size:17.5px;margin:10px 0 8px}
+.exp p{color:var(--fg2);font-size:14px;line-height:1.62}
+.exp p+p{margin-top:9px}
+.exp b{color:var(--fg);font-weight:600}
+
+/* casos de uso */
+.uc{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.uc::-webkit-scrollbar{display:none}
+.ucb{flex:none;scroll-snap-align:start;display:flex;flex-direction:column;gap:5px;width:172px;padding:13px 14px;border:1px solid var(--line);border-radius:var(--r2);background:var(--srf);text-align:left;transition:.15s;box-shadow:var(--sh1)}
+.ucb:hover,.ucb:active{border-color:var(--acc);transform:translateY(-2px)}
+.ucb .e{font-size:17px;line-height:1}
+.ucb .t{font-size:13.2px;font-weight:580;line-height:1.32;letter-spacing:-.012em}
+.ucb .n{font-family:var(--f-mono);font-size:10px;color:var(--fg3);letter-spacing:.04em}
+.ucb.on{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 8%,var(--srf))}
+
+/* lookup */
+.lk{padding:var(--s4) var(--s5)}
+.lk-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.lk-row .kicker{width:100%;margin-bottom:2px}
+.lk input{height:42px;padding:0 12px;border-radius:var(--r1);border:1px solid var(--line);background:var(--bg-e);color:var(--fg);font-family:var(--f-mono);font-size:16px;width:150px;outline:none}
+.lk input:focus{border-color:var(--acc)}
+.lk select{height:42px;padding:0 8px;border-radius:var(--r1);border:1px solid var(--line);background:var(--bg-e);color:var(--fg);font-size:14px;outline:none}
+.lk .hint{font-size:13px;color:var(--fg3);flex:1;min-width:180px}
+.lkres{margin-top:var(--s3);display:none;flex-direction:column;gap:7px}
+.lkres.on{display:flex}
+.hit{display:flex;gap:12px;align-items:center;padding:11px 13px;border-radius:var(--r2);background:var(--srf2);border:1px solid var(--line);cursor:pointer;text-align:left;width:100%;transition:.14s}
+.hit:hover{border-color:var(--acc)}
+.hit .hm{flex:1;min-width:0;display:block}
+.hit .hn{display:block;font-weight:600;font-size:14px;letter-spacing:-.015em;line-height:1.35}
+.hit .hs{display:block;font-family:var(--f-mono);font-size:11.5px;color:var(--fg3);margin-top:3px}
+.hit .hp{display:flex;flex-direction:column;gap:5px;flex:none}
+.empty{color:var(--fg2);font-size:13.5px;padding:4px 2px;line-height:1.6}
+
+/* espectro */
+.spec{padding:var(--s4) var(--s5) var(--s3)}
+.spec-h{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:var(--s3)}
+.tog{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--bg-e)}
+.tog button{padding:6px 12px;font-family:var(--f-mono);font-size:11px;font-weight:600;color:var(--fg3);letter-spacing:.04em}
+.tog button.on{background:var(--acc);color:var(--acc-fg)}
+.specscroll{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin;margin:0 -2px;padding:0 2px}
+.specin{min-width:640px;position:relative}
+.specbar{position:relative;height:56px;border-radius:10px;background:var(--bg-e);overflow:hidden;border:1px solid var(--line)}
+.seg{position:absolute;top:0;bottom:0;min-width:3px;opacity:.9;cursor:pointer;transition:opacity .14s,filter .14s}
+.seg:hover{opacity:1;filter:brightness(1.28);z-index:3}
+.axis{position:relative;height:16px;margin-top:5px}
+.axis span{position:absolute;transform:translateX(-50%);font-family:var(--f-mono);font-size:9.5px;color:var(--fg3);white-space:nowrap}
+.regions{position:relative;height:15px;margin-top:2px}
+.regions i{position:absolute;font-family:var(--f-mono);font-size:9.5px;color:var(--fg3);font-style:normal;letter-spacing:.08em;border-top:1px solid var(--line2);padding-top:2px;text-align:center;opacity:.75}
+.tip{position:fixed;z-index:90;pointer-events:none;background:var(--srf3);border:1px solid var(--line2);border-radius:9px;padding:8px 11px;font-size:12px;box-shadow:var(--sh2);opacity:0;transition:opacity .12s;max-width:250px}
+.tip .tn{font-weight:620;margin-bottom:3px}
+.tip .tf{font-family:var(--f-mono);font-size:11px;color:var(--fg3)}
+.scrollhint{display:none;font-family:var(--f-mono);font-size:10px;color:var(--fg3);text-align:center;margin-top:6px}
+
+/* ════════════════ FILTROS ════════════════ */
+.fbar{display:none}
+.fpanel{position:sticky;top:calc(var(--hdr) + env(safe-area-inset-top));z-index:60;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(16px);border-bottom:1px solid var(--line);padding:11px 0 10px;margin-top:var(--s6)}
+.fgrp{display:flex;gap:6px;align-items:center;margin-bottom:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:1px}
+.fgrp::-webkit-scrollbar{display:none}
+.fgrp:last-child{margin-bottom:0}
+.fl{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--fg3);width:86px;flex:none}
+.ch{flex:none;border:1px solid var(--line);background:var(--srf);color:var(--fg2);padding:5px 11px;border-radius:8px;font-size:12.5px;font-weight:560;white-space:nowrap;transition:.14s;letter-spacing:-.008em}
+.ch:hover{border-color:var(--line2);color:var(--fg)}
+.ch.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.ch.on[data-c]{background:var(--cc);border-color:var(--cc);color:#fff}
+html[data-theme="light"] .ch.on[data-c]{color:#fff}
+.ch .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--cc);margin-right:5px;vertical-align:1px}
+.ch.on .dot{background:currentColor}
+.fmeta{margin-left:auto;font-family:var(--f-mono);font-size:11px;color:var(--fg3);flex:none;padding-left:10px}
+
+/* ════════════════ RESULTADOS ════════════════ */
+.svc{margin-bottom:var(--s6)}
+.svc-h{display:flex;align-items:center;gap:10px;margin:0 0 var(--s3);padding-top:var(--s2)}
+.svc-h h3{font-size:13px;font-weight:640;letter-spacing:-.01em}
+.svc-h .ln{flex:1;height:1px;background:var(--line)}
+.svc-h .qt{font-family:var(--f-mono);font-size:10.5px;color:var(--fg3)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(318px,1fr));gap:var(--s3)}
+.bc{position:relative;display:flex;flex-direction:column;text-align:left;background:var(--srf);border:1px solid var(--line);border-radius:var(--r3);padding:15px 16px 13px;transition:transform .16s,border-color .16s,box-shadow .16s;box-shadow:var(--sh1);width:100%}
+.bc:hover{transform:translateY(-2px);border-color:var(--line2);box-shadow:var(--sh2)}
+.bc:active{transform:translateY(0)}
+.bc-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.bc .tag{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--fg3)}
+.bc h4{font-size:15.5px;letter-spacing:-.026em;margin:6px 0 4px;line-height:1.28;padding-right:20px}
+.bc .rng{font-family:var(--f-mono);font-size:12.2px;color:var(--acc);font-weight:520;letter-spacing:-.02em}
+.bc .dsc{font-size:13px;color:var(--fg2);margin:9px 0 12px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;flex:1}
+.rt{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--srf2)}
+.rtr{display:flex;align-items:center;gap:8px;padding:7px 10px;min-height:33px}
+.rtr+.rtr{border-top:1px solid var(--line)}
+.rtk{font-family:var(--f-mono);font-size:9.5px;font-weight:680;letter-spacing:.11em;color:var(--fg3);width:20px;flex:none}
+.stt{display:inline-flex;align-items:center;gap:6px;font-size:11.8px;font-weight:600;color:var(--c);letter-spacing:-.008em;min-width:0}
+.stt .g{width:6px;height:6px;border-radius:50%;background:var(--c);flex:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 17%,transparent)}
+.bars{display:flex;gap:3px;margin-left:auto;flex:none}
+.bars i{width:13px;height:3px;border-radius:2px;background:var(--line2)}
+.bars i.f{background:var(--rc)}
+.rmini{margin-left:auto;font-family:var(--f-mono);font-size:9.5px;color:var(--fg3);flex:none;letter-spacing:.02em}
+.bc .foot{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px;font-family:var(--f-mono);font-size:10px;color:var(--fg3);letter-spacing:.01em}
+.bc .foot span{background:var(--srf2);border:1px solid var(--line);border-radius:5px;padding:2px 6px}
+.fav{position:absolute;top:11px;right:10px;width:28px;height:28px;display:grid;place-items:center;color:var(--fg3);opacity:.5;border-radius:7px;transition:.14s}
+.fav:hover{opacity:1;background:var(--srf2)}
+.fav.on{opacity:1;color:var(--warn)}
+.fav svg{width:14px;height:14px}
+.none{text-align:center;padding:var(--s8) var(--s4);color:var(--fg2)}
+.none b{display:block;font-size:16px;color:var(--fg);margin-bottom:6px}
+
+/* ════════════════ FICHA ════════════════ */
+.ov{position:fixed;inset:0;z-index:100;display:none;background:color-mix(in srgb,#04060a 74%,transparent);backdrop-filter:blur(6px);align-items:flex-start;justify-content:center;padding:28px 16px;overflow-y:auto;overscroll-behavior:contain}
+.ov.on{display:flex}
+.sheet{position:relative;background:var(--bg-e);border:1px solid var(--line2);border-radius:var(--r4);max-width:880px;width:100%;box-shadow:var(--sh3);animation:pop .24s cubic-bezier(.16,.9,.3,1)}
+@keyframes pop{from{opacity:0;transform:translateY(14px) scale(.985)}}
+.grab{display:none}
+.sh-h{padding:22px 24px 17px;border-bottom:1px solid var(--line);position:relative;background:var(--bg-e);border-radius:var(--r4) var(--r4) 0 0}
+.sh-h h2{font-size:clamp(19px,4.6vw,24px);letter-spacing:-.034em;margin:7px 0 7px;padding-right:46px}
+.sh-h .rng{font-family:var(--f-mono);font-size:13.5px;color:var(--acc);font-weight:520}
+.x{position:absolute;top:18px;right:18px;width:34px;height:34px;border-radius:9px;border:1px solid var(--line);background:var(--srf);color:var(--fg2);display:grid;place-items:center;transition:.14s}
+.x:hover{color:var(--fg);border-color:var(--line2)}
+.sh-b{padding:20px 24px 28px}
+.sh-b .intro{color:var(--fg2);font-size:14.5px;line-height:1.6;margin-bottom:var(--s4)}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3);margin-bottom:var(--s4)}
+.pc{border:1px solid var(--line);border-radius:var(--r2);padding:15px 16px;background:var(--srf);position:relative;overflow:hidden}
+.pc::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--c)}
+.pc .kicker{color:var(--fg3)}
+.pc .st{font-size:15px;font-weight:650;color:var(--c);letter-spacing:-.024em;margin:8px 0 6px}
+.pc .tx{font-size:13px;color:var(--fg2);line-height:1.58}
+.pc .rr{display:flex;align-items:center;gap:9px;margin-top:12px;padding-top:11px;border-top:1px solid var(--line)}
+.pc .rr .k{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--fg3)}
+.pc .rr .v{margin-left:auto;font-size:11.5px;font-weight:640;color:var(--rc)}
+.specs{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:var(--s2);margin-bottom:var(--s4)}
+.spc{background:var(--srf);border:1px solid var(--line);border-radius:var(--r2);padding:11px 13px}
+.spc .k{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--fg3);margin-bottom:4px}
+.spc .v{font-size:13px;font-weight:560;line-height:1.4}
+.cal{border-radius:var(--r2);padding:13px 15px;font-size:13.2px;margin-bottom:var(--s3);border:1px solid;color:var(--fg2);line-height:1.58}
+.cal .kicker{color:var(--fg);margin-bottom:5px;display:block}
+.c-ok{background:color-mix(in srgb,var(--ok) 9%,transparent);border-color:color-mix(in srgb,var(--ok) 30%,transparent)}
+.c-nt{background:var(--srf);border-color:var(--line)}
+.sh-b h5{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--fg3);margin:var(--s5) 0 var(--s2);font-weight:600}
+.pts{margin:0;padding-left:17px;font-size:13.4px;color:var(--fg2);line-height:1.6}
+.pts li{margin-bottom:7px}
+.pts li::marker{color:var(--fg3)}
+.tblwrap{border:1px solid var(--line);border-radius:var(--r2);overflow:hidden}
+.tblscroll{max-height:340px;overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+table{width:100%;border-collapse:collapse;font-family:var(--f-mono);font-size:12.2px}
+thead th{background:var(--srf2);text-align:left;padding:9px 12px;font-family:var(--f-mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--fg3);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:1;font-weight:600}
+tbody td{padding:7px 12px;border-bottom:1px solid color-mix(in srgb,var(--line) 55%,transparent);white-space:nowrap}
+tbody td:last-child{white-space:normal;font-family:var(--f-sans);color:var(--fg2);font-size:12.4px}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover td{background:var(--srf)}
+tr.crit td{background:color-mix(in srgb,var(--bad) 11%,transparent);font-weight:600}
+tr.crit td:last-child{color:var(--bad)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:var(--s4)}
+.chips span{font-family:var(--f-mono);font-size:10.5px;background:var(--srf);border:1px solid var(--line);padding:4px 9px;border-radius:6px;color:var(--fg3)}
+
+/* ════════════════ SOCORRO / LEYENDA / PIE ════════════════ */
+.sos{padding:var(--s5);border-color:color-mix(in srgb,var(--bad) 26%,var(--line))}
+.sos h3{font-size:16px;margin-bottom:5px}
+.sos p{color:var(--fg2);font-size:13.4px;margin-bottom:var(--s4);max-width:80ch}
+.sosg{display:grid;grid-template-columns:repeat(auto-fill,minmax(196px,1fr));gap:8px}
+.sosi{background:var(--srf2);border:1px solid var(--line);border-radius:var(--r1);padding:10px 12px}
+.sosi .f{font-family:var(--f-mono);font-weight:620;color:var(--bad);font-size:13.5px;letter-spacing:-.02em}
+.sosi .l{font-size:11.5px;color:var(--fg2);margin-top:2px;line-height:1.4}
+.leg{padding:var(--s5)}
+.legg{display:grid;grid-template-columns:repeat(auto-fit,minmax(248px,1fr));gap:var(--s4)}
+.legi{font-size:13px;color:var(--fg2);line-height:1.56}
+.legi .hh{display:flex;align-items:center;gap:7px;margin-bottom:5px;font-weight:620;color:var(--fg);font-size:13px}
+footer{border-top:1px solid var(--line);margin-top:var(--s7);padding:var(--s6) 0 calc(var(--s8) + env(safe-area-inset-bottom));color:var(--fg3);font-size:12.5px;line-height:1.66}
+footer .fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:var(--s5)}
+footer h6{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--fg2);margin:0 0 7px;font-weight:600}
+footer b{color:var(--fg2);font-weight:560}
+footer .end{margin-top:var(--s5);padding-top:var(--s4);border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.03em}
+
+/* ════════════════ MÓVIL ════════════════ */
+@media (max-width:860px){ .pair{grid-template-columns:1fr} }
+@media (max-width:760px){
+  :root{--hdr:52px}
+  .wrap{padding-inline:max(14px,env(safe-area-inset-left))}
+  .hero{padding:var(--s6) 0 var(--s4)}
+  .stats{gap:var(--s4)}
+  .stat .n{font-size:18px}
+  .sec{margin:var(--s6) 0}
+  .exp{padding:var(--s4)}
+  .lk,.spec,.sos,.leg{padding:var(--s4)}
+  .lk input{flex:1;min-width:120px;width:auto}
+  .lk .hint{display:none}
+  .grid{grid-template-columns:1fr;gap:10px}
+  .specin{min-width:560px}
+  .scrollhint{display:block}
+  .hit{flex-wrap:wrap}
+  .hit .hp{flex-direction:row;gap:10px;width:100%;padding-top:8px;border-top:1px solid var(--line);flex-wrap:wrap}
+
+  /* barra de filtros compacta + hoja inferior */
+  .fpanel{position:fixed;left:0;right:0;bottom:0;top:auto;z-index:110;background:var(--bg-e);border:0;border-top:1px solid var(--line2);border-radius:var(--r4) var(--r4) 0 0;padding:6px 0 calc(14px + env(safe-area-inset-bottom));margin:0;transform:translateY(102%);transition:transform .28s cubic-bezier(.16,.9,.3,1);box-shadow:0 -20px 50px -18px rgba(0,0,0,.65);max-height:82vh;overflow-y:auto;overscroll-behavior:contain;backdrop-filter:none}
+  .fpanel.open{transform:translateY(0)}
+  .fpanel::before{content:"";display:block;width:38px;height:4px;border-radius:3px;background:var(--line2);margin:6px auto 14px}
+  .fpanel .fgrp{flex-wrap:wrap;overflow:visible;margin-bottom:16px;align-items:flex-start}
+  .fpanel .fl{width:100%;margin-bottom:7px}
+  .fpanel .ch{padding:8px 13px;font-size:13.5px}
+  .fpanel .fmeta{display:none}
+  .fbk{position:fixed;inset:0;z-index:105;background:rgba(4,6,10,.55);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .25s}
+  .fbk.on{opacity:1;pointer-events:auto}
+  .fapply{position:sticky;bottom:0;display:block;width:calc(100% - 28px);margin:4px 14px 0;padding:13px;border-radius:var(--r2);background:var(--acc);color:var(--acc-fg);font-weight:640;font-size:14.5px;text-align:center}
+  .fbar{display:flex;position:sticky;top:calc(var(--hdr) + env(safe-area-inset-top));z-index:60;align-items:center;gap:9px;padding:9px 0;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);margin-top:var(--s5)}
+  .fbtn{display:flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--srf);border-radius:9px;padding:8px 13px;font-size:13.5px;font-weight:580}
+  .fbtn.act{border-color:var(--acc);color:var(--acc)}
+  .fbtn .bg{background:var(--acc);color:var(--acc-fg);border-radius:20px;min-width:17px;height:17px;font-size:10.5px;font-weight:700;display:grid;place-items:center;padding:0 5px;font-family:var(--f-mono)}
+  .fbar .cnt{font-family:var(--f-mono);font-size:11px;color:var(--fg3);margin-left:auto}
+  .fclear{font-size:12.5px;color:var(--fg3);text-decoration:underline;text-underline-offset:3px}
+
+  /* ficha como hoja inferior a pantalla completa */
+  .ov{padding:0;align-items:flex-end}
+  .sheet{border-radius:var(--r4) var(--r4) 0 0;max-height:94dvh;display:flex;flex-direction:column;animation:slideup .3s cubic-bezier(.16,.9,.3,1);border-left:0;border-right:0;border-bottom:0}
+  @keyframes slideup{from{transform:translateY(100%)}}
+  .grab{display:block;width:38px;height:4px;border-radius:3px;background:var(--line2);margin:9px auto 0;flex:none}
+  .sh-h{padding:12px 18px 15px;flex:none}
+  .sh-h h2{padding-right:44px}
+  .x{top:9px;right:14px;width:32px;height:32px}
+  .sh-b{padding:16px 18px calc(28px + env(safe-area-inset-bottom));overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;flex:1}
+  .specs{grid-template-columns:1fr 1fr;gap:7px}
+  .tblscroll{max-height:none}
+  .sosg{grid-template-columns:1fr 1fr;gap:7px}
+  .sosi{padding:9px 10px}
+  .sosi .f{font-size:12.5px}
+  .legg{gap:var(--s3)}
+  footer .fg{gap:var(--s4)}
+}
+@media (max-width:520px){
+  .brand{font-size:0;gap:0}
+  .brand small{display:none}
+  .search{max-width:none}
+}
+@media (max-width:420px){
+  .sosg{grid-template-columns:1fr}
+  .ucb{width:158px}
+  .specs{grid-template-columns:1fr}
+}
+
+/* ── explicadores plegables ── */
+.exp{padding:0}
+.exp>summary{list-style:none;cursor:pointer;padding:16px var(--s5);display:flex;align-items:center;gap:10px}
+.exp>summary::-webkit-details-marker{display:none}
+.exp>summary .st{flex:1;min-width:0}
+.exp>summary h3{font-size:16px;margin:3px 0 0}
+.exp>summary .kicker{color:var(--c)}
+.exp>summary .caret{flex:none;color:var(--fg3);transition:transform .2s}
+.exp[open]>summary .caret{transform:rotate(180deg)}
+.exp .body{padding:0 var(--s5) var(--s5)}
+.exp .body p{color:var(--fg2);font-size:14px;line-height:1.62}
+.exp .body p+p{margin-top:9px}
+.exp .body b{color:var(--fg);font-weight:600}
+
+/* ── aeródromos ── */
+.ad-top{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:var(--s3)}
+.ad-top select{flex:1;min-width:210px;height:42px;padding:0 10px;border-radius:var(--r1);border:1px solid var(--line);background:var(--bg-e);color:var(--fg);font-size:16px;outline:none}
+.ad-top select:focus{border-color:var(--acc)}
+.btn{height:42px;padding:0 15px;border-radius:var(--r1);border:1px solid var(--line);background:var(--srf);color:var(--fg);font-size:14px;font-weight:580;display:inline-flex;align-items:center;gap:7px;transition:.15s}
+.btn:hover{border-color:var(--acc);color:var(--acc)}
+.btn[disabled]{opacity:.55;cursor:default}
+.btn.pri{background:var(--acc);color:var(--acc-fg);border-color:var(--acc)}
+.spin{width:13px;height:13px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:sp .7s linear infinite;flex:none}
+@keyframes sp{to{transform:rotate(360deg)}}
+.ad-state{font-size:12.5px;color:var(--fg3);display:flex;align-items:center;gap:7px;margin-bottom:var(--s3);flex-wrap:wrap}
+.ad-state .pipdot{width:7px;height:7px;border-radius:50%;background:var(--c);flex:none}
+.ad-state a{color:var(--acc)}
+.ad-empty{padding:var(--s5);text-align:center;color:var(--fg2);font-size:13.5px}
+.adfreq{font-family:var(--f-mono);font-weight:620;color:var(--acc);white-space:nowrap}
+.adchan{font-family:var(--f-mono);font-size:10.5px;color:var(--fg3);display:block;margin-top:1px}
+.adsvc{display:inline-block;font-family:var(--f-mono);font-size:10px;font-weight:700;letter-spacing:.06em;padding:2px 6px;border-radius:5px;background:var(--srf3);color:var(--fg2);border:1px solid var(--line)}
+.adsvc.em{background:color-mix(in srgb,var(--bad) 15%,transparent);color:var(--bad);border-color:color-mix(in srgb,var(--bad) 35%,transparent)}
+.adsvc.at{background:color-mix(in srgb,var(--info) 14%,transparent);color:var(--info);border-color:color-mix(in srgb,var(--info) 32%,transparent)}
+@media (max-width:760px){
+  .ad-top select{width:100%;flex:none}
+  .ad-top .btn{flex:1}
+  .exp>summary{padding:14px var(--s4)}
+  .exp .body{padding:0 var(--s4) var(--s4)}
+}
+@media print{
+  .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
+  body{background:#fff;color:#000;font-size:10pt}
+  .bc{break-inside:avoid;border:1px solid #999;box-shadow:none}
+  .grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="wrap hdr-in">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <circle cx="16" cy="16" r="4.4" fill="var(--acc)"/>
+        <path d="M9.4 9.4a9.3 9.3 0 000 13.2M22.6 9.4a9.3 9.3 0 010 13.2" stroke="var(--acc)" stroke-width="2" stroke-linecap="round" opacity=".5"/>
+        <path d="M5.6 5.6a14.7 14.7 0 000 20.8M26.4 5.6a14.7 14.7 0 010 20.8" stroke="var(--acc)" stroke-width="1.7" stroke-linecap="round" opacity=".22"/>
+      </svg>
+      Espectro<small>·ES</small>
+    </div>
+    <div class="search">
+      <svg class="si" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
+      <input id="q" type="search" placeholder="Buscar banda, servicio o uso…" autocomplete="off" aria-label="Buscar bandas">
+      <span class="sk">/</span>
+    </div>
+    <div class="hbtns">
+      <button class="ib" id="favbtn" aria-label="Mostrar solo favoritos" title="Solo favoritos">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M12 3.6l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8L3.5 9.8l5.9-.9z"/></svg>
+      </button>
+      <button class="ib" id="theme" aria-label="Cambiar tema" title="Tema claro / oscuro">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="12" r="8.2"/><path d="M12 3.8v16.4" /><path d="M12 3.8a8.2 8.2 0 010 16.4z" fill="currentColor" stroke="none"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap" id="top">
+
+  <section class="hero">
+    <div class="kicker">Cuadro de consulta · basado en el CNAF</div>
+    <h1>Frecuencias de radio en España, con <span class="g">RX y TX valorados por separado</span></h1>
+    <p class="lede">Toda banda tiene dos regímenes distintos: el de <b>escuchar</b> y el de <b>transmitir</b>. Confundirlos es el error más común de las guías al uso. Aquí cada banda lleva las dos valoraciones independientes —legalidad y riesgo real— junto a sus canales, potencias y modos.</p>
+    <div class="stats" id="stats"></div>
+  </section>
+
+  <section class="sec">
+    <div class="duo2">
+      <details class="card exp" style="--c:var(--ok)">
+        <summary>
+          <span class="st"><span class="kicker">◄ RX · Recepción</span><h3>Escuchar no emite nada</h3></span>
+          <svg class="caret" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <div class="body">
+          <p>Un receptor no radia energía: <b>no interfiere, no ocupa el canal y no puede poner en riesgo a nadie</b>. Escuchar la banda aérea, la marina o a los radioaficionados no es una infracción, y tener un escáner o un SDR es perfectamente legal en España.</p>
+          <p>El límite está en el <b>contenido</b>, no en la escucha: la Constitución protege el secreto de las comunicaciones, así que no puedes divulgar ni aprovechar lo que oigas de comunicaciones no destinadas al público. Descifrar señales cifradas sí es delito.</p>
+        </div>
+      </details>
+      <details class="card exp" style="--c:var(--hot)">
+        <summary>
+          <span class="st"><span class="kicker">► TX · Transmisión</span><h3>Transmitir sí ocupa espectro</h3></span>
+          <svg class="caret" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <div class="body">
+          <p>Al emitir usas un recurso público limitado y compartido. Fuera de las bandas de uso común hace falta título habilitante; sin él es infracción de la Ley General de Telecomunicaciones, con sanción económica y decomiso del equipo.</p>
+          <p>Y el daño no es igual en todas partes: pisar un canal de taxi molesta, pero <b>pisar el canal 16 de marina o una frecuencia de torre puede costar vidas</b>, y eso pasa del terreno administrativo al penal.</p>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-h">
+      <h2>¿Qué quieres hacer?</h2>
+      <span class="sub">Atajos a las bandas adecuadas para cada necesidad</span>
+    </div>
+    <div class="uc" id="uc"></div>
+  </section>
+
+  <section class="sec" id="aero-sec">
+    <div class="sec-h">
+      <h2>Aeródromos y helipuertos de España</h2>
+      <span class="sub">Frecuencias de torre, ATIS y aproximación · consultadas al AIP de ENAIRE</span>
+    </div>
+    <div class="card lk">
+      <div class="ad-top">
+        <select id="adsel" aria-label="Elige aeródromo"></select>
+        <button class="btn pri" id="adlive">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M20 11.5A8.5 8.5 0 106.6 18.4M20 5v6h-6"/></svg>
+          Consultar al AIP ahora
+        </button>
+      </div>
+      <div class="ad-state" id="adstate"></div>
+      <div id="adout"></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="card lk">
+      <div class="lk-row">
+        <span class="kicker">Identificar una frecuencia</span>
+        <input id="fq" type="text" inputmode="decimal" placeholder="446,09375" aria-label="Frecuencia">
+        <select id="fu" aria-label="Unidad"><option value="1">MHz</option><option value="0.001">kHz</option><option value="1000">GHz</option></select>
+        <span class="hint">Te digo a quién pertenece, si puedes escucharla y si puedes emitir en ella.</span>
+      </div>
+      <div class="lkres" id="lkres"></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="card spec">
+      <div class="spec-h">
+        <span class="kicker">Mapa del espectro · escala logarítmica</span>
+        <div class="tog" id="mode" role="group" aria-label="Modo de color del espectro">
+          <button data-m="tx" class="on">TX</button><button data-m="rx">RX</button>
+        </div>
+      </div>
+      <div class="specscroll"><div class="specin">
+        <div class="specbar" id="specbar"></div>
+        <div class="axis" id="axis"></div>
+        <div class="regions" id="regions"></div>
+      </div></div>
+      <div class="scrollhint">← desliza para recorrer el espectro →</div>
+    </div>
+  </section>
+
+  <div class="fbar" id="fbar">
+    <button class="fbtn" id="openf">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M3 6h18M6.5 12h11M10 18h4"/></svg>
+      Filtros <span class="bg" id="fbadge" hidden>0</span>
+    </button>
+    <button class="fclear" id="fclear2" hidden>Limpiar</button>
+    <span class="cnt" id="cnt2"></span>
+  </div>
+  <div class="fbk" id="fbk"></div>
+
+  <div class="fpanel" id="fpanel">
+   <div class="wrap">
+    <div class="fgrp">
+      <span class="fl">► Transmitir</span>
+      <button class="ch on" data-f="tx" data-v="all">Todo</button>
+      <button class="ch" data-c data-f="tx" data-v="0" style="--cc:var(--ok)"><i class="dot"></i>Libre, sin licencia</button>
+      <button class="ch" data-c data-f="tx" data-v="1" style="--cc:var(--info)"><i class="dot"></i>Requiere licencia</button>
+      <button class="ch" data-c data-f="tx" data-v="2" style="--cc:var(--bad)"><i class="dot"></i>No transmitir nunca</button>
+    </div>
+    <div class="fgrp">
+      <span class="fl">◄ Escuchar</span>
+      <button class="ch on" data-f="rx" data-v="all">Todo</button>
+      <button class="ch" data-c data-f="rx" data-v="0" style="--cc:var(--ok)"><i class="dot"></i>Escucha libre</button>
+      <button class="ch" data-c data-f="rx" data-v="1" style="--cc:var(--warn)"><i class="dot"></i>Legal, no divulgable</button>
+      <button class="ch" data-c data-f="rx" data-v="2" style="--cc:var(--bad)"><i class="dot"></i>Escucha ilícita</button>
+    </div>
+    <div class="fgrp">
+      <span class="fl">Banda RF</span>
+      <button class="ch on" data-f="rf" data-v="all">Todas</button>
+      <button class="ch" data-f="rf" data-v="LF/MF">LF/MF</button>
+      <button class="ch" data-f="rf" data-v="HF">HF</button>
+      <button class="ch" data-f="rf" data-v="VHF">VHF</button>
+      <button class="ch" data-f="rf" data-v="UHF">UHF</button>
+      <button class="ch" data-f="rf" data-v="SHF">SHF · µondas</button>
+    </div>
+    <div class="fgrp">
+      <span class="fl">Servicio</span>
+      <button class="ch on" data-f="cat" data-v="all">Todos</button>
+      <span id="catchips" style="display:contents"></span>
+      <span class="fmeta" id="cnt"></span>
+    </div>
+    <button class="fapply" id="fapply" style="display:none">Ver resultados</button>
+   </div>
+  </div>
+
+  <div id="results"></div>
+
+  <section class="sec">
+    <article class="card sos">
+      <h3>Frecuencias de socorro</h3>
+      <p>Escucharlas es legal y no molesta a nadie. Emitir en ellas fuera de una emergencia real moviliza helicópteros y equipos de rescate, y se sanciona con severidad. En tierra, el teléfono de emergencias es el <b>112</b>.</p>
+      <div class="sosg" id="sosg"></div>
+    </article>
+  </section>
+
+  <section class="sec">
+    <article class="card leg">
+      <div class="kicker" style="margin-bottom:16px">Cómo leer cada ficha</div>
+      <div class="legg" id="legg"></div>
+    </article>
+  </section>
+
+  <footer>
+    <div class="fg">
+      <div>
+        <h6>Fuente y alcance</h6>
+        Guía de consulta elaborada sobre el Cuadro Nacional de Atribución de Frecuencias (CNAF) y el Reglamento de uso del dominio público radioeléctrico. La referencia vinculante es siempre el texto oficial vigente de la Secretaría de Estado de Telecomunicaciones e Infraestructuras Digitales. Las atribuciones se revisan periódicamente: <b>verifica antes de operar</b> y usa siempre equipo con marcado CE.
+      </div>
+      <div>
+        <h6>Sobre la recepción</h6>
+        En España no existe infracción por el mero hecho de escuchar, ni por poseer un receptor de banda ancha o un SDR. La protección legal recae sobre el contenido: el secreto de las comunicaciones (art. 18.3 CE) y el delito de descubrimiento y revelación de secretos (art. 197 CP) alcanzan a interceptar con ánimo de descubrir secretos, descifrar comunicaciones protegidas y difundir o aprovechar lo captado.
+      </div>
+      <div>
+        <h6>Sobre la transmisión</h6>
+        Transmitir sin título habilitante fuera de las bandas de uso común es infracción de la Ley General de Telecomunicaciones, sancionable económicamente y con decomiso del equipo. La escala de riesgo de esta app describe el daño que causa cada caso para ayudarte a elegir la alternativa legal equivalente, no para relativizar el incumplimiento. En bandas de seguridad de la vida humana, la interferencia puede constituir además delito.
+      </div>
+    </div>
+    <div class="end">
+      <span>Archivo único · sin conexión · sin cookies ni telemetría</span>
+      <span id="ver"></span>
+    </div>
+  </footer>
+</main>
+
+<div class="ov" id="ov" role="dialog" aria-modal="true" aria-labelledby="shTitle">
+  <div class="sheet" id="sheet"></div>
+</div>
+<div class="tip" id="tip" aria-hidden="true"></div>
+
+<script>
+"use strict";
+/* ═══════════════ generadores de canales ═══════════════ */
+const gen=(n,f0,st,d=5)=>Array.from({length:n},(_,i)=>({n:i+1,f:+(f0+i*st).toFixed(d)}));
+
+const CB=[26.965,26.975,26.985,27.005,27.015,27.025,27.035,27.055,27.065,27.075,27.085,27.105,27.115,27.125,27.135,27.155,27.165,27.175,27.185,27.205,27.215,27.225,27.255,27.235,27.245,27.265,27.275,27.285,27.295,27.305,27.315,27.325,27.335,27.345,27.355,27.365,27.375,27.385,27.395,27.405]
+ .map((f,i)=>({n:i+1,f,nota:i===8?"Emergencia y llamada CB":i===18?"Carretera · camioneros":i===13?"Llamada y uso general":""}));
+
+const MAR=[[1,156.050,160.650],[2,156.100,160.700],[3,156.150,160.750],[4,156.200,160.800],[5,156.250,160.850],[6,156.300,0,"Seguridad barco-barco · SAR"],[7,156.350,160.950],[8,156.400,0,"Barco-barco comercial"],[9,156.450,0,"Llamada · prácticos"],[10,156.500,0,"Contaminación · SAR"],[11,156.550,0,"Práctico de puerto"],[12,156.600,0,"Práctico · capitanía"],[13,156.650,0,"Seguridad de la navegación"],[14,156.700,0,"Práctico de puerto"],[15,156.750,0,"A bordo · 1 W"],[16,156.800,0,"SOCORRO Y LLAMADA · escucha obligatoria"],[17,156.850,0,"A bordo · 1 W"],[18,156.900,161.500],[19,156.950,161.550],[20,157.000,161.600],[21,157.050,161.650],[22,157.100,161.700],[23,157.150,161.750],[24,157.200,161.800],[25,157.250,161.850],[26,157.300,161.900],[27,157.350,161.950],[28,157.400,162.000],[60,156.025,160.625],[61,156.075,160.675],[62,156.125,160.725],[63,156.175,160.775],[64,156.225,160.825],[65,156.275,160.875],[66,156.325,160.925],[67,156.375,0,"Seguridad · SAR"],[68,156.425,0,"Puertos deportivos"],[69,156.475,0,"Náutica recreativa"],[70,156.525,0,"LSD / DSC · solo datos, nunca voz"],[71,156.575,0,"Náutica recreativa"],[72,156.625,0,"Barco-barco recreativo"],[73,156.675,0,"Seguridad · SAR"],[74,156.725,0,"Práctico"],[75,156.775,0,"Guarda del 16 · 1 W"],[76,156.825,0,"Guarda del 16 · 1 W"],[77,156.875,0,"Barco-barco"],[78,156.925,161.525],[79,156.975,161.575],[80,157.025,161.625],[81,157.075,161.675],[82,157.125,161.725],[83,157.175,161.775],[84,157.225,161.825],[85,157.275,161.875],[86,157.325,161.925],[87,157.375,0,"Símplex"],[88,157.425,0,"Símplex"]]
+ .map(([n,f,dx,nota])=>({n,f,extra:dx?"▲"+dx.toFixed(3).replace(".",","):"símplex",nota:nota||""}));
+MAR.push({n:"AIS1",f:161.975,extra:"AIS",nota:"Identificación automática de buques"},{n:"AIS2",f:162.025,extra:"AIS",nota:"Identificación automática de buques"});
+
+const PMR16=gen(16,446.00625,0.0125).map(c=>({...c,nota:c.n===1?"Canal de llamada habitual":c.n===8?"Muy usado en montaña":""}));
+const DPMR16=gen(16,446.103125,0.00625,6).map(c=>({...c,nota:""}));
+const LPD69=gen(69,433.075,0.025,3).map(c=>({...c,nota:c.n===17?"Zona muy congestionada por mandos":""}));
+const RC27=[26.995,27.045,27.095,27.145,27.195].map((f,i)=>({n:"A"+(i+1),f,nota:"Radiocontrol de superficie"}));
+const RC35=Array.from({length:19},(_,i)=>({n:60+i,f:+(34.995+i*0.01).toFixed(3),nota:"Exclusivo modelos aéreos"}));
+const RC40=[40.665,40.675,40.685,40.695].map((f,i)=>({n:i+1,f,nota:"Modelismo terrestre y naval"}));
+const WIFI24=gen(13,2412,5,0).map(c=>({...c,nota:[1,6,11].includes(c.n)?"Canal no solapado":""}));
+
+const HAM=[["2200 m","135,7 – 137,8 kHz","CW y digitales · 1 W EIRP"],["630 m","472 – 479 kHz","CW y digitales"],["160 m","1810 – 1850 kHz","Nocturna · regional"],["80 m","3500 – 3800 kHz","Nacional · nocturna"],["60 m","5351,5 – 5366,5 kHz","15 W EIRP máximo"],["40 m","7000 – 7200 kHz","DX fiable día y noche"],["30 m","10100 – 10150 kHz","Solo CW y digitales"],["20 m","14000 – 14350 kHz","La banda DX por excelencia"],["17 m","18068 – 18168 kHz","WARC · sin concursos"],["15 m","21000 – 21450 kHz","DX diurno"],["12 m","24890 – 24990 kHz","WARC"],["10 m","28000 – 29700 kHz","Esporádica E · FM y repetidores"],["6 m","50 – 52 MHz","La banda mágica"],["4 m","70,150 – 70,200 MHz","España: autorización especial"],["2 m","144 – 146 MHz","FM, repetidores, SSB, satélite"],["70 cm","430 – 440 MHz","Repetidores, DMR, satélite"],["23 cm","1240 – 1300 MHz","Secundario · ATV y DX"],["13 cm","2300 – 2450 MHz","Compartida con ISM"],["6 cm","5650 – 5850 MHz","Microondas"],["3 cm","10,0 – 10,5 GHz","Microondas · DX"],["1,2 cm","24,0 – 24,25 GHz","Compartida con ISM"]].map(([n,f,nota])=>({n,f,nota,raw:1}));
+
+const AERO=[["108,000 – 111,975 MHz","ILS localizador y VOR"],["112,000 – 117,975 MHz","VOR / DME"],["118,000 – 121,400 MHz","Torre, aproximación y control"],["121,500 MHz","EMERGENCIA AERONÁUTICA"],["121,600 – 121,975 MHz","Rodadura (ground) y ATIS"],["122,000 – 123,050 MHz","Información de vuelo"],["123,100 MHz","SAR · búsqueda y salvamento"],["123,450 MHz","Aire-aire (uso informal)"],["123,500 – 136,975 MHz","Ruta, compañías, ATIS, VOLMET"],["225 – 400 MHz","Aeronáutico militar en AM"],["243,000 MHz","Emergencia militar"],["328,6 – 335,4 MHz","ILS senda de planeo"],["978 / 1090 MHz","ADS-B y radar secundario"]].map(([f,nota])=>({n:"·",f,nota,raw:1}));
+
+/* Reus (LERS) — AIP España AD 2-LERS, AMDT 409/26 (06-AGO-2026).
+   El AIP publica canales de 8,33 kHz; aquí se lista la PORTADORA que hay que sintonizar. */
+const CHREUS=[
+ ["TWR / APP","128,875 MHz","Reus TWR · canal publicado 128.880 · torre y aproximación"],
+ ["Rodadura GMC","121,700 MHz","Reus TWR · canal publicado 121.705"],
+ ["ATIS","120,250 MHz","Reus Information · canal publicado 120.255 · bucle continuo"],
+ ["Emergencia","121,500 MHz","EMERGENCIA aeronáutica · solo escucha"],
+ ["VDF gonio","128,875 MHz","Reus gonio · radiogoniómetro sobre la portadora de torre"],
+ ["Militar","257,800 MHz","Aeronáutico militar UHF en AM"],
+ ["Emergencia MIL","243,000 MHz","EMERGENCIA militar"],
+ ["DVOR","116,850 MHz","Identificativo RES en Morse · H24 · cobertura 40 NM"],
+ ["DME","Canal 115Y","RES · emparejado con el DVOR · H24"],
+ ["NDB","424,000 kHz","Identificativo RUS en Morse · H24"],
+ ["ILS LOC 25","110,100 MHz","Identificativo IRS · CAT I · H24"],
+ ["ILS GP 25","334,400 MHz","Senda de planeo · 3° · H24"],
+ ["ILS/DME 25","Canal 38X","IRS · referencia umbral 25 · H24"]
+].map(([n,f,nota])=>({n,f,nota,raw:1}));
+
+/* ═══════════════ textos comunes ═══════════════ */
+const RX_LIB="Difusión abierta o banda de uso común: escucha totalmente libre, sin condiciones.";
+const RX_NOD="Recibir es legal y tener el receptor también. Lo que la ley protege es el contenido: no puedes divulgarlo, difundirlo ni aprovecharte de él.";
+
+/* ═══════════════ BASE DE DATOS ═══════════════
+   rx / tx → s: 0 libre · 1 condicionado · 2 vetado   |   r: riesgo 0-3
+   ══════════════════════════════════════════════ */
+const D=[
+{id:"ndb",nom:"Radiofaros NDB · navegación LF",cat:"Aérea",rf:"LF/MF",lo:0.19,hi:0.535,txt:"190 – 535 kHz",
+ pot:"Estaciones autorizadas",modo:"A2A / NON",desc:"Radiofaros no direccionales para navegación aérea y marítima, más servicio aeronáutico en onda larga.",
+ rx:{s:0,r:0,n:RX_LIB+" Se reciben con cualquier receptor de onda larga y una antena de hilo."},
+ tx:{s:2,r:3,n:"Ayudas a la navegación: una emisión ajena puede desviar un instrumento de a bordo."},
+ notas:["Excelente punto de partida para iniciarse en la escucha de onda larga con un SDR económico."],
+ alt:"Para transmitir en LF con licencia: banda de 2200 m (135,7 kHz) de radioaficionado."},
+
+{id:"om",nom:"Radiodifusión AM · Onda Media",cat:"Difusión",rf:"LF/MF",lo:0.5265,hi:1.6065,txt:"526,5 – 1606,5 kHz",
+ pot:"Según concesión",modo:"AM (DSB)",desc:"Emisoras comerciales y públicas de onda media, con canales cada 9 kHz.",
+ rx:{s:0,r:0,n:RX_LIB},
+ tx:{s:1,r:2,n:"Requiere concesión de servicio de radiodifusión. Una emisora sin licencia se localiza en horas y bloquea a una emisora legal en toda su zona de servicio."},
+ notas:["De noche la propagación permite recibir emisoras de media Europa."],
+ alt:"Streaming o podcast; o concurrir al concurso público de licencias de radiodifusión."},
+
+{id:"mar-mf",nom:"Marítima MF · socorro 2182 kHz",cat:"Marítima",rf:"HF",lo:1.605,hi:4.0,txt:"1,6 – 4 MHz",
+ pot:"Según equipo y licencia",modo:"SSB · DSC",desc:"Radiotelefonía marítima de media distancia. 2182 kHz es la frecuencia internacional de socorro en MF.",
+ rx:{s:1,r:0,n:RX_NOD},
+ tx:{s:1,r:3,n:"Requiere título de operador (LRC/GOC) y licencia de estación de barco. Es tráfico de seguridad de la vida humana en el mar."},
+ notas:["2187,5 kHz: llamada selectiva digital (DSC) de socorro en MF."],
+ alt:"Título LRC o GOC. Desde costa, el 112 y Salvamento Marítimo."},
+
+{id:"oc",nom:"Radiodifusión en Onda Corta",cat:"Difusión",rf:"HF",lo:3.9,hi:26.1,txt:"3,9 – 26,1 MHz · bandas de metros",
+ pot:"Estatal",modo:"AM · DRM",desc:"Emisoras internacionales en las bandas de 75, 60, 49, 41, 31, 25, 22, 19, 16, 13 y 11 metros.",
+ rx:{s:0,r:0,n:RX_LIB+" Es el terreno clásico del DX-ista."},
+ tx:{s:1,r:2,n:"Radiodifusión internacional reservada a operadores autorizados."},
+ notas:["La propagación varía con la hora y el ciclo solar: bandas bajas de noche, altas de día."],
+ alt:"Licencia de radioaficionado para emitir en HF."},
+
+{id:"ham-hf",nom:"Radioaficionado · HF",cat:"Radioafición",rf:"HF",lo:0.1357,hi:29.7,txt:"135,7 kHz – 29,7 MHz · 13 bandas",
+ pot:"Hasta 1.500 W PEP según banda y autorización",modo:"CW · SSB · FT8 · RTTY · PSK",
+ desc:"El acceso legal más amplio al espectro disponible para un particular. Comunicación mundial sin infraestructura.",
+ canales:HAM,colch:["Banda","Rango","Uso típico"],
+ rx:{s:0,r:0,n:RX_LIB+" El servicio de aficionado es público por definición: cualquiera puede escucharlo, y existen indicativos de escucha (SWL) reconocidos."},
+ tx:{s:1,r:1,n:"Requiere licencia e indicativo. Emitir sin él no pone vidas en riesgo, pero es infracción y la comunidad localiza al intruso por radiogoniometría en cuestión de horas."},
+ notas:["El examen es único y del Ministerio; no se exige Morse desde 2005.","Indicativos españoles: EA, EB y EC seguidos del número de zona.","Es la vía que da más espectro y más potencia legal a un particular."],
+ alt:"Sacarse la licencia: barata, rápida y desbloquea 13 bandas de HF más VHF, UHF y microondas."},
+
+{id:"cb",nom:"Banda Ciudadana CB-27",cat:"Personal",rf:"HF",lo:26.96,hi:27.41,txt:"26,965 – 27,405 MHz · 40 canales",
+ pot:"4 W en AM/FM · 12 W PEP en SSB",modo:"AM · FM · SSB",
+ desc:"Cuarenta canales de uso común sin licencia. La opción legal de mayor alcance para un particular sin examen.",
+ canales:CB,colch:["Canal","MHz","Uso"],
+ rx:{s:0,r:0,n:RX_LIB},
+ tx:{s:0,r:0,n:"Uso común: sin licencia, sin tasas y sin examen. Solo equipo con marcado CE y respeto de la potencia máxima."},
+ notas:["Canal 9: emergencias. Canal 19: carretera y camioneros.","Se permite antena exterior, a diferencia de PMR446: ahí está la diferencia de alcance.","En banda lateral (SSB) el alcance se multiplica; con propagación se cruzan continentes.","Alcance típico en FM: 5–20 km; con buena antena y condiciones favorables, mucho más."],
+ alt:"—"},
+
+{id:"rc27",nom:"Radiocontrol 27 MHz",cat:"RC y drones",rf:"HF",lo:26.99,hi:27.2,txt:"26,995 – 27,195 MHz",
+ pot:"100 mW",modo:"AM · FM",desc:"Canales clásicos para coches y barcos de radiocontrol. Legado: hoy casi todo ha migrado a 2,4 GHz.",
+ canales:RC27,colch:["Canal","MHz","Uso"],
+ rx:{s:0,r:0,n:RX_LIB},tx:{s:0,r:0,n:"Uso común con equipo homologado."},
+ notas:["Comparte espectro con la CB: espera interferencias mutuas."],alt:"—"},
+
+{id:"rc35",nom:"Aeromodelismo 35 MHz",cat:"RC y drones",rf:"VHF",lo:34.99,hi:35.23,txt:"34,995 – 35,225 MHz · canales 60–90",
+ pot:"100 mW",modo:"FM · PPM",desc:"Banda reservada en exclusiva a modelos aéreos. Nunca debe usarse para coches o barcos.",
+ canales:RC35,colch:["Canal","MHz","Uso"],
+ rx:{s:0,r:0,n:RX_LIB},
+ tx:{s:0,r:1,n:"Uso común, pero solo para modelos aéreos: duplicar un canal ya ocupado hace caer el avión de otro. La pinza de frecuencia del club no es folclore."},
+ notas:["Regla de oro: pinza de frecuencia antes de encender el emisor.","Usarla para modelos de superficie supone un riesgo real para terceros."],alt:"—"},
+
+{id:"rc40",nom:"Modelismo 40 MHz",cat:"RC y drones",rf:"VHF",lo:40.66,hi:40.7,txt:"40,665 – 40,695 MHz",
+ pot:"100 mW",modo:"FM",desc:"Cuatro canales para modelos terrestres y navales.",canales:RC40,colch:["Canal","MHz","Uso"],
+ rx:{s:0,r:0,n:RX_LIB},tx:{s:0,r:0,n:"Uso común con equipo homologado."},notas:[],alt:"—"},
+
+{id:"ham-6",nom:"Radioaficionado · 6 m y 4 m",cat:"Radioafición",rf:"VHF",lo:50,hi:70.2,txt:"50 – 52 MHz · 70,150 – 70,200 MHz",
+ pot:"Según autorización",modo:"SSB · CW · FM · digitales",desc:"La «banda mágica»: en verano la esporádica E abre Europa entera con pocos vatios.",
+ rx:{s:0,r:0,n:RX_LIB},
+ tx:{s:1,r:1,n:"Licencia de radioaficionado. En 4 m, además, autorización especial en España."},
+ notas:["50,110 MHz (SSB) y 50,313 MHz (FT8) son los puntos de encuentro."],alt:"Licencia de radioaficionado."},
+
+{id:"fm",nom:"Radiodifusión FM comercial",cat:"Difusión",rf:"VHF",lo:87.5,hi:108,txt:"87,5 – 108 MHz",
+ pot:"Según concesión autonómica",modo:"FM · RDS",desc:"Las emisoras de siempre, con RDS y subportadoras de datos.",
+ rx:{s:0,r:0,n:RX_LIB},
+ tx:{s:1,r:2,n:"Concesión autonómica obligatoria. Una emisora sin licencia interfiere a emisoras legales y a servicios adyacentes: es de las infracciones más perseguidas."},
+ notas:["Los transmisores FM de coche (móvil → autorradio) se toleran a potencia mínima, del orden de 50 nW ERP.","Escuchar y grabar para uso privado es libre; redifundir tiene además implicaciones de derechos de autor."],
+ alt:"Radio online o podcast; o concurso público de licencias FM en tu comunidad autónoma."},
+
+{id:"aero",nom:"Banda Aérea VHF",cat:"Aérea",rf:"VHF",lo:108,hi:137,txt:"108 – 136,975 MHz",
+ pot:"Solo estaciones autorizadas",modo:"AM · separación 8,33 kHz",
+ desc:"Torre, rodadura, aproximación, ruta, ATIS y ayudas a la navegación. La banda favorita de los spotters.",
+ canales:AERO,colch:["·","Frecuencia","Servicio"],
+ rx:{s:1,r:0,n:"Escucharla NO es infracción y tener un escáner de banda aérea es legal. Recibir no radia nada: no interfieres a nadie ni pones ninguna vida en riesgo. El único límite es el contenido: no divulgues ni aproveches lo que oigas."},
+ tx:{s:2,r:3,n:"Ningún particular puede emitir aquí. Una transmisión espuria puede tapar una instrucción de control en una fase crítica del vuelo: además de sanción, puede constituir delito contra la seguridad del tráfico aéreo."},
+ notas:["Es AM, no FM: un receptor de FM comercial no la demodula. Necesitas escáner o SDR en modo AM.","121,500 MHz es la frecuencia de emergencia: ni pruebas ni bromas.","La separación de canal es de 8,33 kHz, así que verás frecuencias como 118,105 o 132,180.","Muy usada por spotters junto a ADS-B en 1090 MHz para seguir tráfico real."],
+ alt:"Para escuchar no necesitas nada más que el receptor. Para hablar: licencia de piloto o de operador aeronáutico."},
+
+{id:"lers",nom:"Aeropuerto de Reus (LERS) · escucha local",cat:"Aérea",rf:"VHF",lo:110.1,hi:128.875,
+ txt:"110,100 – 128,875 MHz · torre, ATIS, ILS y radioayudas",
+ pot:"Estaciones aeronáuticas autorizadas",modo:"AM · canalización 8,33 kHz",
+ desc:"Frecuencias publicadas de Reus según el AIP España AD 2-LERS. Torre y aproximación comparten portadora; ATIS emite información automática en bucle.",
+ canales:CHREUS,colch:["Servicio","Sintoniza","Indicativo y notas"],
+ rx:{s:1,r:0,n:"Escucha plenamente legal. Un receptor no radia: no interfieres a torre ni pones en riesgo ninguna operación. El único límite es el contenido — no divulgues ni aproveches lo que oigas."},
+ tx:{s:2,r:3,n:"Requiere estación aeronáutica homologada con 8,33 kHz y licencia de estación. El título de operador habilita a la persona; la licencia de estación habilita al equipo. Son dos permisos distintos y hacen falta los dos."},
+ notas:["Ojo con el canal frente a la frecuencia: el AIP publica canales de 8,33 kHz (la «C» final), no portadoras. Torre figura como canal 128.880 pero la portadora real es 128,875 MHz. Igual con 121.705 → 121,700 y 120.255 → 120,250. En un escáner o SDR se sintoniza la portadora; en una emisora aeronáutica de 8,33 se marca el canal.",
+   "Torre y aproximación son la misma frecuencia: Reus no tiene APP separada.",
+   "Todo el servicio ATS es en horario de torre (HR ATS), no H24. Las radioayudas sí son H24.",
+   "Empieza siempre por el ATIS en 120,250: te da pista en servicio, viento, QNH y estado del aeródromo antes de volar, y en bucle continuo.",
+   "El «gonio» de 128,875 no es una frecuencia aparte: es el radiogoniómetro de torre sobre la misma portadora.",
+   "Recibibles con un portátil de banda aérea: 128,875 · 121,700 · 120,250 · 121,500 y, como identificativos en Morse, 116,850 (DVOR RES) y 110,100 (LOC IRS). Las militares de 243,000 y 257,800 y la senda de planeo de 334,400 quedan fuera del rango de la mayoría de portátiles.",
+   "Fuente: AIP España AD 2-LERS, AMDT 409/26 (06-AGO-2026). Las frecuencias cambian por enmienda: contrasta con el AIP vigente antes de volar."],
+ alt:"Para transmitir con tu título de operador: emisora aeronáutica homologada con 8,33 kHz (Icom IC-A16E, Yaesu FTA-550/850) más la licencia de estación."},
+
+{id:"meteo",nom:"Satélites meteorológicos · APT/LRPT",cat:"Espacio",rf:"VHF",lo:137,hi:138,txt:"137 – 138 MHz",
+ pot:"Operadores espaciales",modo:"APT · LRPT",
+ desc:"Imágenes de satélites polares NOAA y Meteor-M, recibibles con un SDR de 20 € y una antena en V.",
+ rx:{s:0,r:0,n:RX_LIB+" Uno de los mejores proyectos para empezar con SDR."},
+ tx:{s:2,r:3,n:"Enlace descendente de satélite: solo operadores espaciales. Interferir afecta a la recepción de datos meteorológicos."},
+ notas:["NOAA-15: 137,620 · NOAA-18: 137,912 · NOAA-19: 137,100 MHz."],alt:"Escucha libre."},
+
+{id:"ham-2m",nom:"Radioaficionado · 2 metros",cat:"Radioafición",rf:"VHF",lo:144,hi:146,txt:"144 – 146 MHz",
+ pot:"Según autorización",modo:"FM · SSB · CW · digitales · satélite",
+ desc:"La banda diaria del radioaficionado: repetidores locales, redes de emergencia y contactos vía satélite.",
+ rx:{s:0,r:0,n:RX_LIB},
+ tx:{s:1,r:1,n:"Requiere licencia e indicativo. Sin ella no hay uso legal, ni siquiera para pruebas de cobertura."},
+ notas:["145,500 MHz: llamada FM. 144,300 MHz: llamada SSB. 145,800 MHz: bajada de la ISS.","Muchos repetidores usan subtono CTCSS de 88,5 Hz.","Los walkies tipo UV-5R cubren esta banda: poseerlos es legal, emitir sin licencia no."],
+ alt:"Licencia de radioaficionado. Para uso familiar de corto alcance, PMR446 es libre."},
+
+{id:"pmr-vhf",nom:"PMR profesional VHF · taxi, industria, obra",cat:"Profesional",rf:"VHF",lo:146,hi:174,txt:"146 – 174 MHz",
+ pot:"Según concesión · típicamente 5–25 W",modo:"FM 12,5 kHz · DMR",
+ desc:"Radios de taxi, transporte, seguridad privada, obra pública y servicios municipales, con frecuencias asignadas nominalmente.",
+ rx:{s:1,r:0,n:RX_NOD+" Escuchar la red de una empresa no es infracción; publicar sus conversaciones sí."},
+ tx:{s:1,r:2,n:"Cada frecuencia está concedida a un titular concreto que paga tasa por ella. Emitir aquí bloquea a un taxi, una grúa o un vigilante, y la interferencia se denuncia con titular identificado."},
+ notas:["Comparte proximidad con la banda marítima (156–162 MHz): un error de programación puede meterte en el canal 16.","Es la banda donde más aparecen equipos genéricos programados a mano."],
+ alt:"PMR446 o dPMR446 si te basta con 500 mW; concesión de uso privativo si necesitas cobertura de empresa."},
+
+{id:"mar",nom:"Banda Marina VHF",cat:"Marítima",rf:"VHF",lo:156,hi:162.05,txt:"156,000 – 162,025 MHz · canales 1–88 + AIS",
+ pot:"25 W · 1 W en canales de baja potencia",modo:"FM · DSC",
+ desc:"Comunicaciones entre buques, puertos, prácticos y salvamento marítimo. El canal 16 es el de socorro.",
+ canales:MAR,colch:["Canal","MHz","Tipo y uso"],hlch:16,
+ rx:{s:1,r:0,n:"Escuchar desde tierra o desde un barco es legal y muy habitual; un receptor no interfiere al canal 16 ni a nadie. El límite, de nuevo, es divulgar el contenido."},
+ tx:{s:1,r:3,n:"Necesitas dos cosas: título de operador (SRC para VHF con DSC) y licencia de estación de barco. Emitir sin ellas puede tapar una llamada de socorro real."},
+ notas:["Canal 16 (156,800): socorro y llamada, con escucha permanente obligatoria a bordo.","Canal 70 (156,525): solo llamada selectiva digital. Nunca voz.","Canales 15, 17, 75 y 76 son de baja potencia: 1 W máximo.","AIS en 161,975 y 162,025 MHz: con un SDR puedes ver el tráfico marítimo sobre un mapa."],
+ alt:"El título SRC se obtiene en un curso corto. Sin él, PMR446 es legal pero de alcance muy limitado en el mar."},
+
+{id:"srd169",nom:"SRD 169 MHz · telelectura y ayudas auditivas",cat:"Datos e IoT",rf:"VHF",lo:169.4,hi:169.8125,txt:"169,4 – 169,8125 MHz",
+ pot:"10 mW – 500 mW según subbanda",modo:"Datos · audio",
+ desc:"Contadores inteligentes, telemetría y sistemas de ayuda auditiva para personas con discapacidad.",
+ rx:{s:0,r:0,n:RX_LIB},
+ tx:{s:0,r:0,n:"Uso común con equipo homologado, respetando la subbanda y su límite de potencia."},
+ notas:["La subbanda de ayudas auditivas tiene uso prioritario."],alt:"—"},
+
+{id:"dab",nom:"DAB+ y TDT en Banda III",cat:"Difusión",rf:"VHF",lo:174,hi:230,txt:"174 – 230 MHz",
+ pot:"Según concesión",modo:"DAB+ · COFDM",desc:"Radio digital terrestre. En España la cobertura DAB+ es parcial pero creciente.",
+ rx:{s:0,r:0,n:RX_LIB},tx:{s:1,r:2,n:"Reservado a los múltiplex concedidos."},
+ notas:["Se recibe con un receptor DAB+ o con SDR y software libre."],alt:"—"},
+
+{id:"tetra",nom:"Emergencias y seguridad del Estado · SIRDEE / TETRA",cat:"Emergencias",rf:"UHF",lo:380,hi:400,txt:"380 – 400 MHz",
+ pot:"Red estatal",modo:"TETRAPOL · TETRA · cifrado",
+ desc:"Red digital de Policía Nacional, Guardia Civil, bomberos, 112 autonómicos y protección civil.",
+ rx:{s:2,r:0,n:"Detectar la portadora con un SDR no radia nada, pero el tráfico va cifrado y descifrarlo, almacenarlo o difundirlo es delito de descubrimiento y revelación de secretos. No existe escucha lícita útil de esta red."},
+ tx:{s:2,r:3,n:"Interferir la red de emergencias es de lo más grave que puede hacerse en el espectro: afecta directamente a intervenciones policiales, sanitarias y de extinción."},
+ notas:["Las redes autonómicas (RESCAT y equivalentes) operan también en 380–400 MHz.","Si colaboras con protección civil, se te asigna terminal oficial: esa es la única vía."],
+ alt:"Ninguna: es una red cerrada de seguridad pública."},
+
+{id:"epirb",nom:"Radiobalizas COSPAS-SARSAT 406 MHz",cat:"Emergencias",rf:"UHF",lo:406,hi:406.1,txt:"406,0 – 406,1 MHz",
+ pot:"5 W pulsado",modo:"Ráfagas digitales",
+ desc:"EPIRB de barcos, ELT de aeronaves y PLB personales. Al activarse, un satélite dispara una operación de rescate.",
+ rx:{s:0,r:0,n:"Recibir la banda es legal y no afecta a nada. Las ráfagas son muy breves y esporádicas."},
+ tx:{s:1,r:3,n:"Solo mediante baliza homologada, registrada a tu nombre, y únicamente ante peligro real de muerte. Una activación falsa moviliza helicópteros y salvamento, y se sanciona con severidad."},
+ notas:["Comprar y registrar una PLB es legal y muy recomendable para montaña y navegación.","121,500 MHz sirve solo de baliza de guiado final; el alertado real va por 406 MHz."],
+ alt:"Adquirir y registrar una PLB o EPIRB homologada: es la forma correcta de usar esta banda."},
+
+{id:"pmr-410",nom:"Redes privadas 410 – 430 MHz",cat:"Profesional",rf:"UHF",lo:410,hi:430,txt:"410 – 430 MHz",
+ pot:"Según concesión",modo:"TETRA · DMR · FM",
+ desc:"Redes privadas de empresa: aeropuertos, hospitales, grandes superficies y logística.",
+ rx:{s:1,r:0,n:RX_NOD},
+ tx:{s:1,r:2,n:"Frecuencias asignadas individualmente. Una interferencia puede desbaratar la coordinación de un hospital o de un aeropuerto."},
+ notas:["Buena parte del tráfico TETRA privado va cifrado."],
+ alt:"dPMR446 o DMR Tier 1 en 446 MHz para uso interno, sin licencia ni tasas."},
+
+{id:"ham-70",nom:"Radioaficionado · 70 centímetros",cat:"Radioafición",rf:"UHF",lo:430,hi:440,txt:"430 – 440 MHz",
+ pot:"Según autorización",modo:"FM · DMR · D-STAR · SSB · ATV",
+ desc:"Repetidores urbanos, redes digitales enlazadas por internet y televisión de aficionado.",
+ rx:{s:0,r:0,n:RX_LIB},tx:{s:1,r:1,n:"Requiere licencia e indicativo."},
+ notas:["433,500 MHz: llamada FM.","Convive con LPD433 e ISM: hay miles de mandos y sensores en el mismo tramo."],
+ alt:"Licencia de radioaficionado."},
+
+{id:"lpd",nom:"LPD433 e ISM 433 MHz",cat:"Personal",rf:"UHF",lo:433.05,hi:434.79,txt:"433,05 – 434,79 MHz · 69 canales",
+ pot:"10 mW ERP",modo:"FM voz · datos · OOK",
+ desc:"Uso común compartido: walkies LPD, mandos de garaje, estaciones meteorológicas, sensores, telemandos y LoRa 433.",
+ canales:LPD69,colch:["Canal","MHz","Nota"],
+ rx:{s:0,r:0,n:RX_LIB+" Es la banda ideal para trastear con SDR: sensores, mandos y estaciones meteo por todas partes."},
+ tx:{s:0,r:0,n:"Uso común sin licencia, con 10 mW ERP. Sin protección frente a interferencias: por diseño hay que aceptarlas."},
+ notas:["Alcance real de voz: de 200 m a 1 km. Bastante menos que PMR446, por la diferencia de potencia.","Banda muy saturada por dispositivos domésticos: no cuentes con un canal limpio."],
+ alt:"—"},
+
+{id:"pmr446",nom:"PMR446 · walkies de uso libre",cat:"Personal",rf:"UHF",lo:446,hi:446.2,txt:"446,0 – 446,2 MHz · 16 canales",
+ pot:"500 mW ERP · antena integrada obligatoria",modo:"FM 12,5 kHz",
+ desc:"El estándar europeo de walkie sin licencia: ocio, montaña, eventos, obra y coordinación de equipos.",
+ canales:PMR16,colch:["Canal","MHz","Nota"],
+ rx:{s:1,r:0,n:"Escuchar la banda es libre. Ten presente que las conversaciones ajenas siguen siendo comunicaciones privadas: puedes oírlas, no difundirlas."},
+ tx:{s:0,r:0,n:"Uso común: sin licencia, sin tasas y sin examen. Solo equipo homologado europeo con su antena original."},
+ notas:["Prohibido: antena externa, amplificador, repetidor o uso desde estación fija con antena elevada.","Alcance real: 1–2 km en ciudad, 5–10 km en campo abierto y mucho más de cima a cima.","Los tonos CTCSS/DCS no dan privacidad: solo silencian tu altavoz, cualquiera te sigue oyendo.","Si necesitas más alcance legal sin licencia, la CB-27 con antena exterior es la vía."],
+ alt:"—"},
+
+{id:"dpmr446",nom:"dPMR446 y DMR446 digital",cat:"Personal",rf:"UHF",lo:446.1,hi:446.2,txt:"446,103125 – 446,196875 MHz · 16 canales",
+ pot:"500 mW ERP",modo:"dPMR · DMR Tier 1 · 6,25 kHz",
+ desc:"Versión digital del PMR446: audio limpio hasta el límite de cobertura y llamadas selectivas por grupo.",
+ canales:DPMR16,colch:["Canal","MHz","Nota"],
+ rx:{s:1,r:0,n:"Escucha libre con equipo compatible. El contenido sigue protegido por el secreto de las comunicaciones."},
+ tx:{s:0,r:0,n:"Uso común, sin licencia, con equipo homologado."},
+ notas:["No es interoperable con el PMR446 analógico.","El cifrado que ofrecen algunos equipos no otorga derechos adicionales: sigue siendo banda compartida."],
+ alt:"—"},
+
+{id:"pmr-440",nom:"PMR profesional UHF · 440 – 470 MHz",cat:"Profesional",rf:"UHF",lo:440,hi:470,txt:"440 – 470 MHz",
+ pot:"Según concesión",modo:"FM · DMR · NXDN",
+ desc:"Radios de seguridad privada, hostelería, hospitales, transporte urbano y servicios municipales.",
+ rx:{s:1,r:0,n:RX_NOD},
+ tx:{s:1,r:2,n:"Frecuencias asignadas nominalmente y con tasa pagada. Tumbar la red de un hospital o de un evento tiene impacto alto y titular identificable: la denuncia por interferencia es directa."},
+ notas:["Es la banda donde más se cuela gente con walkies genéricos mal programados.","Muchos equipos de bajo coste cubren 400–470 MHz de fábrica: que el equipo pueda no significa que puedas."],
+ alt:"PMR446 o dPMR446 si te basta con 500 mW; concesión de uso privativo si necesitas potencia y cobertura reales."},
+
+{id:"tdt",nom:"TDT · Televisión Digital Terrestre",cat:"Difusión",rf:"UHF",lo:470,hi:694,txt:"470 – 694 MHz · canales 21–48",
+ pot:"Según concesión",modo:"DVB-T · DVB-T2",
+ desc:"Múltiplex nacionales, autonómicos y locales. Tras el segundo dividendo digital, el techo es 694 MHz.",
+ rx:{s:0,r:0,n:RX_LIB},
+ tx:{s:1,r:2,n:"Reservado a múltiplex concedidos y, puntualmente, a PMSE con autorización."},
+ notas:["Este tramo aloja también micrófonos profesionales (PMSE) con autorización temporal."],alt:"—"},
+
+{id:"movil-700",nom:"Móvil 5G · 700 MHz",cat:"Móvil",rf:"UHF",lo:694,hi:790,txt:"694 – 790 MHz",
+ pot:"Operador con licencia",modo:"5G NR",desc:"Banda de cobertura del 5G nacional, adjudicada por subasta a los operadores.",
+ rx:{s:2,r:0,n:"Ver la actividad de una celda con un SDR no daña nada, pero interceptar o intentar descifrar comunicaciones móviles ajenas es delito. No hay escucha lícita de contenido."},
+ tx:{s:2,r:3,n:"Espectro licenciado. Cualquier emisión ajena degrada la cobertura móvil de un área entera, incluidas las llamadas al 112. Los inhibidores son ilegales para particulares y empresas."},
+ notas:[],alt:"Ninguna: espectro subastado a operadores."},
+
+{id:"movil-800",nom:"Móvil 4G/5G · 800 MHz",cat:"Móvil",rf:"UHF",lo:791,hi:862,txt:"791 – 821 y 832 – 862 MHz",
+ pot:"Operador con licencia",modo:"LTE · 5G",desc:"Banda de cobertura rural del 4G y 5G.",
+ rx:{s:2,r:0,n:"Como el resto de bandas móviles: interceptar comunicaciones ajenas es delito."},
+ tx:{s:2,r:3,n:"Espectro con licencia individual de operador."},notas:[],alt:"Ninguna."},
+
+{id:"micros",nom:"Micrófonos inalámbricos de uso común",cat:"Audio PMSE",rf:"UHF",lo:823,hi:832,txt:"823 – 832 MHz · y 1785 – 1805 MHz",
+ pot:"20 mW portátil · 50 mW",modo:"FM · digital",
+ desc:"Las subbandas donde puedes usar micrófonos y petacas inalámbricos sin pedir permiso.",
+ rx:{s:1,r:0,n:"Escucha libre de la banda; el contenido de una producción ajena sigue siendo privado."},
+ tx:{s:0,r:0,n:"Uso común con equipo homologado dentro del límite de potencia."},
+ notas:["Muchos micros antiguos trabajan en 700–800 MHz y hoy son ilegales tras el dividendo digital: comprueba el rango de tu equipo antes de usarlo.","Para producciones grandes en 470–694 MHz se solicita autorización PMSE temporal."],
+ alt:"—"},
+
+{id:"srd868",nom:"SRD 868 MHz · IoT, LoRa y alarmas",cat:"Datos e IoT",rf:"UHF",lo:863,hi:870,txt:"863 – 870 MHz",
+ pot:"25 mW ERP típico · ciclo de trabajo limitado",modo:"LoRa · FSK · Sigfox",
+ desc:"La banda europea de dispositivos de corto alcance: sensores, alarmas, domótica, telemetría y redes LoRaWAN.",
+ rx:{s:0,r:0,n:RX_LIB},
+ tx:{s:0,r:0,n:"Uso común, pero con límite de ciclo de trabajo (0,1 %, 1 % o 10 % según subbanda): no puedes transmitir de forma continua."},
+ notas:["868,1 / 868,3 / 868,5 MHz: canales LoRaWAN por defecto en la región EU868.","Mejor alcance y mucho menos ruido que 433 MHz para telemetría."],
+ alt:"—"},
+
+{id:"movil-900",nom:"Móvil 900 MHz · GSM, UMTS y LTE",cat:"Móvil",rf:"UHF",lo:880,hi:960,txt:"880 – 960 MHz",
+ pot:"Operador con licencia",modo:"GSM · LTE · 5G",desc:"Banda histórica de la telefonía móvil, aún clave para cobertura.",
+ rx:{s:2,r:0,n:"Interceptar telefonía ajena es delito, aunque técnicamente sea captable."},
+ tx:{s:2,r:3,n:"Espectro licenciado por subasta."},notas:[],alt:"Ninguna."},
+
+{id:"gnss",nom:"GNSS · GPS, Galileo y GLONASS",cat:"Espacio",rf:"SHF",lo:1164,hi:1610,txt:"1164 – 1300 y 1559 – 1610 MHz",
+ pot:"Satélites",modo:"Espectro ensanchado (CDMA)",
+ desc:"Señales de posicionamiento por satélite. Llegan a la Tierra con potencia bajísima, por eso son tan vulnerables.",
+ rx:{s:0,r:0,n:RX_LIB+" Cualquier receptor GNSS o SDR puede recibirlas: es la base de la navegación civil."},
+ tx:{s:2,r:3,n:"Los jammers de GPS son ilegales. Un solo inhibidor en una carretera afecta a aviación, transporte y emergencias en un radio de kilómetros."},
+ notas:["L1 = 1575,42 MHz · L2 = 1227,60 MHz · L5 = 1176,45 MHz."],
+ alt:"Escucha libre. No existe uso legal de emisión en esta banda para particulares."},
+
+{id:"ham-23",nom:"Radioaficionado · microondas (23 cm y superiores)",cat:"Radioafición",rf:"SHF",lo:1240,hi:24250,txt:"1240–1300 · 2300–2450 · 5650–5850 MHz · 10 y 24 GHz",
+ pot:"Según autorización",modo:"FM · SSB · ATV · digitales",
+ desc:"Bandas de experimentación: televisión de aficionado, rebote lunar, enlaces de datos y DX de microondas.",
+ rx:{s:0,r:0,n:RX_LIB},
+ tx:{s:1,r:1,n:"Requiere licencia. Muchos tramos son secundarios: hay que aceptar interferencia de servicios primarios y no causarla."},
+ notas:["Comparte espectro con GNSS (23 cm) e ISM (13 y 6 cm): la convivencia exige cuidado."],
+ alt:"Licencia de radioaficionado."},
+
+{id:"dect",nom:"DECT · teléfonos inalámbricos",cat:"Datos e IoT",rf:"SHF",lo:1880,hi:1900,txt:"1880 – 1900 MHz",
+ pot:"250 mW de pico",modo:"DECT · DECT NR+",
+ desc:"Teléfonos inalámbricos domésticos e intercomunicadores. Uso común con equipo homologado.",
+ rx:{s:2,r:0,n:"Es telefonía: interceptar conversaciones ajenas encaja de lleno en el delito de descubrimiento y revelación de secretos, aunque el equipo lo permita."},
+ tx:{s:0,r:0,n:"Uso común con equipo homologado DECT."},notas:["Diez portadoras de 1,728 MHz."],alt:"—"},
+
+{id:"wifi24",nom:"WiFi, Bluetooth y RC en 2,4 GHz (ISM)",cat:"Datos e IoT",rf:"SHF",lo:2400,hi:2483.5,txt:"2400 – 2483,5 MHz · canales 1–13",
+ pot:"100 mW EIRP",modo:"OFDM · FHSS · BLE",
+ desc:"La banda ISM más usada del planeta: WiFi, Bluetooth, Zigbee, emisoras de dron y hornos microondas.",
+ canales:WIFI24,colch:["Canal","MHz","Nota"],
+ rx:{s:1,r:0,n:"Escanear el espectro y ver redes anunciándose es legal. Capturar o descifrar el tráfico de una red ajena, o conectarse a ella sin permiso, no lo es."},
+ tx:{s:0,r:0,n:"Uso común hasta 100 mW EIRP con equipo homologado."},
+ notas:["En Europa los canales 1–13 son legales; el 14 no.","Solo 1, 6 y 11 no se solapan entre sí.","Los amplificadores WiFi que superan 100 mW EIRP no son legales aunque se vendan online."],
+ alt:"—"},
+
+{id:"movil-2100",nom:"Móvil 1800 / 2100 / 2600 MHz",cat:"Móvil",rf:"SHF",lo:1710,hi:2690,txt:"1710–1880 · 1920–2170 · 2500–2690 MHz",
+ pot:"Operador con licencia",modo:"LTE · 5G NR",desc:"Bandas de capacidad de las redes móviles en zonas urbanas.",
+ rx:{s:2,r:0,n:"Interceptar comunicaciones móviles ajenas es delito."},
+ tx:{s:2,r:3,n:"Espectro licenciado por subasta."},notas:[],alt:"Ninguna."},
+
+{id:"5g-35",nom:"5G banda media · 3,5 GHz",cat:"Móvil",rf:"SHF",lo:3400,hi:3800,txt:"3400 – 3800 MHz",
+ pot:"Operador con licencia",modo:"5G NR TDD",desc:"La banda principal del 5G español en capacidad.",
+ rx:{s:2,r:0,n:"Interceptar comunicaciones móviles ajenas es delito."},
+ tx:{s:2,r:3,n:"Espectro licenciado."},notas:[],alt:"Ninguna."},
+
+{id:"wifi5",nom:"WiFi 5 GHz",cat:"Datos e IoT",rf:"SHF",lo:5150,hi:5725,txt:"5150 – 5350 y 5470 – 5725 MHz",
+ pot:"200 mW EIRP en interior · 1 W con DFS y TPC",modo:"OFDM · 802.11 a/n/ac/ax",
+ desc:"Uso común con condiciones: 5150–5350 solo en interior, y DFS obligatorio para no interferir radares meteorológicos.",
+ rx:{s:1,r:0,n:"Escanear redes es legal; capturar o descifrar tráfico ajeno no."},
+ tx:{s:0,r:0,n:"Uso común con condiciones estrictas: respeta DFS y la limitación a interiores del tramo bajo."},
+ notas:["DFS: el equipo debe abandonar el canal si detecta un radar. No lo desactives.","5150–5350 MHz: exclusivamente en interiores, sin antena exterior."],
+ alt:"—"},
+
+{id:"fpv58",nom:"FPV y enlaces de vídeo en 5,8 GHz",cat:"RC y drones",rf:"SHF",lo:5725,hi:5875,txt:"5725 – 5875 MHz",
+ pot:"25 mW EIRP",modo:"Vídeo analógico y digital",
+ desc:"Transmisores de vídeo para drones FPV y enlaces de corto alcance.",
+ rx:{s:0,r:0,n:RX_LIB+" Las gafas y receptores FPV son solo receptores: usarlos nunca es el problema."},
+ tx:{s:0,r:1,n:"Uso común solo hasta 25 mW EIRP. Muchos VTX se venden a 200, 600 o 1000 mW y a esa potencia ya no son legales aquí."},
+ notas:["Comprueba y limita la potencia de tu VTX antes de volar.","El vuelo de drones tiene además normativa propia de AESA: registro de operador, zonas geográficas y límites de altura."],
+ alt:"Configurar el VTX a 25 mW y volar en zona autorizada; para más potencia, autorización específica."},
+
+{id:"wifi6e",nom:"WiFi 6E · 6 GHz",cat:"Datos e IoT",rf:"SHF",lo:5945,hi:6425,txt:"5945 – 6425 MHz",
+ pot:"200 mW EIRP · modo LPI, interior",modo:"802.11ax / be",
+ desc:"La banda nueva del WiFi: mucho espectro limpio, restringido a baja potencia y uso en interiores.",
+ rx:{s:1,r:0,n:"Escanear redes es legal; capturar tráfico ajeno no."},
+ tx:{s:0,r:0,n:"Uso común en modo LPI: interiores y sin antena exterior."},
+ notas:["Comparte espectro con enlaces fijos de radio; de ahí el límite estricto."],alt:"—"},
+
+{id:"satrx",nom:"Recepción de satélite en banda Ku",cat:"Espacio",rf:"SHF",lo:10700,hi:12750,txt:"10,7 – 12,75 GHz",
+ pot:"Satélites",modo:"DVB-S · DVB-S2",
+ desc:"Banda de bajada: televisión por satélite y datos. Recepción con parabólica y LNB.",
+ rx:{s:0,r:0,n:RX_LIB+" La recepción doméstica de televisión por satélite es el caso de uso normal."},
+ tx:{s:1,r:2,n:"El enlace ascendente requiere licencia de estación terrena; interferir un transpondedor afecta a un haz continental entero."},
+ notas:[],alt:"—"},
+
+{id:"radar24",nom:"ISM 24 GHz y radar de automoción",cat:"Datos e IoT",rf:"SHF",lo:24000,hi:81000,txt:"24,05 – 24,25 GHz · 76 – 81 GHz",
+ pot:"100 mW EIRP en ISM · según norma en automoción",modo:"FMCW · CW",
+ desc:"Sensores de movimiento, puertas automáticas, radar de nivel y radar anticolisión de vehículos.",
+ rx:{s:0,r:0,n:RX_LIB},
+ tx:{s:0,r:0,n:"Uso común para equipos homologados; el radar de automoción de 76–81 GHz va integrado en el vehículo."},
+ notas:["No confundir con los cinemómetros de tráfico, que son equipos oficiales verificados metrológicamente."],alt:"—"}
+];
+
+/* ═══════════════ constantes de presentación ═══════════════ */
+const RXL=[{t:"Escucha libre",c:"var(--ok)"},{t:"Legal · no divulgable",c:"var(--warn)"},{t:"Escucha ilícita",c:"var(--bad)"}];
+const TXL=[{t:"Libre, sin licencia",c:"var(--ok)"},{t:"Requiere licencia",c:"var(--info)"},{t:"No transmitir nunca",c:"var(--bad)"}];
+const RISK=[{t:"Nulo",c:"var(--ok)"},{t:"Bajo",c:"var(--warn)"},{t:"Alto",c:"var(--hot)"},{t:"Crítico",c:"var(--bad)"}];
+const ORDER=["Personal","Radioafición","Aérea","Marítima","Profesional","Emergencias","Difusión","Datos e IoT","RC y drones","Audio PMSE","Móvil","Espacio"];
+const USECASES=[
+ {e:"🏔️",t:"Hablar con mi grupo en la montaña",ids:["pmr446","dpmr446","lpd"]},
+ {e:"📡",t:"Máximo alcance legal sin licencia",ids:["cb","pmr446"]},
+ {e:"✈️",t:"Escuchar aviones y torres",ids:["aero","lers","meteo"]},
+ {e:"⛵",t:"Navegar y comunicar en el mar",ids:["mar","mar-mf","epirb"]},
+ {e:"🚁",t:"Volar un dron o FPV",ids:["fpv58","wifi24","rc35"]},
+ {e:"🎪",t:"Coordinar un evento o una obra",ids:["pmr446","dpmr446","pmr-440","micros"]},
+ {e:"📻",t:"Empezar en radioafición",ids:["ham-hf","ham-2m","ham-70","ham-6"]},
+ {e:"🏠",t:"Sensores, domótica e IoT",ids:["srd868","lpd","wifi24","srd169"]},
+ {e:"🛰️",t:"Escuchar satélites con un SDR",ids:["meteo","gnss","satrx"]},
+ {e:"🎙️",t:"Micrófonos inalámbricos",ids:["micros","tdt"]}
+];
+const SOS=[["121,500 MHz","Emergencia aeronáutica"],["243,000 MHz","Emergencia militar aérea"],["156,800 MHz","Canal 16 marina VHF · socorro"],["156,525 MHz","Canal 70 · LSD/DSC marina"],["2182 kHz","Socorro marítimo en MF"],["406,0 – 406,1 MHz","Radiobalizas COSPAS-SARSAT"],["27,065 MHz","Canal 9 CB · emergencia"],["145,500 MHz","Llamada 2 m radioaficionado"],["433,500 MHz","Llamada 70 cm radioaficionado"],["112","Emergencias por teléfono"]];
+const LEGEND=[
+ ["RX","Escucha libre","var(--ok)","Servicio de difusión abierta o banda de uso común. Puedes escuchar y comentar sin límite."],
+ ["RX","Legal · no divulgable","var(--warn)","Recibir es lícito y tener el receptor también. Lo que no puedes es divulgar ni aprovechar el contenido de comunicaciones ajenas."],
+ ["RX","Escucha ilícita","var(--bad)","Señal cifrada o telecomunicación privada: descifrarla o interceptarla es delito de descubrimiento y revelación de secretos."],
+ ["TX","Libre, sin licencia","var(--ok)","Uso común: puedes emitir con equipo homologado CE respetando potencia y tipo de antena."],
+ ["TX","Requiere licencia","var(--info)","Necesitas título o autorización: radioaficionado, marítimo, aeronáutico o concesión de uso privativo."],
+ ["TX","No transmitir nunca","var(--bad)","Espectro reservado a operadores o a servicios de seguridad. Ningún particular puede emitir aquí bajo ningún supuesto."]
+];
+
+/* ═══════════════ estado ═══════════════ */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const LS={get:(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
+let F={tx:"all",rx:"all",rf:"all",cat:"all"}, Q="", FAVONLY=false, MODE="tx", UC=null;
+let FAV=new Set(LS.get("espectro:fav",[]));
+
+/* ═══════════════ helpers de render ═══════════════ */
+const bars=r=>`<span class="bars" style="--rc:${RISK[r].c}" aria-label="riesgo ${RISK[r].t}">${[0,1,2,3].map(i=>`<i class="${i<=r&&r>0?"f":""}"></i>`).join("")}</span>`;
+const pill=(o,L)=>`<span class="stt" style="--c:${L[o.s].c}"><i class="g"></i>${L[o.s].t}</span>`;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const dec=s=>String(s).replace(".",",");
+function fmtF(c){
+  if(c.raw||typeof c.f!=="number")return c.f;
+  if(c.f>=1000)return c.f.toFixed(0);
+  return dec(c.f.toFixed(6).replace(/(\.\d{3}\d*?)0+$/,"$1"));
+}
+const rngTxt=b=>`${b.lo<1?dec((b.lo*1000).toFixed(1))+" kHz":dec(b.lo)+" MHz"} → ${b.hi>=1000?dec((b.hi/1000).toFixed(2))+" GHz":dec(b.hi)+" MHz"}`;
+
+/* ═══════════════ estadísticas ═══════════════ */
+(function(){
+  const libres=D.filter(b=>b.tx.s===0).length, esc0=D.filter(b=>b.rx.s===0).length,
+        ch=D.reduce((a,b)=>a+(b.canales?b.canales.length:0),0);
+  $("#stats").innerHTML=[[D.length,"bandas"],[libres,"con TX libre"],[esc0,"de escucha libre"],[ch,"canales listados"]]
+    .map(([n,l])=>`<div class="stat"><div class="n">${n}</div><div class="l">${l}</div></div>`).join("");
+  $("#ver").textContent="Rev. "+new Date().getFullYear();
+})();
+
+/* ═══════════════ casos de uso ═══════════════ */
+$("#uc").innerHTML=USECASES.map((u,i)=>
+ `<button class="ucb" data-uc="${i}"><span class="e">${u.e}</span><span class="t">${u.t}</span><span class="n">${u.ids.length} bandas</span></button>`).join("");
+$("#uc").addEventListener("click",e=>{
+  const b=e.target.closest("[data-uc]"); if(!b)return;
+  const i=+b.dataset.uc;
+  if(UC===i){UC=null;} else {UC=i; F={tx:"all",rx:"all",rf:"all",cat:"all"}; Q=""; $("#q").value=""; syncChips();}
+  $$(".ucb").forEach(x=>x.classList.toggle("on",+x.dataset.uc===UC));
+  render();
+  if(UC!==null)setTimeout(()=>$("#results").scrollIntoView({behavior:"smooth",block:"start"}),60);
+});
+
+/* ═══════════════ filtros ═══════════════ */
+const cats=[...new Set(D.map(b=>b.cat))].sort((a,b)=>ORDER.indexOf(a)-ORDER.indexOf(b));
+$("#catchips").innerHTML=cats.map(c=>`<button class="ch" data-f="cat" data-v="${esc(c)}">${esc(c)}</button>`).join("");
+function syncChips(){
+  $$(".ch").forEach(c=>c.classList.toggle("on",F[c.dataset.f]===c.dataset.v));
+}
+$("#fpanel").addEventListener("click",e=>{
+  const c=e.target.closest(".ch"); if(!c)return;
+  F[c.dataset.f]=c.dataset.v;
+  if(UC!==null){UC=null;$$(".ucb").forEach(x=>x.classList.remove("on"));}
+  syncChips(); render();
+});
+function activeCount(){return Object.values(F).filter(v=>v!=="all").length+(UC!==null?1:0)+(FAVONLY?1:0)}
+
+/* hoja de filtros en móvil */
+const fpanel=$("#fpanel"), fbk=$("#fbk");
+const openF=()=>{fpanel.classList.add("open");fbk.classList.add("on");document.body.style.overflow="hidden"};
+const closeF=()=>{fpanel.classList.remove("open");fbk.classList.remove("on");if(!$("#ov").classList.contains("on"))document.body.style.overflow=""};
+$("#openf").addEventListener("click",openF);
+fbk.addEventListener("click",closeF);
+$("#fapply").addEventListener("click",closeF);
+$("#fclear2").addEventListener("click",()=>{F={tx:"all",rx:"all",rf:"all",cat:"all"};UC=null;FAVONLY=false;$("#favbtn").classList.remove("on");$$(".ucb").forEach(x=>x.classList.remove("on"));syncChips();render()});
+const mq=window.matchMedia("(max-width:760px)");
+function applyMQ(){ $("#fapply").style.display=mq.matches?"block":"none"; if(!mq.matches)closeF(); }
+mq.addEventListener?.("change",applyMQ); applyMQ();
+
+/* ═══════════════ resultados ═══════════════ */
+function matches(b){
+  if(UC!==null)return USECASES[UC].ids.includes(b.id);
+  if(FAVONLY&&!FAV.has(b.id))return false;
+  if(F.tx!=="all"&&b.tx.s!==+F.tx)return false;
+  if(F.rx!=="all"&&b.rx.s!==+F.rx)return false;
+  if(F.rf!=="all"&&b.rf!==F.rf)return false;
+  if(F.cat!=="all"&&b.cat!==F.cat)return false;
+  if(Q){
+    const h=(b.nom+" "+b.cat+" "+b.txt+" "+b.desc+" "+(b.notas||[]).join(" ")+" "+b.rf+" "+b.modo+" "+b.pot).toLowerCase();
+    if(!h.includes(Q))return false;
+  }
+  return true;
+}
+function cardHTML(b){
+  return `<div class="bc" data-id="${b.id}" role="button" tabindex="0" aria-label="${esc(b.nom)}">
+    <span class="tag">${b.rf}</span>
+    <h4>${esc(b.nom)}</h4>
+    <span class="rng">${esc(b.txt)}</span>
+    <span class="dsc">${esc(b.desc)}</span>
+    <span class="rt">
+      <span class="rtr"><i class="rtk">RX</i>${pill(b.rx,RXL)}<i class="rmini">no radia</i></span>
+      <span class="rtr"><i class="rtk">TX</i>${pill(b.tx,TXL)}${b.tx.r?bars(b.tx.r):'<i class="rmini">sin riesgo</i>'}</span>
+    </span>
+    <span class="foot"><span>${esc(b.pot.split("·")[0].trim())}</span><span>${esc(b.modo.split("·")[0].trim())}</span>${b.canales?`<span>${b.canales.length} canales</span>`:""}</span>
+    <button class="fav ${FAV.has(b.id)?"on":""}" data-fav="${b.id}" aria-label="Marcar como favorito" aria-pressed="${FAV.has(b.id)}">
+      <svg viewBox="0 0 24 24" fill="${FAV.has(b.id)?"currentColor":"none"}" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M12 3.6l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8L3.5 9.8l5.9-.9z"/></svg>
+    </button>
+  </div>`;
+}
+function render(){
+  const list=D.filter(matches);
+  const txt=list.length+" / "+D.length+" bandas";
+  $("#cnt").textContent=txt; $("#cnt2").textContent=txt;
+  const n=activeCount();
+  $("#fbadge").hidden=!n; $("#fbadge").textContent=n;
+  $("#openf").classList.toggle("act",n>0);
+  $("#fclear2").hidden=n===0;
+
+  if(!list.length){
+    $("#results").innerHTML=`<div class="none"><b>Sin resultados</b>Prueba con «PMR», «marina» o «433», o limpia los filtros activos.</div>`;
+    return;
+  }
+  const groups=cats.map(c=>[c,list.filter(b=>b.cat===c)]).filter(([,a])=>a.length);
+  $("#results").innerHTML=groups.map(([c,arr])=>`
+    <section class="svc">
+      <div class="svc-h"><h3>${esc(c)}</h3><span class="ln"></span><span class="qt">${arr.length}</span></div>
+      <div class="grid">${arr.map(cardHTML).join("")}</div>
+    </section>`).join("");
+}
+$("#results").addEventListener("click",e=>{
+  const f=e.target.closest("[data-fav]");
+  if(f){e.preventDefault();e.stopPropagation();const id=f.dataset.fav;FAV.has(id)?FAV.delete(id):FAV.add(id);LS.set("espectro:fav",[...FAV]);render();return;}
+  const c=e.target.closest(".bc"); if(c)openBand(c.dataset.id);
+});
+$("#results").addEventListener("keydown",e=>{
+  if(e.key!=="Enter"&&e.key!==" ")return;
+  const c=e.target.closest(".bc"); if(!c||e.target.closest("[data-fav]"))return;
+  e.preventDefault(); openBand(c.dataset.id);
+});
+$("#q").addEventListener("input",e=>{Q=e.target.value.trim().toLowerCase();if(UC!==null){UC=null;$$(".ucb").forEach(x=>x.classList.remove("on"))}render()});
+$("#favbtn").addEventListener("click",e=>{FAVONLY=!FAVONLY;e.currentTarget.classList.toggle("on",FAVONLY);if(FAVONLY&&UC!==null){UC=null;$$(".ucb").forEach(x=>x.classList.remove("on"))}render()});
+
+/* ═══════════════ ficha ═══════════════ */
+const ov=$("#ov"), sheet=$("#sheet");
+let lastFocus=null;
+function openBand(id,push=true){
+  const b=D.find(x=>x.id===id); if(!b)return;
+  const cols=b.colch||["Canal","MHz","Nota"];
+  lastFocus=document.activeElement;
+  sheet.innerHTML=`
+  <div class="grab"></div>
+  <div class="sh-h">
+    <button class="x" id="x" aria-label="Cerrar"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <div class="kicker">${esc(b.cat)} · ${b.rf}</div>
+    <h2 id="shTitle">${esc(b.nom)}</h2>
+    <div class="rng">${esc(b.txt)}</div>
+  </div>
+  <div class="sh-b">
+    <p class="intro">${esc(b.desc)}</p>
+    <div class="pair">
+      <div class="pc" style="--c:${RXL[b.rx.s].c}">
+        <div class="kicker">◄ RX · Escuchar</div>
+        <div class="st">${RXL[b.rx.s].t}</div>
+        <p class="tx">${esc(b.rx.n)}</p>
+        <div class="rr" style="--rc:${RISK[b.rx.r].c}"><span class="k">Riesgo</span>${bars(b.rx.r)}<span class="v">${RISK[b.rx.r].t}</span></div>
+      </div>
+      <div class="pc" style="--c:${TXL[b.tx.s].c}">
+        <div class="kicker">► TX · Transmitir</div>
+        <div class="st">${TXL[b.tx.s].t}</div>
+        <p class="tx">${esc(b.tx.n)}</p>
+        <div class="rr" style="--rc:${RISK[b.tx.r].c}"><span class="k">Riesgo</span>${bars(b.tx.r)}<span class="v">${RISK[b.tx.r].t}</span></div>
+      </div>
+    </div>
+    <div class="specs">
+      <div class="spc"><div class="k">Potencia máxima</div><div class="v">${esc(b.pot)}</div></div>
+      <div class="spc"><div class="k">Modo</div><div class="v">${esc(b.modo)}</div></div>
+      <div class="spc"><div class="k">Rango</div><div class="v mono" style="font-size:12px">${rngTxt(b)}</div></div>
+      <div class="spc"><div class="k">Servicio</div><div class="v">${esc(b.cat)} · ${b.rf}</div></div>
+    </div>
+    ${b.tx.s===0?`<div class="cal c-ok"><span class="kicker">Puedes emitir aquí</span>Banda de uso común: sin licencia, sin tasas y sin examen. Solo debes respetar la potencia máxima, el tipo de antena permitido y usar equipo con marcado CE.</div>`:""}
+    ${b.alt&&b.alt!=="—"?`<div class="cal c-nt"><span class="kicker">Alternativa legal equivalente</span>${esc(b.alt)}</div>`:""}
+    ${(b.notas&&b.notas.length)?`<h5>Claves prácticas</h5><ul class="pts">${b.notas.map(n=>`<li>${esc(n)}</li>`).join("")}</ul>`:""}
+    ${b.canales?`<h5>Canales · ${b.canales.length}</h5><div class="tblwrap"><div class="tblscroll"><table>
+      <thead><tr><th>${esc(cols[0])}</th><th>${esc(cols[1])}</th><th>${esc(cols[2])}</th></tr></thead>
+      <tbody>${b.canales.map(c=>{
+        const crit=(b.hlch&&c.n===b.hlch)||/EMERGENC|SOCORRO/i.test((c.nota||"")+String(c.f));
+        return `<tr class="${crit?"crit":""}"><td>${esc(c.n)}</td><td>${esc(fmtF(c))}${c.extra?` <span style="color:var(--fg3)">${esc(c.extra)}</span>`:""}</td><td>${esc(c.nota||"")}</td></tr>`;
+      }).join("")}</tbody></table></div></div>`:""}
+    <div class="chips"><span>${rngTxt(b)}</span><span>${b.rf}</span>${b.canales?`<span>${b.canales.length} canales</span>`:""}<span>${esc(b.cat)}</span></div>
+  </div>`;
+  ov.classList.add("on"); document.body.style.overflow="hidden";
+  $("#x").addEventListener("click",()=>history.state?.band?history.back():closeBand());
+  $("#x").focus({preventScroll:true});
+  if(push)history.pushState({band:id},"","#"+id);
+}
+function closeBand(){
+  ov.classList.remove("on"); sheet.innerHTML="";
+  if(!fpanel.classList.contains("open"))document.body.style.overflow="";
+  lastFocus?.focus?.({preventScroll:true});
+}
+ov.addEventListener("click",e=>{if(e.target===ov)history.state?.band?history.back():closeBand()});
+window.addEventListener("popstate",e=>{ e.state&&e.state.band?openBand(e.state.band,false):closeBand(); });
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"){ if(ov.classList.contains("on")){history.state?.band?history.back():closeBand()} else if(fpanel.classList.contains("open"))closeF(); }
+  if(e.key==="/"&&!/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)){e.preventDefault();$("#q").focus()}
+});
+
+/* ═══════════════ espectro ═══════════════ */
+const L0=Math.log10(0.1), L1=Math.log10(100000);
+const pos=f=>(Math.log10(Math.max(f,0.1))-L0)/(L1-L0)*100;
+const specbar=$("#specbar"), tip=$("#tip");
+function drawSpec(){
+  specbar.innerHTML=D.map(b=>{
+    const a=pos(b.lo), w=Math.max(pos(b.hi)-a,0.4);
+    const col=MODE==="tx"?(b.tx.r>=3?"var(--bad)":TXL[b.tx.s].c):RXL[b.rx.s].c;
+    return `<i class="seg" data-id="${b.id}" style="left:${a}%;width:${w}%;background:${col}"></i>`;
+  }).join("");
+}
+$("#axis").innerHTML=[[0.5,"500 kHz"],[3,"3 MHz"],[30,"30 MHz"],[300,"300 MHz"],[3000,"3 GHz"],[30000,"30 GHz"]]
+  .map(([f,l])=>`<span style="left:${pos(f)}%">${l}</span>`).join("");
+$("#regions").innerHTML=[[0.1,0.3,"LF"],[0.3,3,"MF"],[3,30,"HF"],[30,300,"VHF"],[300,3000,"UHF"],[3000,30000,"SHF"],[30000,100000,"EHF"]]
+  .map(([a,b,l])=>`<i style="left:${pos(a)}%;width:${pos(b)-pos(a)}%">${l}</i>`).join("");
+specbar.addEventListener("click",e=>{const s=e.target.closest(".seg");if(s)openBand(s.dataset.id)});
+if(window.matchMedia("(hover:hover)").matches){
+  specbar.addEventListener("mousemove",e=>{
+    const s=e.target.closest(".seg");
+    if(!s){tip.style.opacity=0;return}
+    const b=D.find(x=>x.id===s.dataset.id);
+    tip.innerHTML=`<div class="tn">${esc(b.nom)}</div><div class="tf">${esc(b.txt)}</div>
+      <div style="margin-top:6px;display:flex;flex-direction:column;gap:3px">${pill(b.rx,RXL)}${pill(b.tx,TXL)}</div>`;
+    tip.style.opacity=1;
+    const r=tip.getBoundingClientRect();
+    tip.style.left=Math.min(e.clientX+14,innerWidth-r.width-10)+"px";
+    tip.style.top=Math.max(e.clientY-r.height-12,10)+"px";
+  });
+  specbar.addEventListener("mouseleave",()=>tip.style.opacity=0);
+}
+$("#mode").addEventListener("click",e=>{
+  const b=e.target.closest("button"); if(!b)return;
+  MODE=b.dataset.m;
+  $$("#mode button").forEach(x=>x.classList.toggle("on",x===b));
+  drawSpec();
+});
+
+/* ═══════════════ identificar frecuencia ═══════════════ */
+const fq=$("#fq"), fu=$("#fu"), lkres=$("#lkres");
+function lookup(){
+  const raw=parseFloat(String(fq.value).replace(",","."));
+  if(isNaN(raw)){lkres.classList.remove("on");lkres.innerHTML="";return}
+  const mhz=raw*parseFloat(fu.value);
+  const hits=D.filter(b=>mhz>=b.lo-1e-9&&mhz<=b.hi+1e-9);
+  lkres.classList.add("on");
+  if(!hits.length){
+    const near=D.slice().sort((a,b)=>Math.min(Math.abs(mhz-a.lo),Math.abs(mhz-a.hi))-Math.min(Math.abs(mhz-b.lo),Math.abs(mhz-b.hi)))[0];
+    lkres.innerHTML=`<p class="empty">Ninguna banda de este cuadro cubre <b>${dec(mhz)} MHz</b>. Lo más próximo es <b>${esc(near.nom)}</b> (${esc(near.txt)}). El CNAF sí la tiene atribuida a algún servicio: no asumas que está libre.</p>`;
+    return;
+  }
+  lkres.innerHTML=hits.map(b=>{
+    let can="";
+    if(b.canales){
+      const c=b.canales.filter(x=>typeof x.f==="number").reduce((best,x)=>Math.abs(x.f-mhz)<Math.abs((best?.f??1e9)-mhz)?x:best,null);
+      if(c&&Math.abs(c.f-mhz)<0.02)can=` · canal <b>${esc(c.n)}</b>${c.nota?" — "+esc(c.nota):""}`;
+    }
+    return `<button class="hit" data-id="${b.id}">
+      <span class="hm"><span class="hn">${esc(b.nom)}${can}</span><span class="hs">${esc(b.txt)} · ${esc(b.pot)}</span></span>
+      <span class="hp">${pill(b.rx,RXL)}${pill(b.tx,TXL)}</span>
+    </button>`;
+  }).join("");
+  lkres.querySelectorAll(".hit").forEach(el=>el.addEventListener("click",()=>openBand(el.dataset.id)));
+}
+fq.addEventListener("input",lookup); fu.addEventListener("change",lookup);
+
+/* ═══════════════ bloques estáticos ═══════════════ */
+$("#sosg").innerHTML=SOS.map(([f,l])=>`<div class="sosi"><div class="f">${f}</div><div class="l">${l}</div></div>`).join("");
+$("#legg").innerHTML=LEGEND.map(([k,t,c,d])=>
+ `<div class="legi"><div class="hh"><span class="stt" style="--c:${c}"><i class="g"></i>${k} · ${t}</span></div>${d}</div>`).join("")
+ +`<div class="legi"><div class="hh"><span style="display:flex;gap:3px">${[0,1,2,3].map(i=>`<i style="width:13px;height:3px;border-radius:2px;display:block;background:${RISK[i].c}"></i>`).join("")}</span>Escala de riesgo</div>Daño real que causa una emisión indebida: nulo → molesto → bloquea un servicio → compromete vidas. En RX es siempre nulo, porque recibir no radia.</div>`
+ +`<div class="legi"><div class="hh"><span style="color:var(--warn)">★</span> Favoritos</div>Marca tus bandas habituales y fíltralas con el botón ★ de la cabecera. Se guardan en este navegador.</div>`;
+
+/* ═══════════════ tema ═══════════════ */
+const saved=LS.get("espectro:theme",null);
+if(saved)document.documentElement.dataset.theme=saved;
+else if(matchMedia("(prefers-color-scheme: light)").matches)document.documentElement.dataset.theme="light";
+$("#theme").addEventListener("click",()=>{
+  const n=document.documentElement.dataset.theme==="light"?"dark":"light";
+  document.documentElement.dataset.theme=n; LS.set("espectro:theme",n);
+});
+
+
+/* ═══════════════ AERÓDROMOS · AIP ENAIRE ═══════════════
+   AD es la instantánea local (funciona sin conexión y al instante).
+   Al elegir aeródromo se pide además el PDF oficial en vivo y, si llega,
+   sustituye a la instantánea indicando la fecha de la enmienda.       */
+const AIP_BASE = "https://aip.enaire.es/aip/contenido_AIP/AD/";
+const AD = {"GCFV":{"n":"FUERTEVENTURA","u":"AD2/GCFV/LE_AD_2_GCFV_en.pdf","f":[{"s":"APP","c":"Canarias APP","m":129.3,"h":0,"r":"HR AD · Canarias ACC"},{"s":"TWR","c":"Fuerteventura TWR","m":118.475,"h":0,"r":"HR AD · —"},{"s":"TWR","c":"Fuerteventura TWR","m":119.2,"h":0,"r":"HR AD · Secondary"},{"s":"TWR","c":"Fuerteventura TWR","m":121.5,"h":0,"r":"HR AD · EMERG"},{"s":"TWR","c":"Fuerteventura TWR","m":121.7,"h":0,"r":"HR AD · GMC"},{"s":"TWR","c":"Fuerteventura TWR","m":257.8,"h":0,"r":"HR AD · MIL"},{"s":"TWR","c":"Fuerteventura TWR","m":243,"h":0,"r":"HR AD · EMERG"},{"s":"ATIS","c":"Fuerteventura INFORMATION","m":118.65,"h":0,"r":"HR AD · —"}]},"GCGM":{"n":"LA GOMERA","u":"AD2/GCGM/LE_AD_2_GCGM_en.pdf","f":[{"s":"","c":"3 FREQ","m":118.375,"h":0,"r":""},{"s":"","c":"3 FREQ","m":121.5,"h":0,"r":""}]},"GCHI":{"n":"EL HIERRO","u":"AD2/GCHI/LE_AD_2_GCHI_en.pdf","f":[{"s":"APP","c":"Canarias APP","m":125.35,"h":0,"r":"H24"},{"s":"APP","c":"Canarias APP","m":126.1,"h":0,"r":"H24"},{"s":"APP","c":"Canarias APP","m":133.675,"h":0,"r":"H24 · BACK-UP"},{"s":"TWR","c":"Hierro TWR","m":118.075,"h":0,"r":"HR TWR (1) · ATZ and CTR during TWR HR. (1) See item 3."},{"s":"AFIS","c":"Hierro Información","m":118.075,"h":0,"r":"HR AFIS (1) · FIZ during AFIS HR."},{"s":"AFIS","c":"Hierro Información","m":121.5,"h":0,"r":"HR AD · EMERG"}]},"GCLA":{"n":"LA PALMA","u":"AD2/GCLA/LE_AD_2_GCLA_en.pdf","f":[{"s":"","c":"3 FREQ","m":126.1,"h":0,"r":"118.900 118.250 MHz NIL"},{"s":"","c":"3 FREQ","m":133.675,"h":0,"r":"125.800"},{"s":"","c":"3 FREQ","m":121.8,"h":0,"r":""},{"s":"","c":"3 FREQ","m":121.5,"h":0,"r":""},{"s":"","c":"3 FREQ","m":243,"h":0,"r":""},{"s":"","c":"3 FREQ","m":257.8,"h":0,"r":""}]},"GCLP":{"n":"GRAN CANARIA","u":"AD2/GCLP/LE_AD_2_GCLP_en.pdf","f":[{"s":"APP","c":"Gran Canaria APP","m":121.3,"h":0,"r":"H24"},{"s":"APP","c":"Gran Canaria APP","m":124.3,"h":0,"r":"H24"},{"s":"APP","c":"Gran Canaria APP","m":124.7,"h":0,"r":"H24"},{"s":"APP","c":"Gran Canaria APP","m":363.55,"h":0,"r":"H24 · MIL"},{"s":"TWR","c":"Gran Canaria TWR","m":118.3,"h":0,"r":"H24"},{"s":"TWR","c":"Gran Canaria TWR","m":121.7,"h":0,"r":"H24 (1) · GMC"},{"s":"TWR","c":"Gran Canaria TWR","m":125,"h":0,"r":"(2) Clearance"},{"s":"TWR","c":"Gran Canaria TWR","m":127.175,"h":0,"r":"H24 · BACK UP"},{"s":"TWR","c":"Gran Canaria TWR","m":121.5,"h":0,"r":"H24 · EMERG"},{"s":"TWR","c":"Gran Canaria TWR","m":243,"h":0,"r":"H24 · EMERG"},{"s":"TWR","c":"Gran Canaria TWR","m":257.8,"h":0,"r":"H24 · MIL"},{"s":"ATIS","c":"Gran Canaria Information","m":118.6,"h":0,"r":"H24"}]},"GCRR":{"n":"LANZAROTE/César Manrique Lanzarote","u":"AD2/GCRR/LE_AD_2_GCRR_en.pdf","f":[{"s":"APP","c":"Canarias APP","m":129.3,"h":0,"r":"HR AD"},{"s":"TWR","c":"Lanzarote TWR","m":120.7,"h":0,"r":"HR AD"},{"s":"TWR","c":"Lanzarote TWR","m":124,"h":0,"r":"HR AD · BACKUP"},{"s":"TWR","c":"Lanzarote TWR","m":121.5,"h":0,"r":"HR AD · EMERG"},{"s":"TWR","c":"Lanzarote TWR","m":121.8,"h":0,"r":"HR AD · GMC"},{"s":"TWR","c":"Lanzarote TWR","m":243,"h":0,"r":"HR AD · EMERG"},{"s":"TWR","c":"Lanzarote TWR","m":257.8,"h":0,"r":"HR AD · MIL"},{"s":"ATIS","c":"Lanzarote Information","m":118.625,"h":0,"r":"HR AD"}]},"GCTS":{"n":"TENERIFE SUR","u":"AD2/GCTS/LE_AD_2_GCTS_en.pdf","f":[{"s":"APP","c":"Tenerife Sur APP","m":127.7,"h":0,"r":"H24 · APP/L Primaria // Primary"},{"s":"APP","c":"Tenerife Sur APP","m":128.125,"h":0,"r":"H24 · APP Secundaria // Secondary"},{"s":"TWR","c":"Tenerife Sur TWR","m":119,"h":0,"r":"H24"},{"s":"TWR","c":"Tenerife Sur TWR","m":120.3,"h":0,"r":"H24 · BACKUP"},{"s":"TWR","c":"Tenerife Sur TWR","m":121.75,"h":0,"r":"H24 · CLR"},{"s":"TWR","c":"Tenerife Sur TWR","m":121.9,"h":0,"r":"H24 · GMC"},{"s":"TWR","c":"Tenerife Sur TWR","m":121.5,"h":0,"r":"H24 · EMERG"},{"s":"TWR","c":"Tenerife Sur TWR","m":243,"h":0,"r":"H24 · EMERG"},{"s":"ATIS","c":"Tenerife Sur Information","m":118.675,"h":0,"r":"H24"}]},"GCXM":{"n":"TENERIFE NORTE/Los Rodeos","u":"AD3/GCXM/LE_AD_3_GCXM_es.pdf","f":[{"s":"APP","c":"Tenerife Norte APP","m":124.8,"h":0,"r":"HR ATS · APP"},{"s":"APP","c":"Tenerife Norte APP","m":128.85,"h":0,"r":"HR ATS · APP Secundaria"},{"s":"TWR","c":"Tenerife Norte TWR","m":118.7,"h":0,"r":"HR ATS · Aeropuerto civil"},{"s":"TWR","c":"Tenerife Norte TWR","m":120,"h":0,"r":"HR ATS · Secundaria"},{"s":"TWR","c":"Tenerife Norte TWR","m":121.7,"h":0,"r":"HR ATS · GMC (Aeropuerto civil)"},{"s":"TWR","c":"Tenerife Norte TWR","m":121.85,"h":0,"r":"HR ATS · CLR (Aeropuerto civil)"},{"s":"TWR","c":"Tenerife Norte TWR","m":121.5,"h":0,"r":"HR ATS · EMERG"},{"s":"TWR","c":"Tenerife Norte TWR","m":243,"h":0,"r":"HR ATS · EMERG"},{"s":"TWR","c":"Tenerife Norte TWR","m":257.8,"h":0,"r":"HR ATS · Local MIL"},{"s":"TWR","c":"Tenerife Norte TWR","m":120.775,"h":0,"r":"HR ATS · Local MIL Secundaria"},{"s":"ATIS","c":"Tenerife Norte Information","m":118.575,"h":0,"r":"HR ATS"}]},"GCXO":{"n":"TENERIFE NORTE/Ciudad de La Laguna","u":"AD2/GCXO/LE_AD_2_GCXO_en.pdf","f":[{"s":"APP","c":"Tenerife Norte APP","m":124.8,"h":0,"r":"HR ATS · APP"},{"s":"APP","c":"Tenerife Norte APP","m":128.85,"h":0,"r":"HR ATS · APP Secundaria // Secondary"},{"s":"TWR","c":"Tenerife Norte TWR","m":118.7,"h":0,"r":"HR ATS"},{"s":"TWR","c":"Tenerife Norte TWR","m":120,"h":0,"r":"HR ATS · Secundaria // Secondary"},{"s":"TWR","c":"Tenerife Norte TWR","m":121.7,"h":0,"r":"HR ATS · GMC"},{"s":"TWR","c":"Tenerife Norte TWR","m":121.85,"h":0,"r":"HR ATS · CLR"},{"s":"TWR","c":"Tenerife Norte TWR","m":121.5,"h":0,"r":"HR ATS · EMERG"},{"s":"TWR","c":"Tenerife Norte TWR","m":243,"h":0,"r":"HR ATS · EMERG"},{"s":"TWR","c":"Tenerife Norte TWR","m":257.8,"h":0,"r":"HR ATS · Local MIL"},{"s":"ATIS","c":"Tenerife Norte Information","m":118.575,"h":0,"r":"HR ATS"}]},"GECE":{"n":"CEUTA","u":"AD3/GECE/LE_AD_3_GECE_es.pdf","f":[{"s":"","c":"No No","m":123.325,"h":0,"r":"HR · HLP sin servicio ATS."},{"s":"","c":"No No","m":122.5,"h":0,"r":"HR · Sistema AWOS."}]},"GEHM":{"n":"MELILLA","u":"AD3/GEHM/LE_AD_3_GEHM_es.pdf","f":[{"s":"TWR","c":"Melilla HLP","m":123.225,"h":0,"r":"HR HLP · MIL"},{"s":"TWR","c":"Melilla TWR","m":119.525,"h":0,"r":"HR HLP"},{"s":"TWR","c":"Melilla TWR","m":257.8,"h":0,"r":"HR HLP · MIL"}]},"GEML":{"n":"MELILLA","u":"AD2/GEML/LE_AD_2_GEML_en.pdf","f":[{"s":"TWR","c":"Melilla","m":119.525,"h":0,"r":"HR ATS"},{"s":"TWR","c":"Melilla","m":121.5,"h":0,"r":"HR ATS · EMERG"},{"s":"TWR","c":"Melilla","m":139.3,"h":0,"r":"HR ATS · MIL"},{"s":"TWR","c":"Melilla","m":121.775,"h":0,"r":"HR ATS · GMC / BACK-UP"},{"s":"TWR","c":"Melilla","m":257.8,"h":0,"r":"HR ATS · MIL"}]},"GSAI":{"n":"EL AAIUN","u":"AD2/GSAI/LE_AD_2_GSAI_en.pdf","f":[]},"GSVO":{"n":"VILLACISNEROS","u":"AD2/GSVO/LE_AD_2_GSVO_en.pdf","f":[]},"LEAB":{"n":"ALBACETE","u":"AD2/LEAB/LE_AD_2_LEAB_en.pdf","f":[{"s":"CTA/APP","c":"Albacete APP","m":118.725,"h":118.73,"r":"H24 · APP/H."},{"s":"CTA/APP","c":"Albacete APP","m":139.3,"h":139.305,"r":"H24 · APP/MIL."},{"s":"CTA/APP","c":"Albacete APP","m":257.8,"h":0,"r":"H24 · APP/MIL."},{"s":"CTA/APP","c":"Albacete APP","m":278.025,"h":0,"r":"H24 · APP/MIL."},{"s":"CTA/APP","c":"Albacete APP","m":121.5,"h":0,"r":"H24 · EMERG."},{"s":"CTA/APP","c":"Albacete APP","m":243,"h":0,"r":"H24 · EMERG."},{"s":"TWR","c":"Albacete TWR","m":122.1,"h":122.105,"r":"H24"},{"s":"TWR","c":"Albacete TWR","m":139.3,"h":139.305,"r":"H24 · MIL."},{"s":"TWR","c":"Albacete TWR","m":386.675,"h":0,"r":"H24 · MIL."},{"s":"TWR","c":"Albacete TWR","m":121.5,"h":0,"r":"H24 · EMERG."},{"s":"TWR","c":"Albacete TWR","m":243,"h":0,"r":"H24 · EMERG."},{"s":"GCA/ASR","c":"Albacete GCA","m":138.525,"h":0,"r":"(1) (1) HR: V: 0700-1230 (MON-FRI); I: 0800-1400 (MON-FRI)."},{"s":"GCA/ASR","c":"Albacete GCA","m":281.075,"h":0,"r":"- -"},{"s":"GCA/ASR","c":"Albacete GCA","m":371.45,"h":0,"r":"- -"},{"s":"GCA/PAR","c":"Albacete PAR","m":253.375,"h":0,"r":"(1) -"},{"s":"GCA/PAR","c":"Albacete PAR","m":376.375,"h":0,"r":"- -"},{"s":"GND","c":"Albacete GND","m":121.8,"h":121.805,"r":"H24 · GND/CIV."},{"s":"GND","c":"Albacete GND","m":278.65,"h":0,"r":"H24 · GND/MIL."}]},"LEAG":{"n":"ALGECIRAS","u":"AD3/LEAG/LE_AD_3_LEAG_es.pdf","f":[{"s":"","c":"No No","m":123.325,"h":0,"r":"HR · HLP sin servicio ATS."},{"s":"","c":"No No","m":123.425,"h":0,"r":"HR · Sistema AWOS."}]},"LEAL":{"n":"ALICANTE/Alicante-Elche Miguel Hernández","u":"AD2/LEAL/LE_AD_2_LEAL_en.pdf","f":[{"s":"APP","c":"Valencia Control","m":118.8,"h":0,"r":"H24 · APP/I"},{"s":"APP","c":"Valencia Control","m":119.075,"h":0,"r":"H24 · BACK-UP"},{"s":"APP","c":"Valencia Control","m":120.4,"h":0,"r":"H24 · APP/H"},{"s":"TWR","c":"Alicante TWR","m":118.15,"h":118.155,"r":"H24"},{"s":"TWR","c":"Alicante TWR","m":119.85,"h":119.855,"r":"H24 · CLR"},{"s":"TWR","c":"Alicante TWR","m":121.5,"h":0,"r":"H24 · EMERG"},{"s":"TWR","c":"Alicante TWR","m":122.1,"h":0,"r":"H24 · MIL"},{"s":"TWR","c":"Alicante TWR","m":125.175,"h":125.18,"r":"H24 · BACK-UP"},{"s":"TWR","c":"Alicante TWR","m":130.65,"h":130.655,"r":"H24 · GMC"},{"s":"TWR","c":"Alicante TWR","m":243,"h":0,"r":"H24 · EMERG"},{"s":"TWR","c":"Alicante TWR","m":257.8,"h":0,"r":"H24 · MIL"},{"s":"ATIS","c":"Alicante Information","m":120.075,"h":120.08,"r":"H24"}]},"LEAM":{"n":"ALMERÍA","u":"AD2/LEAM/LE_AD_2_LEAM_en.pdf","f":[{"s":"APP","c":"Almería APP","m":118.35,"h":0,"r":"HR ATS · APP/L"},{"s":"TWR","c":"Almería TWR","m":118.35,"h":0,"r":"HR ATS"},{"s":"TWR","c":"Almería TWR","m":121.5,"h":0,"r":"HR ATS · EMERG"},{"s":"TWR","c":"Almería TWR","m":243,"h":0,"r":"HR ATS · EMERG"},{"s":"TWR","c":"Almería TWR","m":257.8,"h":0,"r":"HR ATS · MIL"},{"s":"TWR","c":"Almería TWR","m":121.7,"h":121.705,"r":"HR ATS · GMC"},{"s":"VDF","c":"Almería gonio","m":118.35,"h":0,"r":"HR ATS"},{"s":"VDF","c":"Almería gonio","m":121.5,"h":0,"r":"HR ATS"},{"s":"ATIS","c":"Almería Information","m":119.05,"h":119.055,"r":"HR ATS"}]},"LEAO":{"n":"CIUDAD REAL/Almagro","u":"AD3/LEAO/LE_AD_3_LEAO_es.pdf","f":[{"s":"TWR","c":"Almagro TWR","m":126.1,"h":0,"r":"HR HLP · MIL"},{"s":"TWR","c":"Almagro TWR","m":129.375,"h":0,"r":"HR HLP · MIL"},{"s":"TWR","c":"Almagro TWR","m":139.3,"h":0,"r":"HR HLP · MIL"},{"s":"TWR","c":"Almagro TWR","m":257.8,"h":0,"r":"HR HLP · MIL"},{"s":"TWR","c":"Almagro TWR","m":121.5,"h":0,"r":"HR HLP · EMERG"},{"s":"TWR","c":"Almagro TWR","m":243,"h":0,"r":"HR HLP · EMERG"},{"s":"TWR","c":"Almagro TWR","m":339.2,"h":0,"r":"HR HLP · MIL"}]},"LEAS":{"n":"ASTURIAS","u":"AD2/LEAS/LE_AD_2_LEAS_en.pdf","f":[{"s":"APP","c":"Asturias APP","m":118.15,"h":0,"r":"HR ATS · APP/L"},{"s":"TWR","c":"Asturias TWR","m":118.15,"h":0,"r":"HR ATS"},{"s":"TWR","c":"Asturias TWR","m":121.5,"h":0,"r":"HR ATS · EMERG"},{"s":"TWR","c":"Asturias TWR","m":243,"h":0,"r":"HR ATS · EMERG"},{"s":"TWR","c":"Asturias TWR","m":121.7,"h":121.705,"r":"HR ATS · GMC"}]},"LEBA":{"n":"CÓRDOBA","u":"AD2/LEBA/LE_AD_2_LEBA_en.pdf","f":[{"s":"AFIS","c":"Córdoba","m":118.3,"h":118.305,"r":"H24 (1) · (1) Outside ATS operation hours, this frequency shall be used for A/A"},{"s":"AFIS","c":"Córdoba","m":121.5,"h":0,"r":"HR · EMERG."}]},"LEBB":{"n":"BILBAO","u":"AD2/LEBB/LE_AD_2_LEBB_en.pdf","f":[{"s":"APP","c":"Bilbao APP","m":127.45,"h":0,"r":"HR · APP/I"},{"s":"APP","c":"Bilbao APP","m":128.575,"h":128.58,"r":"HR · BACK-UP"},{"s":"TWR","c":"Bilbao TWR","m":118.5,"h":0,"r":"HR · ATIS will advise when both TWR and GMC services are provided on the same"},{"s":"TWR","c":"Bilbao TWR","m":121.5,"h":0,"r":"HR · EMERG"},{"s":"TWR","c":"Bilbao TWR","m":243,"h":0,"r":"HR · EMERG"},{"s":"TWR","c":"Bilbao TWR","m":257.8,"h":0,"r":"HR · MIL"},{"s":"GMC","c":"Bilbao GMC","m":121.7,"h":121.705,"r":"HR · ATIS will advise when both TWR and GMC services are provided on the same"},{"s":"ATIS","c":"Bilbao","m":118.825,"h":118.83,"r":"HR"}]},"LEBG":{"n":"BURGOS/Villafría","u":"AD2/LEBG/LE_AD_2_LEBG_en.pdf","f":[{"s":"APP","c":"Vitoria TWR","m":118.45,"h":0,"r":"HR"},{"s":"AFIS","c":"Burgos","m":125.425,"h":125.43,"r":"HR · (1) Out of ATS hours, this frequency will be used for communications between"},{"s":"AFIS","c":"Burgos","m":121.5,"h":0,"r":"HR · EMERG."}]},"LEBL":{"n":"BARCELONA/Josep Tarradellas Barcelona-El Prat","u":"AD2/LEBL/LE_AD_2_LEBL_en.pdf","f":[{"s":"APP","c":"Barcelona APP","m":121.15,"h":121.155,"r":"H24 · APP-H"},{"s":"APP","c":"Barcelona APP","m":119.1,"h":119.105,"r":"H24 · APP-L"},{"s":"APP","c":"Barcelona APP","m":124.7,"h":124.705,"r":"H24 · BACK-UP"},{"s":"APP","c":"Barcelona APP","m":125.25,"h":0,"r":"H24 · APP-H"},{"s":"APP","c":"Barcelona APP","m":126.5,"h":126.505,"r":"H24 · APP-H"},{"s":"APP","c":"Barcelona APP","m":127.7,"h":0,"r":"H24 · APP-H"},{"s":"APP","c":"Barcelona APP","m":131.125,"h":0,"r":"H24 · APP"},{"s":"APP","c":"Barcelona APP","m":135.275,"h":135.28,"r":"H24 · APP"},{"s":"TWR","c":"Barcelona TWR","m":118.1,"h":118.105,"r":"H24 · LOCAL ARR/LOCAL ARR+DEP"},{"s":"TWR","c":"Barcelona TWR","m":118.325,"h":118.33,"r":"H24 · LOCAL DEP"},{"s":"TWR","c":"Barcelona TWR","m":121.5,"h":0,"r":"H24 · EMERG"},{"s":"TWR","c":"Barcelona TWR","m":121.65,"h":121.655,"r":"H24 · GMC C"},{"s":"TWR","c":"Barcelona TWR","m":121.7,"h":121.705,"r":"H24 · GMC N"},{"s":"TWR","c":"Barcelona TWR","m":121.8,"h":121.805,"r":"H24 · CLR"},{"s":"TWR","c":"Barcelona TWR","m":122.1,"h":0,"r":"H24 · MIL"},{"s":"TWR","c":"Barcelona TWR","m":122.225,"h":122.23,"r":"H24 · GMC S"},{"s":"TWR","c":"Barcelona TWR","m":122.825,"h":122.83,"r":"H24 · BACK-UP"},{"s":"TWR","c":"Barcelona TWR","m":243,"h":0,"r":"H24 · EMERG"},{"s":"TWR","c":"Barcelona TWR","m":257.8,"h":0,"r":"H24 · MIL"},{"s":"ATIS","c":"Barcelona Information","m":118.65,"h":118.655,"r":"H24 · ARR"},{"s":"ATIS","c":"Barcelona Information","m":121.975,"h":121.98,"r":"H24 · DEP"}]},"LEBT":{"n":"VALENCIA/Bétera","u":"AD3/LEBT/LE_AD_3_LEBT_es.pdf","f":[{"s":"APP","c":"Valencia APP","m":120.1,"h":0,"r":"HR HLP"},{"s":"APP","c":"Valencia APP","m":124.75,"h":0,"r":"HR HLP"},{"s":"TWR","c":"Bétera TWR","m":126.75,"h":0,"r":"HR HLP"},{"s":"TWR","c":"Bétera TWR","m":129.375,"h":0,"r":"HR HLP"},{"s":"TWR","c":"Bétera TWR","m":121.5,"h":0,"r":"HR HLP · EMERG"},{"s":"TWR","c":"Bétera TWR","m":243,"h":0,"r":"HR HLP · EMERG"},{"s":"TWR","c":"Bétera TWR","m":339.2,"h":0,"r":"HR HLP"}]},"LEBZ":{"n":"BADAJOZ/Talavera La Real","u":"AD2/LEBZ/LE_AD_2_LEBZ_en.pdf","f":[{"s":"APP","c":"Talavera APP","m":120.55,"h":120.555,"r":"HR AD · CIV/MIL"},{"s":"APP","c":"Talavera APP","m":121.5,"h":0,"r":"HR AD · EMERG"},{"s":"APP","c":"Talavera APP","m":139.3,"h":0,"r":"HR AD · MIL"},{"s":"APP","c":"Talavera APP","m":243,"h":0,"r":"HR AD · EMERG"},{"s":"APP","c":"Talavera APP","m":277.925,"h":0,"r":"HR AD · LOCAL MIL"},{"s":"APP","c":"Talavera APP","m":362.3,"h":0,"r":"HR AD · MIL"},{"s":"TWR","c":"Badajoz TWR","m":121.5,"h":0,"r":"HR AD · EMERG"},{"s":"TWR","c":"Badajoz TWR","m":122.1,"h":122.105,"r":"HR AD · CIV/MIL"},{"s":"TWR","c":"Badajoz TWR","m":139.3,"h":0,"r":"HR AD · MIL"},{"s":"TWR","c":"Badajoz TWR","m":243,"h":0,"r":"HR AD · EMERG"},{"s":"TWR","c":"Badajoz TWR","m":257.8,"h":0,"r":"HR AD · MIL"},{"s":"TWR","c":"Badajoz TWR","m":313.6,"h":0,"r":"HR AD · LOCAL MIL"},{"s":"TWR","c":"Badajoz GMC","m":130.15,"h":130.155,"r":"HR AD · GMC CIV/MIL"}]},"LECH":{"n":"CASTELLÓN","u":"AD2/LECH/LE_AD_2_LECH_en.pdf","f":[{"s":"APP","c":"Valencia","m":120.1,"h":0,"r":"H24 · APP/L"},{"s":"TWR","c":"Castellón","m":120.675,"h":120.68,"r":"HR · (1) TWR operation during limited hours. See item 3."},{"s":"TWR","c":"Castellón","m":121.825,"h":121.83,"r":"HR ATS · Secondary"},{"s":"TWR","c":"Castellón","m":121.5,"h":0,"r":"HR ATS · EMERG"},{"s":"TWR","c":"Castellón","m":243,"h":0,"r":"HR ATS · EMERG"}]},"LECO":{"n":"A CORUÑA","u":"AD2/LECO/LE_AD_2_LECO_en.pdf","f":[{"s":"APP","c":"Santiago APP","m":120.2,"h":0,"r":"H24 · APP/H"},{"s":"TWR","c":"A Coruña TWR","m":118.3,"h":118.305,"r":"HR AD"},{"s":"TWR","c":"A Coruña TWR","m":121.5,"h":0,"r":"HR AD · EMERG"},{"s":"TWR","c":"A Coruña TWR","m":121.7,"h":121.705,"r":"HR AD · GMC"},{"s":"VDF","c":"A Coruña gonio","m":118.3,"h":0,"r":"HR AD"},{"s":"VDF","c":"A Coruña gonio","m":121.5,"h":0,"r":"HR AD"},{"s":"ATIS","c":"A Coruña Information","m":129,"h":129.005,"r":"HR AD"}]},"LECU":{"n":"MADRID/Cuatro Vientos","u":"AD2/LECU_LEVS/LE_AD_2_LECU_LEVS_es.pdf","f":[{"s":"TWR","c":"Cuatro Vientos TWR","m":118.7,"h":118.705,"r":"HR AD"},{"s":"TWR","c":"Cuatro Vientos TWR","m":121.5,"h":0,"r":"H24 · EMERG"},{"s":"TWR","c":"Cuatro Vientos TWR","m":121.8,"h":121.805,"r":"HR AD · GMC"},{"s":"TWR","c":"Cuatro Vientos TWR","m":137.525,"h":0,"r":"HR AD · MIL"},{"s":"TWR","c":"Cuatro Vientos TWR","m":139.3,"h":0,"r":"HR AD · MIL"},{"s":"TWR","c":"Cuatro Vientos TWR","m":257.8,"h":0,"r":"HR AD · MIL"},{"s":"TWR","c":"Cuatro Vientos TWR","m":122.5,"h":122.505,"r":"HR AD · BACK UP"},{"s":"ATIS","c":"Cuatro Vientos Information","m":118.225,"h":118.23,"r":"HR AD"},{"s":"VDF","c":"Cuatro Vientos Gonio","m":118.7,"h":118.705,"r":"HR AD"},{"s":"VDF","c":"Cuatro Vientos Gonio","m":121.5,"h":0,"r":"HR AD"},{"s":"VDF","c":"Cuatro Vientos Gonio","m":137.525,"h":0,"r":"HR AD"},{"s":"VDF","c":"Cuatro Vientos Gonio","m":121.8,"h":121.805,"r":"HR AD"}]},"LECV":{"n":"MADRID/Colmenar Viejo","u":"AD3/LECV/LE_AD_3_LECV_es.pdf","f":[{"s":"APP","c":"Madrid APP","m":118.4,"h":0,"r":"HR HLP · APP/I"},{"s":"APP","c":"Madrid APP","m":118.75,"h":118.755,"r":"HR HLP · APP/L"},{"s":"APP","c":"Madrid APP","m":128.7,"h":0,"r":"HR HLP · APP/H"},{"s":"APP","c":"Madrid APP","m":124.225,"h":124.23,"r":"HR HLP · APP/L"},{"s":"APP","c":"Madrid APP","m":242.05,"h":0,"r":"HR HLP"},{"s":"TWR","c":"Colmenar TWR","m":123.225,"h":0,"r":"HR HLP"},{"s":"TWR","c":"Colmenar TWR","m":339.2,"h":0,"r":"HR HLP"},{"s":"TWR","c":"Colmenar TWR","m":121.5,"h":0,"r":"HR HLP · EMERG"},{"s":"TWR","c":"Colmenar TWR","m":243,"h":0,"r":"HR HLP · EMERG"}]},"LEDA":{"n":"LLEIDA/Alguaire","u":"AD2/LEDA/LE_AD_2_LEDA_en.pdf","f":[{"s":"APP","c":"Barcelona","m":127.7,"h":0,"r":"HR · APP/H"},{"s":"TWR","c":"Lleida TWR","m":121.325,"h":121.33,"r":"HR"},{"s":"TWR","c":"Lleida TWR","m":121.5,"h":0,"r":"HR · EMERG"},{"s":"TWR","c":"Lleida TWR","m":121.625,"h":121.63,"r":"HR · GMC"}]},"LEEC":{"n":"SEVILLA/El Copero","u":"AD3/LEEC/LE_AD_3_LEEC_es.pdf","f":[{"s":"APP","c":"Sevilla APP","m":120,"h":0,"r":"HR HLP"},{"s":"APP","c":"Sevilla APP","m":120.8,"h":0,"r":"HR HLP"},{"s":"APP","c":"Sevilla APP","m":128.5,"h":0,"r":"HR HLP"},{"s":"APP","c":"Sevilla APP","m":278.4,"h":0,"r":"HR HLP"},{"s":"APP","c":"Sevilla APP","m":369.275,"h":0,"r":"HR HLP"},{"s":"TWR","c":"El Copero TWR","m":126.75,"h":0,"r":"HR HLP"},{"s":"TWR","c":"El Copero TWR","m":129.375,"h":0,"r":"HR HLP"},{"s":"TWR","c":"El Copero TWR","m":121.5,"h":0,"r":"HR HLP · EMERG"},{"s":"TWR","c":"El Copero TWR","m":243,"h":0,"r":"HR HLP · EMERG"},{"s":"TWR","c":"El Copero TWR","m":339.2,"h":0,"r":"HR HLP"}]},"LEGA":{"n":"GRANADA/Armilla","u":"AD2/LEGA/LE_AD_2_LEGA_en.pdf","f":[{"s":"","c":"3 FREQ","m":118.7,"h":0,"r":""},{"s":"","c":"3 FREQ","m":121.5,"h":0,"r":""},{"s":"","c":"3 FREQ","m":121.825,"h":0,"r":""},{"s":"","c":"3 FREQ","m":122.1,"h":0,"r":""},{"s":"","c":"3 FREQ","m":139.3,"h":0,"r":""},{"s":"","c":"3 FREQ","m":243,"h":0,"r":""},{"s":"","c":"3 FREQ","m":257.8,"h":0,"r":""}]},"LEGE":{"n":"GIRONA","u":"AD2/LEGE/LE_AD_2_LEGE_en.pdf","f":[{"s":"","c":"3 FREQ","m":120.905,"h":0,"r":"118.505 C 118.500 128.755 C NIL"},{"s":"","c":"C","m":121.5,"h":0,"r":"MHz"},{"s":"","c":"MHz","m":120.9,"h":0,"r":""},{"s":"","c":"MHz","m":121.7,"h":121.705,"r":"MHz"},{"s":"","c":"MHz","m":243,"h":0,"r":"121.500"}]},"LEGR":{"n":"GRANADA/Federico García Lorca. Granada-Jaén","u":"AD2/LEGR/LE_AD_2_LEGR_en.pdf","f":[{"s":"","c":"3 FREQ","m":118.855,"h":0,"r":"118.850 120.630 MHz NIL"},{"s":"","c":"3 FREQ","m":121.5,"h":0,"r":"121.500"},{"s":"","c":"3 FREQ","m":121.93,"h":0,"r":"MHz"},{"s":"","c":"3 FREQ","m":243,"h":0,"r":""},{"s":"","c":"3 FREQ","m":257.8,"h":0,"r":""}]},"LEGT":{"n":"MADRID/Getafe","u":"AD2/LEGT/LE_AD_2_LEGT_en.pdf","f":[{"s":"APP","c":"Madrid APP","m":127.1,"h":0,"r":"H24 · INITIAL"},{"s":"APP","c":"Madrid APP","m":119.95,"h":0,"r":"HR AD · MIL"},{"s":"APP","c":"Madrid APP","m":124.23,"h":0,"r":"C H24 DEP W"},{"s":"TWR","c":"Getafe TWR","m":121.5,"h":0,"r":"HR AD · EMERG"},{"s":"TWR","c":"Getafe TWR","m":121.605,"h":0,"r":"C HR AD GMC"},{"s":"TWR","c":"Getafe TWR","m":129.93,"h":0,"r":"C HR AD LOCAL MIL"},{"s":"TWR","c":"Getafe TWR","m":139.305,"h":0,"r":"C HR AD MIL"},{"s":"TWR","c":"Getafe TWR","m":243,"h":0,"r":"HR AD · EMERG"},{"s":"TWR","c":"Getafe TWR","m":257.8,"h":0,"r":"HR AD · MIL"},{"s":"TWR","c":"Getafe TWR","m":342.65,"h":0,"r":"HR AD · LOCAL MIL"}]},"LEHC":{"n":"HUESCA/Pirineos","u":"AD2/LEHC/LE_AD_2_LEHC_en.pdf","f":[{"s":"","c":"3 FREQ","m":119.3,"h":119.305,"r":"128.955 C"},{"s":"","c":"3 FREQ","m":128.95,"h":128.955,"r":""},{"s":"","c":"3 FREQ","m":121.5,"h":0,"r":""}]},"LEIB":{"n":"IBIZA","u":"AD2/LEIB/LE_AD_2_LEIB_en.pdf","f":[{"s":"APP","c":"Palma Control","m":134.825,"h":0,"r":"HR H24 · APP/I"},{"s":"TWR","c":"Ibiza TWR","m":118.5,"h":118.505,"r":"HR AD"},{"s":"TWR","c":"Ibiza TWR","m":121.375,"h":121.38,"r":"(1) CLR. (1) Activity announced by ATIS"},{"s":"TWR","c":"Ibiza TWR","m":121.5,"h":0,"r":"HR AD · EMERG"},{"s":"TWR","c":"Ibiza TWR","m":121.925,"h":121.93,"r":"HR AD · GMC"},{"s":"TWR","c":"Ibiza TWR","m":243,"h":0,"r":"HR AD · EMERG"},{"s":"TWR","c":"Ibiza TWR","m":257.8,"h":0,"r":"HR AD · MIL"},{"s":"ATIS","c":"Ibiza Information","m":119.8,"h":119.805,"r":"HR AD"}]},"LEJR":{"n":"JEREZ","u":"AD2/LEJR/LE_AD_2_LEJR_en.pdf","f":[{"s":"","c":"3 FREQ","m":128.5,"h":0,"r":"118.555 C 118.550 125.655 NIL"},{"s":"","c":"MHz","m":121.5,"h":0,"r":"MHz C"},{"s":"","c":"MHz","m":121.5,"h":0,"r":""},{"s":"","c":"MHz","m":133.275,"h":133.28,"r":"MHz"},{"s":"","c":"MHz","m":243,"h":0,"r":""},{"s":"","c":"MHz","m":257.8,"h":0,"r":""},{"s":"","c":"MHz","m":121.15,"h":121.155,"r":""}]},"LELC":{"n":"MURCIA/San Javier","u":"AD2/LELC/LE_AD_2_LELC_en.pdf","f":[{"s":"APP","c":"San Javier APP","m":130.3,"h":0,"r":"HR AD · CIV/MIL"},{"s":"APP","c":"San Javier APP","m":398.325,"h":0,"r":"HR AD · MIL"},{"s":"APP","c":"San Javier APP","m":125.025,"h":0,"r":"HR AD · BACK-UP"},{"s":"TWR","c":"San Javier TWR","m":124.425,"h":0,"r":"HR AD · CIV/MIL"},{"s":"TWR","c":"San Javier TWR","m":139.3,"h":0,"r":"HR AD · MIL"},{"s":"TWR","c":"San Javier TWR","m":143.675,"h":0,"r":"HR AD · MIL"},{"s":"TWR","c":"San Javier TWR","m":257.8,"h":0,"r":"HR AD · MIL"},{"s":"TWR","c":"San Javier TWR","m":121.6,"h":0,"r":"HR AD · GMC"},{"s":"TWR","c":"San Javier TWR","m":278.575,"h":0,"r":"HR AD · GMC MIL"},{"s":"TWR","c":"San Javier TWR","m":125.025,"h":0,"r":"HR AD · BACK-UP"},{"s":"TWR","c":"San Javier TWR","m":121.5,"h":0,"r":"HR AD · EMERG"},{"s":"TWR","c":"San Javier TWR","m":243,"h":0,"r":"HR AD · EMERG"},{"s":"ATIS","c":"San Javier Información","m":128.6,"h":128.605,"r":"H24"}]},"LELL":{"n":"SABADELL","u":"AD2/LELL/LE_AD_2_LELL_en.pdf","f":[{"s":"TWR","c":"Sabadell TWR","m":120.8,"h":120.805,"r":"HR AD"},{"s":"TWR","c":"Sabadell TWR","m":121.6,"h":121.605,"r":"HR AD · GMC"},{"s":"TWR","c":"Sabadell TWR","m":121.5,"h":0,"r":"HR AD · EMERG"},{"s":"VDF","c":"Sabadell gonio","m":120.8,"h":0,"r":"HR AD"},{"s":"VDF","c":"Sabadell gonio","m":121.5,"h":0,"r":"HR AD"},{"s":"VDF","c":"Sabadell gonio","m":121.6,"h":0,"r":"HR AD"},{"s":"A/G","c":"Sabadell gonio","m":123.5,"h":0,"r":"HR AD · Flying club"}]},"LELN":{"n":"LEÓN","u":"AD2/LELN/LE_AD_2_LELN_en.pdf","f":[{"s":"APP","c":"León APP","m":121.275,"h":121.28,"r":"HR AD · APP/L"},{"s":"TWR","c":"León TWR","m":122.1,"h":122.105,"r":"HR AD · CIV/MIL"},{"s":"TWR","c":"León TWR","m":122.1,"h":122.105,"r":"HR AD · GMC"},{"s":"TWR","c":"León TWR","m":139.3,"h":139.305,"r":"HR AD · MIL"},{"s":"TWR","c":"León TWR","m":257.8,"h":0,"r":"HR AD · MIL"},{"s":"TWR","c":"León TWR","m":121.5,"h":0,"r":"HR AD · EMERG"},{"s":"TWR","c":"León TWR","m":243,"h":0,"r":"HR AD · EMERG"}]},"LELO":{"n":"LOGROÑO/Agoncillo","u":"AD3/LELO/LE_AD_3_LELO_es.pdf","f":[{"s":"TWR","c":"Logroño TWR","m":123.225,"h":0,"r":"HR HLP"},{"s":"TWR","c":"Logroño TWR","m":339.2,"h":0,"r":"HR HLP"},{"s":"TWR","c":"Logroño TWR","m":121.5,"h":0,"r":"HR HLP · EMERG"}]},"LEMD":{"n":"MADRID/Adolfo Suárez Madrid-Barajas","u":"AD2/LEMD/LE_AD_2_LEMD_en.pdf","f":[{"s":"APP","c":"Madrid APP","m":118.4,"h":0,"r":"H24 · APP/I"},{"s":"APP","c":"Madrid APP","m":118.75,"h":118.755,"r":"H24 · APP/L"},{"s":"APP","c":"Madrid APP","m":124.025,"h":124.03,"r":"H24 · APP/L"},{"s":"APP","c":"Madrid APP","m":128.7,"h":0,"r":"H24 · APP/H"},{"s":"APP","c":"Madrid APP","m":134.95,"h":134.955,"r":"H24 · APP/L"},{"s":"APP","c":"Madrid APP","m":136.1,"h":136.105,"r":"H24 · APP"},{"s":"APP","c":"Madrid APP","m":127.1,"h":0,"r":"H24 · INITIAL"},{"s":"APP","c":"Madrid APP","m":127.5,"h":127.505,"r":"H24 · FINAL"},{"s":"APP","c":"Madrid APP","m":124.225,"h":124.23,"r":"H24 · DEP W"},{"s":"APP","c":"Madrid APP","m":131.175,"h":0,"r":"H24 · DEP E"},{"s":"APP","c":"Madrid APP","m":130.8,"h":130.805,"r":"H24 · BACKUP APP/l"},{"s":"APP","c":"Madrid APP","m":134.025,"h":134.03,"r":"H24 · BACKUP APP/H"},{"s":"TWR","c":"Barajas TWR","m":118.075,"h":118.08,"r":"H24 · ARR 18R / DEP 36L"},{"s":"TWR","c":"Barajas TWR","m":118.15,"h":118.155,"r":"H24 · ARR 32L / DEP 14R"},{"s":"TWR","c":"Barajas TWR","m":118.675,"h":118.68,"r":"H24 · ARR 18L / DEP 36R"},{"s":"TWR","c":"Barajas TWR","m":118.975,"h":118.98,"r":"H24 · ARR 32R / DEP 14L"},{"s":"TWR","c":"Barajas TWR","m":120.15,"h":120.155,"r":"H24 · BACKUP 1"},{"s":"TWR","c":"Barajas TWR","m":120.65,"h":120.655,"r":"H24 · BACKUP 2"},{"s":"TWR","c":"Barajas TWR","m":121.5,"h":0,"r":"H24 · EMERG"},{"s":"TWR","c":"Barajas TWR","m":243,"h":0,"r":"H24 · EMERG"},{"s":"TWR","c":"Barajas TWR","m":121.625,"h":121.63,"r":"H24 · GMC E-SOUTH"},{"s":"TWR","c":"Barajas TWR","m":121.75,"h":121.755,"r":"H24 · GMC E-NORTH"},{"s":"TWR","c":"Barajas TWR","m":121.975,"h":121.98,"r":"H24 · GMC CENTRAL-SOUTH"},{"s":"TWR","c":"Barajas TWR","m":123.15,"h":123.155,"r":"H24 · GMC CENTRAL-NORTH"},{"s":"TWR","c":"Barajas TWR","m":130.075,"h":130.08,"r":"H24 · CLR EAST"},{"s":"TWR","c":"Barajas TWR","m":130.35,"h":130.355,"r":"H24 · CLR WEST"},{"s":"TWR","c":"Barajas TWR","m":123.325,"h":123.33,"r":"H24 · DEICING RWY 36L"},{"s":"TWR","c":"Barajas TWR","m":130.25,"h":130.255,"r":"H24 · DEICING RWY 36R"},{"s":"TWR","c":"Barajas TWR","m":122.975,"h":122.98,"r":"H24 · FIRE FIGHTING SERVICE"},{"s":"TWR","c":"Barajas TWR","m":119.5,"h":0,"r":"H24 · MIL"},{"s":"TWR","c":"Barajas TWR","m":362.1,"h":0,"r":"H24 · MIL"},{"s":"SDP","c":"Barajas Apron","m":121.7,"h":121.705,"r":"H24 · APRON S-SOUTH"},{"s":"SDP","c":"Barajas Apron","m":121.85,"h":121.855,"r":"H24 · APRON S-NORTH"},{"s":"SDP","c":"Barajas Apron","m":123,"h":123.005,"r":"H24 · APRON W-SOUTH"},{"s":"SDP","c":"Barajas Apron","m":123.25,"h":123.255,"r":"H24 · APRON W-NORTH"},{"s":"SDP","c":"Barajas Apron","m":123.475,"h":123.48,"r":"H24 · BACKUP"},{"s":"ATIS","c":"Madrid/Barajas Information","m":118.25,"h":118.255,"r":"H24 · ARR"},{"s":"ATIS","c":"Madrid/Barajas Information","m":130.85,"h":130.855,"r":"H24 · DEP"}]},"LEMG":{"n":"MÁLAGA/Costa del Sol","u":"AD2/LEMG/LE_AD_2_LEMG_en.pdf","f":[{"s":"APP","c":"Málaga APP","m":118.45,"h":118.455,"r":"H24 · ARR E - DEP"},{"s":"APP","c":"Málaga APP","m":121.025,"h":0,"r":"H24 · BACK UP"},{"s":"APP","c":"Málaga APP","m":123.85,"h":123.855,"r":"H24 · ARR W"},{"s":"APP","c":"Málaga APP","m":125.95,"h":125.955,"r":"H24 · APP"},{"s":"APP","c":"Málaga APP","m":245.6,"h":0,"r":"H24 · MIL"},{"s":"TWR","c":"Málaga TWR","m":118.15,"h":118.155,"r":"H24 · TWR-W (RWY 13/31)"},{"s":"TWR","c":"Málaga TWR","m":118.775,"h":118.78,"r":"H24 · TWR-E (RWY 12/30)"},{"s":"TWR","c":"Málaga TWR","m":121.5,"h":0,"r":"H24 · EMERG"},{"s":"TWR","c":"Málaga TWR","m":122.1,"h":0,"r":"H24 · MIL"},{"s":"TWR","c":"Málaga TWR","m":124.775,"h":124.78,"r":"H24 · BACK UP"},{"s":"TWR","c":"Málaga TWR","m":243,"h":0,"r":"H24 · EMERG"},{"s":"TWR","c":"Málaga TWR","m":257.8,"h":0,"r":"H24 · MIL"},{"s":"TWR","c":"Málaga GMC","m":121.7,"h":121.705,"r":"H24 · GMC-W"},{"s":"TWR","c":"Málaga GMC","m":121.95,"h":121.955,"r":"H24 · GMC-E"},{"s":"TWR","c":"Málaga Clearance","m":121.875,"h":121.88,"r":"H24 · CLR. También disponible mediante enlace de datos //"},{"s":"ATIS","c":"Málaga Information Arrivals","m":120.375,"h":120.38,"r":"H24"},{"s":"ATIS","c":"Málaga Information Departures","m":124.475,"h":124.48,"r":"H24"}]},"LEMH":{"n":"MENORCA","u":"AD2/LEMH/LE_AD_2_LEMH_en.pdf","f":[{"s":"APP","c":"Menorca APP","m":119.65,"h":119.655,"r":"HR ATS · APP/L"},{"s":"TWR","c":"Menorca TWR","m":118.2,"h":118.205,"r":"HR ATS · BACK UP"},{"s":"TWR","c":"Menorca TWR","m":119.65,"h":119.655,"r":"HR ATS"},{"s":"TWR","c":"Menorca TWR","m":121.5,"h":0,"r":"HR ATS · EMERG"},{"s":"TWR","c":"Menorca TWR","m":121.75,"h":121.755,"r":"HR ATS · GMC"},{"s":"TWR","c":"Menorca TWR","m":257.8,"h":0,"r":"HR ATS · MIL"},{"s":"TWR","c":"Menorca TWR","m":243,"h":0,"r":"HR ATS · EMERG"},{"s":"ATIS","c":"Menorca Information","m":129.15,"h":129.155,"r":"HR ATS"},{"s":"ATIS","c":"Information Palma CONTROL","m":128.35,"h":0,"r":"Out HR ATS Flight information on request."},{"s":"ATIS","c":"No No","m":119.65,"h":119.655,"r":"Out HR ATS (1) Only air-air communications."}]},"LEMI":{"n":"MURCIA/Aeropuerto de la Región de Murcia","u":"AD2/LEMI/LE_AD_2_LEMI_en.pdf","f":[{"s":"APP","c":"San Javier APP","m":130.3,"h":0,"r":"HR AD · CIV/MIL"},{"s":"APP","c":"San Javier APP","m":125.025,"h":0,"r":"HR AD · BACK-UP"},{"s":"TWR","c":"Murcia TWR","m":121.325,"h":121.33,"r":"HR AD · TWR"},{"s":"TWR","c":"Murcia TWR","m":121.75,"h":121.755,"r":"HR AD · GMC"},{"s":"TWR","c":"Murcia TWR","m":121.5,"h":0,"r":"HR AD · EMERG"},{"s":"TWR","c":"Murcia TWR","m":243,"h":0,"r":"HR AD · EMERG"}]},"LEMO":{"n":"SEVILLA/Morón","u":"AD2/LEMO/LE_AD_2_LEMO_en.pdf","f":[{"s":"APP","c":"Sevilla APP","m":120,"h":0,"r":"H24"},{"s":"APP","c":"Sevilla APP","m":120.8,"h":0,"r":"H24 · APP/L (South sector)"},{"s":"APP","c":"Sevilla APP","m":128.5,"h":0,"r":"H24 · APP/H (North sector)"},{"s":"TWR","c":"Morón TWR","m":122.1,"h":0,"r":"H24"},{"s":"TWR","c":"Morón TWR","m":139.3,"h":0,"r":"H24 · MIL"},{"s":"TWR","c":"Morón TWR","m":257.8,"h":0,"r":"H24"},{"s":"TWR","c":"Morón TWR","m":337.9,"h":0,"r":"H24 · GMC"},{"s":"TWR","c":"Morón TWR","m":258.1,"h":0,"r":"H24"},{"s":"TWR","c":"Morón TWR","m":121.5,"h":0,"r":"H24 · EMERG"},{"s":"TWR","c":"Morón TWR","m":243,"h":0,"r":"H24 · EMERG"},{"s":"TWR","c":"Morón TWR","m":258.9,"h":0,"r":"H24 · GMC (USAF)"},{"s":"TWR","c":"Morón TWR","m":396.85,"h":0,"r":"H24 · (USAF)"},{"s":"GCA","c":"Morón RADAR","m":138.55,"h":0,"r":"(1) (3, 4, 5)"},{"s":"GCA","c":"Morón RADAR","m":276.8,"h":0,"r":"(1) (3, 4, 5)"},{"s":"GCA","c":"Morón RADAR","m":342,"h":0,"r":"(1) (3, 4, 5)"},{"s":"GCA","c":"Morón RADAR","m":143.2,"h":0,"r":"(1, 2) (3, 4, 5)"}]},"LEPA":{"n":"PALMA DE MALLORCA","u":"AD2/LEPA_LESJ/LE_AD_2_LEPA_LESJ_en.pdf","f":[{"s":"APP","c":"Palma Control","m":118.95,"h":118.955,"r":"H24 · APP/I"},{"s":"APP","c":"Palma Control","m":118,"h":118.005,"r":"HX · APP/l"},{"s":"TAR","c":"Palma Control","m":119.15,"h":119.155,"r":"H24 · APP/L"},{"s":"SSR/SRE","c":"Palma Control","m":119.4,"h":119.405,"r":"H24 · APP/L"},{"s":"SSR/SRE","c":"Palma Control","m":355.4,"h":0,"r":"O/R · APP/MIL"},{"s":"SSR/SRE","c":"Palma Control","m":118.3,"h":118.305,"r":"H24 · LOCAL ARR"},{"s":"SSR/SRE","c":"Palma Control","m":118.45,"h":118.455,"r":"H24 · LOCAL DEP"},{"s":"SSR/SRE","c":"Palma Control","m":121.5,"h":0,"r":"H24 · EMERG"},{"s":"SSR/SRE","c":"Palma Control","m":121.6,"h":121.605,"r":"H24 · BACK-UP"},{"s":"SSR/SRE","c":"Palma Control","m":121.7,"h":121.705,"r":"H24 · GMC Sur // South"},{"s":"SSR/SRE","c":"Palma Control","m":121.9,"h":121.905,"r":"H24 · GMC Norte // North"},{"s":"SSR/SRE","c":"Palma Control","m":122.1,"h":0,"r":"H24 · MIL"},{"s":"SSR/SRE","c":"Palma Control","m":123.875,"h":123.88,"r":"(1) CLR. (1) Actividad anunciada por ATIS // Activity announced by ATIS."},{"s":"SSR/SRE","c":"Palma Control","m":125.825,"h":125.83,"r":"H24 · BACK-UP"},{"s":"SSR/SRE","c":"Palma Control","m":243,"h":0,"r":"H24 · EMERG"},{"s":"SSR/SRE","c":"Palma Control","m":257.8,"h":0,"r":"H24 · MIL"},{"s":"ATIS","c":"Palma de Mallorca Information","m":119.25,"h":119.255,"r":"H24 · ARR"},{"s":"ATIS","c":"Palma de Mallorca Information","m":121.775,"h":121.78,"r":"H24 · DEP"},{"s":"OPS","c":"Palma operaciones","m":130.25,"h":0,"r":"H24 · Coordinación de servicios aeroportuarios // Coordination of airport services."},{"s":"INFO (MIL)","c":"Palma (MIL)","m":165.275,"h":0,"r":"H24 · Coordinación de servicios militares aeroportuarios // Coordination of"}]},"LEPO":{"n":"MALLORCA/Pollensa","u":"AD2/LEPO/LE_AD_2_LEPO_en.pdf","f":[]},"LEPP":{"n":"PAMPLONA","u":"AD2/LEPP/LE_AD_2_LEPP_en.pdf","f":[{"s":"APP/TWR","c":"Pamplona TWR","m":118.2,"h":0,"r":"HR ATS · APP/L"},{"s":"APP/TWR","c":"Pamplona TWR","m":121.7,"h":121.705,"r":"HR ATS · GMC"},{"s":"APP/TWR","c":"Pamplona TWR","m":121.5,"h":0,"r":"HR ATS · EMERG"},{"s":"APP/TWR","c":"Pamplona TWR","m":243,"h":0,"r":"- EMERG"}]},"LERI":{"n":"MURCIA/Alcantarilla","u":"AD2/LERI/LE_AD_2_LERI_en.pdf","f":[{"s":"APP","c":"San Javier APP","m":121.5,"h":0,"r":"HR AD · EMERG"},{"s":"APP","c":"San Javier APP","m":130.3,"h":0,"r":"HR AD · APP"},{"s":"APP","c":"San Javier APP","m":243,"h":0,"r":"HR AD · EMERG"},{"s":"TWR","c":"Alcantarilla TWR","m":118.1,"h":0,"r":"HR AD · MIL Secondary. Available with request."},{"s":"TWR","c":"Alcantarilla TWR","m":121.5,"h":0,"r":"HR AD · EMERG"},{"s":"TWR","c":"Alcantarilla TWR","m":139.075,"h":0,"r":"HR AD · MIL Primary"},{"s":"TWR","c":"Alcantarilla TWR","m":243,"h":0,"r":"HR AD · EMERG"}]},"LERJ":{"n":"LOGROÑO","u":"AD2/LERJ/LE_AD_2_LERJ_en.pdf","f":[{"s":"APP/TWR","c":"Rioja TWR","m":118.575,"h":118.58,"r":"HR ATS · APP/L"},{"s":"APP/TWR","c":"Rioja TWR","m":121.5,"h":0,"r":"HR ATS · EMERG"},{"s":"APP/TWR","c":"Rioja TWR","m":243,"h":0,"r":"HR ATS · EMERG"},{"s":"APP/TWR","c":"Rioja TWR","m":121.7,"h":121.705,"r":"HR ATS · GMC"}]},"LERL":{"n":"CIUDAD REAL","u":"AD2/LERL/LE_AD_2_LERL_en.pdf","f":[{"s":"","c":"","m":118.05,"h":118.055,"r":"HR AD · Only Air/Air communications."},{"s":"","c":"No. No.","m":121.5,"h":0,"r":"HR AD · EMERG."}]},"LERS":{"n":"REUS","u":"AD2/LERS/LE_AD_2_LERS_en.pdf","f":[{"s":"APP/TWR","c":"Reus TWR","m":128.875,"h":128.88,"r":"HR ATS"},{"s":"APP/TWR","c":"Reus TWR","m":121.5,"h":0,"r":"HR ATS · EMERG"},{"s":"APP/TWR","c":"Reus TWR","m":121.7,"h":121.705,"r":"HR ATS · GMC"},{"s":"APP/TWR","c":"Reus TWR","m":257.8,"h":0,"r":"HR ATS · MIL"},{"s":"APP/TWR","c":"Reus TWR","m":243,"h":0,"r":"HR ATS · EMERG"},{"s":"VDF","c":"Reus gonio","m":128.875,"h":0,"r":"HR ATS"},{"s":"ATIS","c":"Reus Information","m":120.25,"h":120.255,"r":"HR ATS"}]},"LERT":{"n":"CÁDIZ/Rota","u":"AD2/LERT/LE_AD_2_LERT_en.pdf","f":[{"s":"APP","c":"SEVILLA","m":120.8,"h":0,"r":"H24 · APP/L"},{"s":"APP","c":"SEVILLA","m":264.7,"h":0,"r":"H24"},{"s":"TWR","c":"ROTA","m":119.75,"h":0,"r":"H24 · TWR"},{"s":"TWR","c":"ROTA","m":257.8,"h":0,"r":"H24 · TWR"},{"s":"TWR","c":"ROTA","m":121.5,"h":0,"r":"H24 · EMERG"},{"s":"TWR","c":"ROTA HLP","m":122.225,"h":0,"r":"(1) (1) V: MON-FRI EXC HOL: 0600-1230; I: MON-FRI EXC"},{"s":"GND","c":"ROTA","m":130.7,"h":0,"r":"H24 · GMC PRI"},{"s":"GND","c":"ROTA","m":265.925,"h":0,"r":"H24"},{"s":"ATIS","c":"ROTA","m":267.6,"h":0,"r":"H24"},{"s":"GCA","c":"ROTA","m":123.3,"h":0,"r":"(2) (2) V: MON-FRI EXC HOL: 0600-1230; I: MON-FRI EXC"},{"s":"GCA","c":"ROTA","m":356.05,"h":0,"r":"HOL: 0700-1330."},{"s":"GCA","c":"ROTA","m":371.85,"h":0,"r":"O/T when visibility is less than 1.6 km and/or the cloud"}]},"LESA":{"n":"SALAMANCA/Matacán","u":"AD2/LESA/LE_AD_2_LESA_en.pdf","f":[{"s":"APP","c":"Salamanca APP","m":124.4,"h":124.405,"r":"HR MIL AD · APP/L"},{"s":"APP","c":"Salamanca APP","m":121.5,"h":0,"r":"HR MIL AD · EMERG"},{"s":"APP","c":"Salamanca APP","m":257.8,"h":0,"r":"HR MIL AD · MIL"},{"s":"APP","c":"Salamanca APP","m":140.1,"h":0,"r":"HR MIL AD · Local MIL"},{"s":"TWR","c":"Salamanca TWR","m":118.1,"h":118.105,"r":"HR MIL AD"},{"s":"TWR","c":"Salamanca TWR","m":139.3,"h":0,"r":"HR MIL AD · MIL"},{"s":"TWR","c":"Salamanca TWR","m":243,"h":0,"r":"HR MIL AD · EMERG"},{"s":"TWR","c":"Salamanca TWR","m":121.85,"h":121.855,"r":"HR MIL AD · GMC"}]},"LESB":{"n":"MALLORCA/Son Bonet","u":"AD2/LESB/LE_AD_2_LESB_en.pdf","f":[{"s":"","c":"No. Son Bonet","m":122.705,"h":0,"r":"HR · LESB AD."}]},"LESO":{"n":"SAN SEBASTIÁN","u":"AD2/LESO/LE_AD_2_LESO_en.pdf","f":[{"s":"APP/TWR","c":"San Sebastián","m":119.85,"h":119.855,"r":"HR · Due to the characteristics of the ground, there may be loss of radio communication in the"},{"s":"APP/TWR","c":"San Sebastián","m":243,"h":0,"r":"HR · EMERG"},{"s":"APP/TWR","c":"San Sebastián","m":121.5,"h":0,"r":"HR · EMERG"},{"s":"APP/TWR","c":"San Sebastián","m":121.7,"h":121.705,"r":"HR · GMC"}]},"LEST":{"n":"SANTIAGO/Rosalía de Castro","u":"AD2/LEST/LE_AD_2_LEST_en.pdf","f":[{"s":"","c":"3 FREQ","m":120.2,"h":0,"r":"118.755 C 127.755 C NIL"},{"s":"","c":"MHz","m":121.7,"h":121.705,"r":""},{"s":"","c":"MHz","m":118.2,"h":0,"r":"121.500"},{"s":"","c":"MHz","m":257.8,"h":0,"r":"243.000"},{"s":"","c":"MHz","m":363.2,"h":0,"r":""}]},"LESU":{"n":"ANDORRA-LA SEU D'URGELL","u":"AD2/LESU/LE_AD_2_LESU_en.pdf","f":[{"s":"AFIS","c":"La Seu","m":122.205,"h":0,"r":"H24 (1) · (1) Outside ATS operation hours, this frequency shall be used for A/A"},{"s":"AFIS","c":"La Seu","m":131.605,"h":0,"r":"HR ATS · BACK-UP. (2) Outside ATS operation hours, this frequency shall be used for G/A"},{"s":"AFIS","c":"La Seu","m":121.5,"h":0,"r":"HR ATS · EMERG"}]},"LETA":{"n":"SERVEIS GENERALS DEL CIRCUIT DE CATALUNYA","u":"AD3/LETA/LE_AD_3_LETA_es.pdf","f":[{"s":"","c":"No No","m":122.8,"h":0,"r":"HR HEL · HEL sin servicio ATS"}]},"LETL":{"n":"TERUEL","u":"AD2/LETL/LE_AD_2_LETL_en.pdf","f":[{"s":"","c":"No No","m":122.675,"h":122.68,"r":"HR AD · Only air/air communications."},{"s":"","c":"No No","m":131.05,"h":131.055,"r":"HR AD · AWOS system"}]},"LETO":{"n":"MADRID/Torrejón","u":"AD2/LETO/LE_AD_2_LETO_en.pdf","f":[{"s":"APP","c":"Madrid APP","m":124.225,"h":124.23,"r":"H24 · APP/L, DEP W"},{"s":"APP","c":"Madrid APP","m":127.1,"h":0,"r":"H24"},{"s":"APP","c":"Madrid APP","m":127.5,"h":127.505,"r":"H24"},{"s":"APP","c":"Madrid APP","m":131.175,"h":0,"r":"H24 · DEP E"},{"s":"APP","c":"Madrid APP","m":376.25,"h":0,"r":"H24 · MIL"},{"s":"APP","c":"Torrejón APP","m":119.95,"h":0,"r":"H24 · MIL"},{"s":"APP","c":"Torrejón APP","m":258.925,"h":0,"r":"H24 · MIL"},{"s":"APP","c":"Torrejón APP","m":254.975,"h":0,"r":"H24 · MIL"},{"s":"TWR","c":"Torrejón TWR","m":118.3,"h":0,"r":"H24 · GMC"},{"s":"TWR","c":"Torrejón TWR","m":121.5,"h":0,"r":"H24 · EMERG"},{"s":"TWR","c":"Torrejón TWR","m":122.1,"h":0,"r":"H24 · MIL"},{"s":"TWR","c":"Torrejón TWR","m":136.275,"h":0,"r":"H24 · BACK-UP"},{"s":"TWR","c":"Torrejón TWR","m":139.3,"h":0,"r":"H24 · MIL"},{"s":"TWR","c":"Torrejón TWR","m":243,"h":0,"r":"H24 · EMERG"},{"s":"TWR","c":"Torrejón TWR","m":257.8,"h":0,"r":"H24 · MIL"},{"s":"TWR","c":"Torrejón TWR","m":339.6,"h":0,"r":"H24 · MIL"},{"s":"TWR","c":"Torrejón TWR","m":396.9,"h":0,"r":"H24 · GMC MIL"},{"s":"GCA","c":"Torrejón GCA","m":118.9,"h":0,"r":"H24 · MIL. HR MAINT PAR/ASR: MON 1530-1900 LT"},{"s":"GCA","c":"Torrejón GCA","m":123.3,"h":0,"r":"H24 · MIL"},{"s":"GCA","c":"Torrejón GCA","m":125.3,"h":0,"r":"H24 · MIL"},{"s":"GCA","c":"Torrejón GCA","m":343.875,"h":0,"r":"H24 · MIL"},{"s":"GCA","c":"Torrejón GCA","m":356.15,"h":0,"r":"H24 · MIL"},{"s":"GCA","c":"Torrejón GCA","m":374.525,"h":0,"r":"H24 · MIL"}]},"LEVC":{"n":"VALENCIA","u":"AD2/LEVC/LE_AD_2_LEVC_en.pdf","f":[{"s":"APP","c":"Valencia APP","m":119.075,"h":0,"r":"H24 · BACK-UP"},{"s":"APP","c":"Valencia APP","m":120.1,"h":0,"r":"H24 · APP/L"},{"s":"APP","c":"Valencia APP","m":124.75,"h":0,"r":"H24 · APP/H"},{"s":"APP","c":"Valencia APP","m":363.55,"h":0,"r":"H24 · APP/MIL"},{"s":"TWR","c":"Valencia TWR","m":118.55,"h":118.555,"r":"H24"},{"s":"TWR","c":"Valencia TWR","m":125.475,"h":125.48,"r":"H24 · BACK-UP"},{"s":"TWR","c":"Valencia TWR","m":121.5,"h":0,"r":"H24 · EMERG"},{"s":"TWR","c":"Valencia TWR","m":121.875,"h":121.88,"r":"H24 · GMC"},{"s":"TWR","c":"Valencia TWR","m":123.575,"h":123.58,"r":"H24 · CLR"},{"s":"TWR","c":"Valencia TWR","m":243,"h":0,"r":"H24 · EMERG"},{"s":"TWR","c":"Valencia TWR","m":257.8,"h":0,"r":"H24"},{"s":"ATIS","c":"Valencia Información","m":121.075,"h":121.08,"r":"H24"}]},"LEVD":{"n":"VALLADOLID/Villanubla","u":"AD2/LEVD/LE_AD_2_LEVD_en.pdf","f":[{"s":"APP/TWR","c":"Valladolid TWR","m":122.2,"h":122.205,"r":"HR AD · APP/L"},{"s":"APP/TWR","c":"Valladolid TWR","m":121.5,"h":0,"r":"HR AD · EMERG"},{"s":"APP/TWR","c":"Valladolid TWR","m":139.3,"h":0,"r":"HR AD · MIL"},{"s":"APP/TWR","c":"Valladolid TWR","m":139.7,"h":0,"r":"HR AD · MIL"},{"s":"APP/TWR","c":"Valladolid TWR","m":243,"h":0,"r":"HR AD · EMERG"},{"s":"APP/TWR","c":"Valladolid TWR","m":257.8,"h":0,"r":"HR AD · MIL"}]},"LEVT":{"n":"VITORIA","u":"AD2/LEVT/LE_AD_2_LEVT_en.pdf","f":[{"s":"APP/TWR","c":"Vitoria TWR","m":118.45,"h":0,"r":"HR ATS"},{"s":"APP/TWR","c":"Vitoria TWR","m":121.5,"h":0,"r":"HR ATS · EMERG"},{"s":"APP/TWR","c":"Vitoria TWR","m":121.8,"h":121.805,"r":"HR ATS · GMC"},{"s":"APP/TWR","c":"Vitoria TWR","m":257.8,"h":0,"r":"HR ATS · MIL"},{"s":"APP/TWR","c":"Vitoria TWR","m":243,"h":0,"r":"HR ATS · EMERG"},{"s":"ATIS","c":"Vitoria información","m":119.35,"h":119.355,"r":"HR ATS"}]},"LEVX":{"n":"VIGO","u":"AD2/LEVX/LE_AD_2_LEVX_en.pdf","f":[{"s":"APP","c":"Santiago APP","m":120.2,"h":0,"r":"HR AD"},{"s":"TWR","c":"Vigo TWR","m":118.45,"h":118.455,"r":"HR AD"},{"s":"TWR","c":"Vigo TWR","m":118.95,"h":118.955,"r":"HR AD · BACK-UP"},{"s":"TWR","c":"Vigo TWR","m":121.5,"h":0,"r":"HR AD · EMERG"},{"s":"TWR","c":"Vigo TWR","m":121.7,"h":121.705,"r":"HR AD · GMC"},{"s":"TWR","c":"Vigo TWR","m":243,"h":0,"r":"HR AD · EMERG"},{"s":"ATIS","c":"Vigo Información","m":120.825,"h":120.83,"r":"HR AD"}]},"LEXJ":{"n":"SANTANDER/Seve Ballesteros-Santander","u":"AD2/LEXJ/LE_AD_2_LEXJ_en.pdf","f":[{"s":"APP","c":"Santander TWR","m":118.375,"h":0,"r":"HR ATS · APP/I"},{"s":"TWR","c":"Santander TWR","m":118.1,"h":118.105,"r":"HR ATS"},{"s":"TWR","c":"Santander TWR","m":121.5,"h":0,"r":"HR ATS · EMERG"},{"s":"TWR","c":"Santander TWR","m":121.7,"h":121.705,"r":"HR ATS · GMC"},{"s":"TWR","c":"Santander TWR","m":257.8,"h":0,"r":"HR ATS · MIL"},{"s":"ATIS","c":"Santander Information","m":127.525,"h":127.53,"r":"HR ATS"}]},"LEZG":{"n":"ZARAGOZA","u":"AD2/LEZG/LE_AD_2_LEZG_en.pdf","f":[{"s":"APP","c":"Zaragoza","m":119.3,"h":119.305,"r":"H24 · APP/H"},{"s":"APP","c":"Zaragoza","m":127.05,"h":127.055,"r":"H24 · APP/I"},{"s":"APP","c":"Zaragoza","m":125,"h":125.005,"r":"H24 · APP/I"},{"s":"APP","c":"Zaragoza","m":296.75,"h":0,"r":"H24 · APP/MIL"},{"s":"APP","c":"Zaragoza","m":313.5,"h":0,"r":"H24 · APP/MIL"},{"s":"APP","c":"Zaragoza","m":363.675,"h":0,"r":"H24 · APP/MIL"},{"s":"APP","c":"Zaragoza","m":121.5,"h":0,"r":"H24 · EMERG"},{"s":"APP","c":"Zaragoza","m":243,"h":0,"r":"H24 · EMERG"},{"s":"TWR","c":"Zaragoza","m":122.1,"h":122.105,"r":"H24 · CIV"},{"s":"TWR","c":"Zaragoza","m":121.5,"h":0,"r":"H24 · EMERG"},{"s":"TWR","c":"Zaragoza","m":243,"h":0,"r":"H24 · EMERG"},{"s":"TWR","c":"Zaragoza","m":118.1,"h":118.105,"r":"H24 · GMC"},{"s":"TWR","c":"Zaragoza","m":171,"h":0,"r":"H24 · GMC Frequency for vehicles taxiing in manoeuvring area and ground coordination for"},{"s":"TWR","c":"Zaragoza","m":139.3,"h":0,"r":"H24 · MIL"},{"s":"TWR","c":"Zaragoza","m":257.8,"h":0,"r":"H24 · MIL"},{"s":"TWR","c":"Zaragoza","m":292.2,"h":0,"r":"H24 · MIL"},{"s":"TWR","c":"Zaragoza","m":388.2,"h":0,"r":"H24 · MIL"},{"s":"TWR","c":"Zaragoza","m":396.9,"h":0,"r":"H24 · MIL"},{"s":"GCA","c":"Zaragoza","m":121.5,"h":0,"r":"(1) EMERG (1) MON-FRI EXC HOL: V: 0600-1230; I: 0700-1330."},{"s":"GCA","c":"Zaragoza","m":243,"h":0,"r":"(1) EMERG"},{"s":"GCA","c":"Zaragoza","m":130.025,"h":0,"r":"(1)"},{"s":"GCA","c":"Zaragoza","m":123.3,"h":0,"r":"(1)"},{"s":"GCA","c":"Zaragoza","m":235.125,"h":0,"r":"(1)"},{"s":"GCA","c":"Zaragoza","m":281.375,"h":0,"r":"(1)"},{"s":"GCA","c":"Zaragoza","m":374.525,"h":0,"r":"(1)"},{"s":"GCA","c":"Zaragoza GCA","m":375.575,"h":0,"r":"(1)"},{"s":"GCA","c":"(ASR/PAR)","m":387.225,"h":0,"r":"(1)"}]},"LEZL":{"n":"SEVILLA","u":"AD2/LEZL/LE_AD_2_LEZL_en.pdf","f":[{"s":"APP","c":"Sevilla APP","m":120.8,"h":0,"r":"H24 · APP/L Sector APP/N"},{"s":"APP","c":"Sevilla APP","m":124.725,"h":124.73,"r":"H24 · APP/H Sector APP/N BACK-UP"},{"s":"APP","c":"Sevilla APP","m":128.5,"h":0,"r":"H24 · APP/H Sector APP/S"},{"s":"APP","c":"Sevilla APP","m":264.7,"h":0,"r":"H24 · MIL"},{"s":"APP","c":"Sevilla APP","m":278.4,"h":0,"r":"H24 · APP/MIL Sector APN/N"},{"s":"TWR","c":"Sevilla TWR","m":118.1,"h":118.105,"r":"HR ATS"},{"s":"TWR","c":"Sevilla TWR","m":121.5,"h":0,"r":"HR ATS · EMERG"},{"s":"TWR","c":"Sevilla TWR","m":121.7,"h":121.705,"r":"HR ATS · GMC"},{"s":"TWR","c":"Sevilla TWR","m":243,"h":0,"r":"HR ATS · EMERG"},{"s":"TWR","c":"Sevilla TWR","m":278.075,"h":0,"r":"HR ATS · MIL"},{"s":"VDF","c":"Sevilla gonio","m":118.1,"h":118.105,"r":"HR ATS"},{"s":"VDF","c":"Sevilla gonio","m":121.5,"h":0,"r":"HR ATS"},{"s":"ATIS","c":"Sevilla Information","m":118.175,"h":118.18,"r":"HR ATS"}]},"LXGB":{"n":"GIBRALTAR","u":"AD2/LXGB/LE_AD_2_LXGB_en.pdf","f":[{"s":"APP","c":"Gibraltar Radar","m":122.8,"h":0,"r":"(1) (1) V: 0500-2100; I: 0600-2200 Información no actualizada"},{"s":"APP","c":"Gibraltar Radar","m":285.2,"h":0,"r":"(1)"},{"s":"TWR","c":"Gibraltar TWR","m":123.3,"h":0,"r":"(1)"},{"s":"TWR","c":"Gibraltar TWR","m":121.5,"h":0,"r":"(1)"},{"s":"TWR","c":"Gibraltar TWR","m":335.5,"h":0,"r":"(1)"},{"s":"TWR","c":"Gibraltar TWR","m":243,"h":0,"r":"(1)"}]}};
+
+/* ─── aipx: extractor del AIP (PDF → tabla de comunicaciones) ─── */
+const AIPX=(()=>{
+/* ══════════════════════════════════════════════════════════════
+   aipx — extractor de tablas de comunicaciones del AIP España.
+   Sin dependencias: corre igual en navegador y en Node ≥18.
+   PDFs de ENAIRE: solo FlateDecode, sin object streams, fuentes
+   subset con CMap /ToUnicode estándar.
+   ══════════════════════════════════════════════════════════════ */
+
+const L1 = u8 => { let s = "", C = 0x8000; for (let i = 0; i < u8.length; i += C) s += String.fromCharCode.apply(null, u8.subarray(i, i + C)); return s; };
+
+async function inflate(u8) {
+  try {
+    const st = new Blob([u8]).stream().pipeThrough(new DecompressionStream("deflate"));
+    return new Uint8Array(await new Response(st).arrayBuffer());
+  } catch {
+    try { // algunos streams vienen sin cabecera zlib
+      const st = new Blob([u8]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+      return new Uint8Array(await new Response(st).arrayBuffer());
+    } catch { return null; }
+  }
+}
+
+/* ── índice de objetos ── */
+function indexObjects(raw, s) {
+  const objs = new Map();
+  const re = /(?:^|[\s>])(\d+)\s+0\s+obj\b/g;
+  let m;
+  while ((m = re.exec(s))) {
+    const num = +m[1], start = m.index + m[0].length;
+    const end = s.indexOf("endobj", start);
+    if (end < 0) continue;
+    const body = s.slice(start, Math.min(end, start + 200000));
+    const si = body.indexOf("stream");
+    let stream = null, dict = body;
+    if (si >= 0 && /[\s>]stream[\r\n]/.test(body.slice(Math.max(0, si - 1), si + 8))) {
+      dict = body.slice(0, si);
+      let ds = start + si + 6;
+      if (s[ds] === "\r") ds++;
+      if (s[ds] === "\n") ds++;
+      let de;
+      const lm = /\/Length\s+(\d+)(?!\s+0\s+R)/.exec(dict);
+      if (lm) de = ds + +lm[1];
+      else de = s.indexOf("endstream", ds);
+      if (de > ds) stream = raw.subarray(ds, de);
+    }
+    objs.set(num, { dict, stream });
+  }
+  return objs;
+}
+const deref = (objs, v) => { const m = /^\s*(\d+)\s+0\s+R/.exec(v || ""); return m ? objs.get(+m[1]) : null; };
+
+/* ── extrae un subdiccionario equilibrando << >> ── */
+function subDict(str, key) {
+  const i = str.indexOf(key);
+  if (i < 0) return null;
+  let j = str.indexOf("<<", i);
+  const ref = /^\s*(\d+)\s+0\s+R/.exec(str.slice(i + key.length));
+  if (ref) return { ref: +ref[1] };
+  if (j < 0) return null;
+  let d = 0, k = j;
+  for (; k < str.length - 1; k++) {
+    if (str[k] === "<" && str[k + 1] === "<") { d++; k++; }
+    else if (str[k] === ">" && str[k + 1] === ">") { d--; k++; if (!d) break; }
+  }
+  return { txt: str.slice(j, k + 1) };
+}
+function resolveDict(objs, d) {
+  if (!d) return null;
+  if (d.txt) return d.txt;
+  const o = objs.get(d.ref);
+  return o ? o.dict : null;
+}
+
+/* ── CMap /ToUnicode ── */
+function parseCMap(txt) {
+  const map = new Map();
+  let bytes = 1;
+  const cs = /begincodespacerange([\s\S]*?)endcodespacerange/.exec(txt);
+  if (cs) { const h = /<([0-9A-Fa-f]+)>/.exec(cs[1]); if (h) bytes = Math.max(1, Math.ceil(h[1].length / 2)); }
+  const uni = h => { let o = ""; for (let i = 0; i + 3 < h.length + 1; i += 4) o += String.fromCharCode(parseInt(h.substr(i, 4), 16)); return o; };
+  let m, re = /beginbfchar([\s\S]*?)endbfchar/g;
+  while ((m = re.exec(txt))) {
+    const p = /<([0-9A-Fa-f]+)>\s*<([0-9A-Fa-f]+)>/g; let q;
+    while ((q = p.exec(m[1]))) map.set(parseInt(q[1], 16), uni(q[2]));
+  }
+  re = /beginbfrange([\s\S]*?)endbfrange/g;
+  while ((m = re.exec(txt))) {
+    const body = m[1];
+    const p = /<([0-9A-Fa-f]+)>\s*<([0-9A-Fa-f]+)>\s*(?:<([0-9A-Fa-f]+)>|\[([\s\S]*?)\])/g; let q;
+    while ((q = p.exec(body))) {
+      const lo = parseInt(q[1], 16), hi = parseInt(q[2], 16);
+      if (q[3]) { const base = parseInt(q[3], 16); for (let c = lo; c <= hi && c - lo < 65536; c++) map.set(c, String.fromCharCode(base + (c - lo))); }
+      else if (q[4]) { const arr = q[4].match(/<([0-9A-Fa-f]+)>/g) || []; arr.forEach((a, i) => map.set(lo + i, uni(a.slice(1, -1)))); }
+    }
+  }
+  return { map, bytes };
+}
+
+let _latin = null;
+function latinCMap() {
+  if (_latin) return _latin;
+  const map = new Map();
+  for (let c = 32; c < 127; c++) map.set(c, String.fromCharCode(c));
+  for (let c = 160; c < 256; c++) map.set(c, String.fromCharCode(c));
+  return (_latin = { map, bytes: 1 });
+}
+
+/* ── anchuras de glifo: imprescindibles para distinguir un espacio real
+      de una letra ancha (una «M» avanza más que un espacio) ── */
+function parseWidths(objs, fontDict) {
+  const W = new Map(); let dw = 0.5;
+  const t0 = /\/DescendantFonts\s*\[\s*(\d+)\s+0\s+R/.exec(fontDict);
+  if (t0) { // Type0 / CIDFont: array /W
+    const d = objs.get(+t0[1]); if (!d) return { W, dw };
+    const dwm = /\/DW\s+(-?[\d.]+)/.exec(d.dict); if (dwm) dw = +dwm[1] / 1000;
+    const wm = /\/W\s*\[([\s\S]*?)\]\s*(?:\/|>>)/.exec(d.dict);
+    if (wm) {
+      const toks = wm[1].match(/\[[^\]]*\]|-?[\d.]+/g) || [];
+      for (let i = 0; i < toks.length;) {
+        const a = toks[i];
+        if (a && a[0] === "[") { i++; continue; }
+        const nx = toks[i + 1];
+        if (nx && nx[0] === "[") {
+          const arr = (nx.match(/-?[\d.]+/g) || []).map(Number);
+          arr.forEach((w, k) => W.set(+a + k, w / 1000));
+          i += 2;
+        } else if (toks[i + 2] !== undefined) {
+          const lo = +a, hi = +toks[i + 1], w = +toks[i + 2] / 1000;
+          for (let c = lo; c <= hi && c - lo < 65536; c++) W.set(c, w);
+          i += 3;
+        } else break;
+      }
+    }
+    return { W, dw };
+  }
+  // fuente simple (Type1/Type3/TrueType): /FirstChar + /Widths
+  const fc = /\/FirstChar\s+(\d+)/.exec(fontDict);
+  const wid = /\/Widths\s*(?:\[([\s\S]*?)\]|(\d+)\s+0\s+R)/.exec(fontDict);
+  let scale = 0.001;
+  const fm = /\/FontMatrix\s*\[\s*(-?[\d.]+)/.exec(fontDict);
+  if (fm) scale = Math.abs(+fm[1]) || 0.001;
+  let list = null;
+  if (wid) {
+    if (wid[1]) list = wid[1];
+    else { const o = objs.get(+wid[2]); if (o) list = o.dict; }
+  }
+  if (list && fc) {
+    const arr = (list.match(/-?[\d.]+/g) || []).map(Number);
+    arr.forEach((w, k) => W.set(+fc[1] + k, w * scale));
+  }
+  return { W, dw };
+}
+
+/* cadenas literales PDF: escapes simbolicos y octales (\323 = O acentuada en Latin-1) */
+const unescLit = str => str.replace(/\\(?:(\r\n|[\r\n])|([nrtbf])|([0-7]{1,3})|([\s\S]))/g,
+  (m, nl, a, o, c) => nl ? "" : a ? ({ n: "\n", r: "\r", t: "\t", b: "\b", f: "\f" }[a]) : o ? String.fromCharCode(parseInt(o, 8)) : c);
+
+/* ── tokenizador de content stream → glifos con coordenadas ── */
+function runContent(txt, fonts, out) {
+  let ctm = [1, 0, 0, 1, 0, 0], stack = [];
+  let tm = null, tlm = null, fs = 10, cmap = null;
+  const mul = (a, b) => [a[0]*b[0]+a[1]*b[2], a[0]*b[1]+a[1]*b[3], a[2]*b[0]+a[3]*b[2], a[2]*b[1]+a[3]*b[3], a[4]*b[0]+a[5]*b[2]+b[4], a[4]*b[1]+a[5]*b[3]+b[5]];
+  const push = (str, wEm) => {
+    if (!str || !tm) return;
+    const m = mul(tm, ctm);
+    const scale = Math.hypot(m[0], m[1]) || 1;
+    out.push({ x: m[4], y: m[5], s: str, fs: fs * scale, w: (wEm || 0) * fs * scale });
+  };
+  const dec = hexOrLit => {
+    if (!cmap) return { s: "", w: 0 };
+    let codes = [];
+    if (hexOrLit.hex) {
+      const h = hexOrLit.hex.replace(/[^0-9A-Fa-f]/g, "");
+      const w = cmap.bytes * 2;
+      for (let i = 0; i < h.length; i += w) codes.push(parseInt(h.substr(i, w).padEnd(w, "0"), 16));
+    } else {
+      const b = hexOrLit.lit;
+      if (cmap.bytes === 2) { for (let i = 0; i + 1 < b.length; i += 2) codes.push((b.charCodeAt(i) << 8) | b.charCodeAt(i + 1)); }
+      else for (let i = 0; i < b.length; i++) codes.push(b.charCodeAt(i));
+    }
+    let s = "", w = 0;
+    for (const c of codes) {
+      s += cmap.map.has(c) ? cmap.map.get(c) : "";
+      w += cmap.W && cmap.W.has(c) ? cmap.W.get(c) : (cmap.dw || 0.5);
+    }
+    return { s, w };
+  };
+  // tokens: números, nombres, cadenas (), hex <>, arrays [], operadores
+  const re = /(<<|>>)|<([0-9A-Fa-f\s]*)>|\((?:\\[\s\S]|[^\\()])*\)|\[|\]|\/([^\s/<>\[\]()]+)|(-?[\d.]+)|([A-Za-z'"*]+)/g;
+  let m, args = [], arrDepth = 0, arrItems = [];
+  while ((m = re.exec(txt))) {
+    const t = m[0];
+    if (m[1]) continue;
+    if (t === "[") { arrDepth = 1; arrItems = []; continue; }
+    if (t === "]") { arrDepth = 0; args.push({ arr: arrItems }); continue; }
+    let val;
+    if (m[2] !== undefined) val = { hex: m[2] };
+    else if (t[0] === "(") val = { lit: unescLit(t.slice(1, -1)) };
+    else if (m[3] !== undefined) val = { name: m[3] };
+    else if (m[4] !== undefined) val = +m[4];
+    else val = { op: m[5] };
+    if (arrDepth) { arrItems.push(val); continue; }
+    if (!val.op) { args.push(val); if (args.length > 12) args.shift(); continue; }
+    const op = val.op, n = args.length;
+    const num = i => { const v = args[n - i]; return typeof v === "number" ? v : 0; };
+    switch (op) {
+      case "q": stack.push(ctm.slice()); break;
+      case "Q": if (stack.length) ctm = stack.pop(); break;
+      case "cm": ctm = mul([num(6), num(5), num(4), num(3), num(2), num(1)], ctm); break;
+      case "BT": tm = [1, 0, 0, 1, 0, 0]; tlm = tm.slice(); break;
+      case "ET": tm = null; break;
+      case "Tf": { const nm = args[n - 2]; fs = num(1); if (nm && nm.name) cmap = fonts.get(nm.name) || latinCMap(); break; }
+      case "Tm": tm = [num(6), num(5), num(4), num(3), num(2), num(1)]; tlm = tm.slice(); break;
+      case "Td": if (tlm) { tlm = mul([1, 0, 0, 1, num(2), num(1)], tlm); tm = tlm.slice(); } break;
+      case "TD": if (tlm) { tlm = mul([1, 0, 0, 1, num(2), num(1)], tlm); tm = tlm.slice(); } break;
+      case "T*": if (tlm) { tlm = mul([1, 0, 0, 1, 0, -fs], tlm); tm = tlm.slice(); } break;
+      case "Tj": case "'": case '"': { const a = args[n - 1]; if (a && (a.hex !== undefined || a.lit !== undefined)) { const d = dec(a); push(d.s, d.w); } break; }
+      case "TJ": { const a = args[n - 1]; if (a && a.arr) { let s = "", w = 0; for (const it of a.arr) if (it && (it.hex !== undefined || it.lit !== undefined)) { const d = dec(it); s += d.s; w += d.w; } push(s, w); } break; }
+    }
+    args = [];
+  }
+}
+
+/* El generador emite el texto en orden de lectura: si la Y decrece según avanza
+   el content stream, el eje está invertido respecto a «arriba→abajo». */
+function detectFlip(gl) {
+  let s = 0;
+  for (let i = 1; i < gl.length; i++) { const d = gl[i].y - gl[i - 1].y; if (Math.abs(d) > 0.5) s += Math.sign(d); }
+  return s < 0;
+}
+
+/* ── PDF → filas de texto con coordenadas ── */
+async function pdfRows(buf) {
+  const raw = new Uint8Array(buf), s = L1(raw);
+  const objs = indexObjects(raw, s);
+  // PDFs modernos guardan los objetos dentro de streams comprimidos (/ObjStm)
+  for (const [, o] of [...objs]) {
+    if (!o.stream || !/\/Type\s*\/ObjStm/.test(o.dict)) continue;
+    const inf = await inflate(o.stream); if (!inf) continue;
+    const txt = L1(inf);
+    const N = +((/\/N\s+(\d+)/.exec(o.dict) || [])[1] || 0);
+    const First = +((/\/First\s+(\d+)/.exec(o.dict) || [])[1] || 0);
+    if (!N || !First) continue;
+    const head = txt.slice(0, First).trim().split(/\s+/).map(Number);
+    for (let i = 0; i < N; i++) {
+      const on = head[2 * i], off = head[2 * i + 1];
+      if (!Number.isFinite(on) || !Number.isFinite(off)) continue;
+      const nxt = (i + 1 < N && Number.isFinite(head[2 * i + 3])) ? head[2 * i + 3] : txt.length - First;
+      const prev = objs.get(on);
+      if (!prev || !prev.stream) objs.set(on, { dict: txt.slice(First + off, First + nxt), stream: null });
+    }
+  }
+  const cmapCache = new Map();
+  const getCMap = async num => {
+    if (cmapCache.has(num)) return cmapCache.get(num);
+    const o = objs.get(num); let r = null;
+    if (o && o.stream) { const inf = await inflate(o.stream); if (inf) r = parseCMap(L1(inf)); }
+    cmapCache.set(num, r); return r;
+  };
+  const pages = [];
+  for (const [, o] of objs) if (/\/Type\s*\/Page[^s]/.test(o.dict)) pages.push(o);
+
+  const rowsAll = [];
+  for (let pi = 0; pi < pages.length; pi++) {
+    const p = pages[pi];
+    // fuentes de la página
+    const fonts = new Map();
+    const resTxt = resolveDict(objs, subDict(p.dict, "/Resources"));
+    if (resTxt) {
+      const fTxt = resolveDict(objs, subDict(resTxt, "/Font"));
+      if (fTxt) {
+        const fre = /\/([^\s/<>\[\]()]+)\s+(\d+)\s+0\s+R/g; let fm;
+        while ((fm = fre.exec(fTxt))) {
+          const fo = objs.get(+fm[2]); if (!fo) continue;
+          const wd = parseWidths(objs, fo.dict);
+          const tu = /\/ToUnicode\s+(\d+)\s+0\s+R/.exec(fo.dict);
+          let cm = tu ? await getCMap(+tu[1]) : null;
+          if (!cm && !/\/Subtype\s*\/Type0/.test(fo.dict)) cm = latinCMap();   // Type1/TrueType con codificación estándar
+          if (cm) fonts.set(fm[1], { map: cm.map, bytes: cm.bytes, W: wd.W, dw: wd.dw });
+        }
+      }
+    }
+    if (!fonts.size) continue;
+    // contenido
+    let cnt = [];
+    const cm = /\/Contents\s+(\d+)\s+0\s+R/.exec(p.dict);
+    const ca = /\/Contents\s*\[([^\]]*)\]/.exec(p.dict);
+    if (cm) cnt = [+cm[1]];
+    else if (ca) cnt = (ca[1].match(/(\d+)\s+0\s+R/g) || []).map(x => +x);
+    let txt = "";
+    for (const c of cnt) { const o = objs.get(c); if (o && o.stream) { const inf = await inflate(o.stream); if (inf) txt += L1(inf) + "\n"; } }
+    if (!txt) continue;
+
+    const glyphs = [];
+    runContent(txt, fonts, glyphs);
+    if (!glyphs.length) continue;
+
+    // orientación: el eje Y puede venir invertido según el CTM de la página
+    const flip = detectFlip(glyphs);
+    glyphs.forEach(g => { g.oy = flip ? -g.y : g.y; });
+
+    // agrupar en filas por y, luego en celdas por hueco en x
+    glyphs.sort((a, b) => (a.oy - b.oy) || (a.x - b.x));
+    const rows = [];
+    let cur = [], lastY = null;
+    for (const g of glyphs) {
+      if (lastY === null || Math.abs(g.oy - lastY) <= Math.max(1.2, g.fs * 0.45)) { cur.push(g); if (lastY === null) lastY = g.oy; }
+      else { rows.push(cur); cur = [g]; lastY = g.oy; }
+    }
+    if (cur.length) rows.push(cur);
+
+    for (const r of rows) {
+      r.sort((a, b) => a.x - b.x);
+      const cells = []; let buf2 = "", prev = null;
+      for (const g of r) {
+        if (prev) {
+          // hueco por encima del avance real del glifo anterior = espacio de verdad
+          const slack = (g.x - prev.x) - prev.w;
+          if (slack > prev.fs * 0.85) { cells.push(buf2.trim()); buf2 = ""; }
+          else if (slack > prev.fs * 0.11) buf2 += " ";
+        }
+        buf2 += g.s; prev = g;
+      }
+      if (buf2.trim()) cells.push(buf2.trim());
+      // los AIP antiguos emiten la fila entera en una sola cadena: se separa por espacios múltiples
+      const line = cells.flatMap(c => c.split(/\s{2,}/)).map(t => t.trim()).filter(Boolean);
+      if (line.length) rowsAll.push({ page: pi, y: r[0].oy, cells: line, text: line.join("  ") });
+    }
+  }
+  return rowsAll;
+}
+
+/* ── canal 8,33 kHz → portadora real ── */
+function carrier(chan) {
+  const khz = Math.round(chan * 1000), r = khz % 25, base = khz - r;
+  if (r === 0) return { mhz: chan, ch: null };
+  if (r === 5) return { mhz: base / 1000, ch: chan };
+  if (r === 10) return { mhz: +((base + 8.3333) / 1000).toFixed(5), ch: chan };
+  if (r === 15) return { mhz: +((base + 16.6667) / 1000).toFixed(5), ch: chan };
+  return { mhz: chan, ch: null };
+}
+
+/* ── filas → tabla de comunicaciones ── */
+function parseComms(rows) {
+  // la extracción puede dejar espacios sueltos dentro de las palabras:
+  // se compara sin espacios para que el encabezado se localice igual
+  const flat = r => r.text.toUpperCase().replace(/\s+/g, "").replace(/[ÁÀ]/g,"A").replace(/[ÉÈ]/g,"E").replace(/[ÍÌ]/g,"I").replace(/[ÓÒ]/g,"O").replace(/[ÚÙ]/g,"U").replace(/Ñ/g,"N");
+  const isComms = t => /(COMMUNICATIONFACILITIES|INSTALACIONESDECOMUNICACION)/.test(t);
+  const isNav   = t => /(RADIONAVIGATIONANDLANDINGAIDS|RADIOAYUDASPARALANAVEGACION|FACILITY\(VAR\)|INSTALACION\(VAR\))/.test(t);
+  let start = -1, end = rows.length;
+  for (let i = 0; i < rows.length; i++) if (isComms(flat(rows[i]))) { start = i; break; }
+  if (start < 0) { // formatos sin encabezado legible: se ancla en la fila de columnas
+    for (let i = 0; i < rows.length; i++) {
+      const t = flat(rows[i]);
+      if (/(DISTINTIVOLLAMADA|CALLSIGN)/.test(t) && /FREQ/.test(t)) { start = i - 1; break; }
+    }
+  }
+  if (start < 0) return [];
+  for (let i = start + 1; i < rows.length; i++) {
+    const t = flat(rows[i]);
+    if (isNav(t) || (/AD[23]\.\d+[A-Z]/.test(t) && !isComms(t))) { end = i; break; }
+  }
+  const out = [];
+  let lastSvc = "", lastCall = "";
+  // lista blanca: lo que no sea un servicio ATS reconocido nunca se usa como etiqueta
+  const SVCOK = /^(APP|TWR|GND|GMC|ATIS|D-ATIS|VDF|AFIS|ACC|FIS|CLD|DEL|CLR|RADIO|EMERG|SRE|SSR|PAR|TAR|ASR|GCA|OPS|SDP|INFO|CTA|TMA|A\/G|APP\/TWR|TWR\/APP|TWR\/GND|CTA\/APP|SSR\/SRE|GCA\/ASR|GCA\/PAR|APP\/L|APP\/I)(\(MIL\))?$/;
+  const isSvc = t => SVCOK.test(t.replace(/\s+/g, "").toUpperCase());
+  for (let i = start + 1; i < end; i++) {
+    const cells = rows[i].cells.map(c => c.trim()).filter(Boolean);
+    if (!cells.length) continue;
+    const head = cells.join(" ");
+    if (/^(Service|Servicio|Distintivo|Call\s*sign|FREQ|Frecuencia|Remarks|Observaciones|HR)\b/i.test(head) && !/\d{3}[.,]\d{3}/.test(head)) continue;
+    // celda que contiene la frecuencia
+    const fi = cells.findIndex(c => /^\d{3}[.,]\d{3}(\s|$|C|M)/i.test(c) || /^\d{3}[.,]\d{3}$/.test(c));
+    if (fi < 0) continue;
+    const fcell = cells[fi];
+    const fm = /(\d{3})[.,](\d{3})/.exec(fcell);
+    if (!fm) continue;
+    const freq = parseFloat(fm[1] + "." + fm[2]);
+    if (freq < 108 || freq > 400) continue;
+    const pre = cells.slice(0, fi).map(t => t.replace(/^[-–\s]+|[-–\s]+$/g, "")).filter(Boolean);
+    const post = cells.slice(fi + 1);
+    let svc = "", call = "";
+    if (pre.length) {
+      if (isSvc(pre[0])) { svc = pre[0]; call = pre.slice(1).join(" "); }
+      else call = pre.join(" ");           // no es servicio → forma parte del indicativo
+    }
+    if (!svc) svc = lastSvc; else lastSvc = svc;
+    if (!call) call = lastCall; else lastCall = call;
+    const isChan = /\bC\b/.test(fcell) && !/MHz/i.test(fcell);
+    const c = isChan ? carrier(freq) : { mhz: freq, ch: null };
+    const hr = post.find(p => /^(H24|HR\b|H\s|O\/R|HJ|HX)/i.test(p)) || "";
+    let rem = post.filter(p => p !== hr).join(" ").trim();
+    // descartar filas de radioayudas o mobiliario de página coladas en la tabla
+    if (/\d{6}(\.\d+)?[NS]\b/.test(rem) || /\b(WEF|AMDT|AIRAC)\b/.test(rem)) continue;
+    if (rem === "-" || rem === "–") rem = "";
+    out.push({ svc, call, mhz: c.mhz, chan: c.ch, hr, rem });
+  }
+  const seen = new Set();
+  return out.filter(r => { const k = r.mhz + "|" + r.svc + "|" + r.call + "|" + r.rem; if (seen.has(k)) return false; seen.add(k); return true; });
+}
+return {pdfRows,parseComms,carrier};
+})();
+
+
+const adSel = $("#adsel"), adOut = $("#adout"), adState = $("#adstate"), adBtn = $("#adlive");
+const AD_CACHE = "espectro:aip:", AD_TTL = 7 * 864e5, AD_TIMEOUT = 25000;
+const adCodes = Object.keys(AD).sort((a, b) => AD[a].n.localeCompare(AD[b].n, "es"));
+adSel.innerHTML = adCodes.map(c => `<option value="${c}">${esc(AD[c].n)} · ${c}</option>`).join("");
+
+const cacheGet = c => { try { const v = JSON.parse(localStorage.getItem(AD_CACHE + c)); return (v && Date.now() - v.t < AD_TTL) ? v : null; } catch { return null; } };
+const cacheSet = (c, v) => { try { localStorage.setItem(AD_CACHE + c, JSON.stringify(v)); } catch {} };
+const svcClass = s => /EMERG/i.test(s) ? "em" : /ATIS|VDF/i.test(s) ? "at" : "";
+const fdec = n => dec(n.toFixed(3));
+
+/* Nunca mostrar menos información de la que ya se tiene: si la lectura en vivo
+   sale más pobre que la copia local, gana la copia local. */
+function adBest(code) {
+  const snap = AD[code].f || [], live = cacheGet(code);
+  if (!live || !live.f) return { f: snap, src: "snap" };
+  if (live.f.length < snap.length) return { f: snap, src: "snap", degraded: true };
+  return { f: live.f, src: "live", amdt: live.amdt, t: live.t };
+}
+function adTable(list) {
+  if (!list.length) return `<p class="ad-empty">El AIP no publica frecuencias para este aeródromo: figura como <i>Information not available</i>.</p>`;
+  return `<div class="tblwrap"><div class="tblscroll"><table>
+    <thead><tr><th>Servicio</th><th>Sintoniza</th><th>Indicativo</th><th>Horario y notas</th></tr></thead>
+    <tbody>${list.map(f => {
+      const crit = /EMERG/i.test(f.r || "") || f.m === 121.5 || f.m === 243;
+      return `<tr class="${crit ? "crit" : ""}">
+        <td><span class="adsvc ${svcClass((f.s || "") + " " + (f.r || ""))}">${esc(f.s || "—")}</span></td>
+        <td><span class="adfreq">${fdec(f.m)} MHz</span>${f.h ? `<span class="adchan">canal ${fdec(f.h)}</span>` : ""}</td>
+        <td style="font-family:var(--f-sans)">${esc(f.c || "")}</td>
+        <td style="font-family:var(--f-sans);color:var(--fg2)">${esc(f.r || "")}</td></tr>`;
+    }).join("")}</tbody></table></div></div>`;
+}
+function adStatus(kind, txt) {
+  const col = { live: "var(--ok)", snap: "var(--warn)", err: "var(--bad)", load: "var(--info)" }[kind] || "var(--fg3)";
+  const u = AD[adSel.value] && AD[adSel.value].u;
+  adState.innerHTML = `<span class="pipdot" style="--c:${col}"></span>${txt}` +
+    (u ? ` · <a href="${AIP_BASE + u}" target="_blank" rel="noopener">ver PDF oficial</a>` : "");
+}
+function adRender(code) {
+  const b = adBest(code);
+  adOut.innerHTML = adTable(b.f);
+  if (b.src === "live") {
+    const mins = Math.round((Date.now() - b.t) / 60000);
+    adStatus("live", `Leído del AIP oficial${b.amdt ? " · " + esc(b.amdt) : ""} · ${mins < 1 ? "hace un momento" : "hace " + mins + " min"}`);
+  } else if (b.degraded) adStatus("snap", "La lectura en vivo salió incompleta, así que se mantiene la copia local, que está completa");
+  else adStatus("snap", "Copia local · comprobando el AIP oficial…");
+}
+function adSpin(on) {
+  adBtn.disabled = on;
+  adBtn.innerHTML = on
+    ? `<span class="spin"></span>Consultando…`
+    : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M20 11.5A8.5 8.5 0 106.6 18.4M20 5v6h-6"/></svg>Actualizar desde el AIP`;
+}
+let adSeq = 0;
+async function adFetchLive(code, manual) {
+  const a = AD[code]; if (!a || !a.u) return;
+  const my = ++adSeq;                       // una respuesta lenta nunca pisa a otra selección
+  adSpin(true);
+  if (manual) adStatus("load", "Descargando el documento oficial de ENAIRE…");
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), AD_TIMEOUT);
+  try {
+    const r = await fetch(AIP_BASE + a.u, { cache: "no-store", signal: ctl.signal });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const buf = await r.arrayBuffer();
+    if (my !== adSeq) return;
+    const rows = await AIPX.pdfRows(buf);
+    const parsed = AIPX.parseComms(rows).map(x => ({ s: x.svc, c: x.call, m: x.mhz, h: x.chan || 0, r: [x.hr, x.rem].filter(Boolean).join(" · ") }));
+    let amdt = "";
+    for (const row of rows) { const m = /(AIRAC\s+)?AMDT\s+\d+\/\d+/i.exec(row.text); if (m) { amdt = m[0]; break; } }
+    if (my !== adSeq) return;
+    if (parsed.length || !a.f.length) cacheSet(code, { f: parsed, amdt, t: Date.now() });
+    adRender(code);
+  } catch (e) {
+    if (my !== adSeq) return;
+    adOut.innerHTML = adTable(adBest(code).f);
+    const why = e.name === "AbortError" ? "El AIP ha tardado demasiado en responder."
+      : /Failed to fetch|NetworkError|Load failed/i.test(e.message || "") ? "No hay conexión con el AIP desde esta página."
+      : "No se ha podido leer el documento oficial.";
+    adStatus(manual ? "err" : "snap", why + " Se muestran los datos de la copia local, que siguen siendo válidos.");
+  } finally {
+    clearTimeout(timer);
+    if (my === adSeq) adSpin(false);
+  }
+}
+function adSelect(code, manual) {
+  if (!AD[code]) code = "LERS";
+  adSel.value = code;
+  try { localStorage.setItem("espectro:ad", code); } catch {}
+  adRender(code);
+  const fresh = cacheGet(code);
+  if (manual || !fresh) adFetchLive(code, manual);   // se actualiza solo, sin pedir nada al usuario
+  else adSpin(false);
+}
+adSel.addEventListener("change", () => adSelect(adSel.value, false));
+adBtn.addEventListener("click", () => adSelect(adSel.value, true));
+let adStart = "LERS";
+try { const v = localStorage.getItem("espectro:ad"); if (v && AD[v]) adStart = v; } catch {}
+adSelect(adStart, false);
+
+
+/* ═══════════════ arranque ═══════════════ */
+drawSpec(); render();
+const h=location.hash.replace("#","");
+if(h&&D.some(b=>b.id===h))openBand(h,false);
+</script>
+</body>
+</html>
