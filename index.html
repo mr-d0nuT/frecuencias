@@ -864,7 +864,7 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
   </section>
 
 
-  <section class="sec">
+  <section class="sec" id="lookup-sec">
     <div class="card lk">
       <div class="lk-row">
         <span class="kicker">Identificar una frecuencia</span>
@@ -876,7 +876,7 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
     </div>
   </section>
 
-  <section class="sec">
+  <section class="sec" id="spec-sec">
     <div class="card spec">
       <div class="spec-h">
         <span class="kicker">Mapa del espectro · escala logarítmica</span>
@@ -894,7 +894,7 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
     </div>
   </section>
 
-  <section class="sec">
+  <section class="sec" id="sos-sec">
     <article class="card sos">
       <div class="sos-h"><h3>Frecuencias de socorro</h3><p>Escucharlas es legal. Emitir fuera de una emergencia real moviliza medios de rescate y se sanciona con severidad.</p></div>
       <div class="sosg" id="sosg"></div>
@@ -1851,12 +1851,21 @@ ucmenu.addEventListener("click",e=>{
   if(UC!==null){ F={tx:"all",rx:"all",me:"all",rf:"all",cat:"all"}; Q=""; syncChips(); }
   ucOpen(false); paintUcBtn(); paintQbar(); render();
   const u=UC!==null?USECASES[UC]:null;
-  $("#uas-sec").hidden = !(u && u.vuelo);             // el planificador solo aparece si vas a volar
-  if(u && u.vuelo) planVuelo();
+  const vuelo=!!(u && u.vuelo);
+  $("#uas-sec").hidden = !vuelo;                      // el planificador solo aparece si vas a volar
+  modoVuelo(vuelo);
+  if(vuelo) planVuelo();
   else if(UC!==null) setTimeout(()=>$("#results").scrollIntoView({behavior:"smooth",block:"start"}),60);
 });
 document.addEventListener("click",e=>{ if(!ucmenu.hidden && !ucmenu.contains(e.target) && e.target!==ucbtn) ucOpen(false); });
 document.addEventListener("keydown",e=>{ if(e.key==="Escape" && !ucmenu.hidden) ucOpen(false); });
+
+
+/* Preparar un vuelo es una tarea en sí: se apartan los bloques de
+   consulta general para no mezclarlos con el planificador. */
+function modoVuelo(on){
+  ["lookup-sec","spec-sec","sos-sec"].forEach(id=>{ const el=$("#"+id); if(el) el.hidden=on; });
+}
 
 /* Accesos rápidos: las mismas situaciones, a un toque desde la cabecera */
 const qbar=$("#qbar");
@@ -1871,8 +1880,10 @@ qbar.addEventListener("click",e=>{
   if(UC!==null){ F={tx:"all",rx:"all",me:"all",rf:"all",cat:"all"}; Q=""; syncChips(); }
   paintUcBtn(); paintQbar(); render();
   const u=UC!==null?USECASES[UC]:null;
-  $("#uas-sec").hidden = !(u && u.vuelo);
-  if(u && u.vuelo) planVuelo();
+  const vuelo=!!(u && u.vuelo);
+  $("#uas-sec").hidden = !vuelo;
+  modoVuelo(vuelo);
+  if(vuelo) planVuelo();
   else if(UC!==null) setTimeout(()=>$("#results").scrollIntoView({behavior:"smooth",block:"start"}),60);
 });
 paintUcBtn();
