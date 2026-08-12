@@ -738,6 +738,9 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
 .sosi .sf u{text-decoration:none;font-size:9px;font-weight:500;color:var(--fg3);margin-left:2px}
 .sosi .sl{flex:1 1 100%;font-size:10.5px;color:var(--fg2);line-height:1.3;text-align:center;margin-top:1px}
 @media (max-width:520px){ .sosg{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))} }
+
+.lkbox{margin-top:10px;padding-top:11px;border-top:1px solid var(--line)}
+.ad-alt{font-family:var(--f-mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--fg3);margin:16px 0 8px}
 @media print{
   .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
   body{background:#fff;color:#000;font-size:10pt}
@@ -808,7 +811,7 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
         <div id="nearOut"></div>
       </div>
 
-      <h5 id="aero-sec">Consultar un aeródromo concreto</h5>
+      <div class="ad-alt">o busca uno concreto por su nombre</div>
       <div class="adbox">
       <div class="ad-top">
         <select id="adsel" aria-label="Elige aeródromo"></select>
@@ -864,22 +867,11 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
   </section>
 
 
-  <section class="sec" id="lookup-sec">
-    <div class="card lk">
-      <div class="lk-row">
-        <span class="kicker">Identificar una frecuencia</span>
-        <input id="fq" type="text" inputmode="decimal" placeholder="446,09375" aria-label="Frecuencia">
-        <select id="fu" aria-label="Unidad"><option value="1">MHz</option><option value="0.001">kHz</option><option value="1000">GHz</option></select>
-        <span class="hint">Te digo a quién pertenece, si puedes escucharla y si puedes emitir en ella.</span>
-      </div>
-      <div class="lkres" id="lkres"></div>
-    </div>
-  </section>
 
   <section class="sec" id="spec-sec">
     <div class="card spec">
       <div class="spec-h">
-        <span class="kicker">Mapa del espectro · escala logarítmica</span>
+        <span class="kicker">Explorar el espectro</span>
         <div class="tog" id="mode" role="group" aria-label="Modo de color del espectro">
           <button data-m="tx" class="on">TX</button><button data-m="rx">RX</button>
         </div>
@@ -891,6 +883,15 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
       </div></div>
       <div class="speclens" id="speclens"><span class="sl-hint">Pasa el cursor —o arrastra el dedo— por el espectro</span></div>
       <div class="scrollhint">← desliza para recorrer el espectro →</div>
+      <div class="lkbox">
+      <div class="lk-row">
+        <span class="kicker">O escribe una frecuencia</span>
+        <input id="fq" type="text" inputmode="decimal" placeholder="446,09375" aria-label="Frecuencia">
+        <select id="fu" aria-label="Unidad"><option value="1">MHz</option><option value="0.001">kHz</option><option value="1000">GHz</option></select>
+        
+      </div>
+      <div class="lkres" id="lkres"></div>
+      </div>
     </div>
   </section>
 
@@ -958,12 +959,6 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
   <div id="results"></div>
 
 
-  <section class="sec">
-    <article class="card leg">
-      <div class="kicker" style="margin-bottom:16px">Cómo leer cada ficha</div>
-      <div class="legg" id="legg"></div>
-    </article>
-  </section>
 
   <footer>
     <div class="fg">
@@ -1567,12 +1562,18 @@ const KEYS=[
      "El límite está en el <b>contenido</b>, no en la escucha: la Constitución protege el secreto de las comunicaciones, así que no puedes divulgar ni aprovechar lo que oigas de comunicaciones no destinadas al público. Descifrar señales cifradas sí es delito."]},
  {k:"TX", c:"var(--hot)", t:"Transmitir sí ocupa espectro",
   p:["Al emitir usas un recurso público limitado y compartido. Fuera de las bandas de uso común hace falta título habilitante; sin él es infracción de la Ley General de Telecomunicaciones, con sanción económica y decomiso del equipo.",
-     "Y el daño no es igual en todas partes: pisar un canal de taxi molesta, pero <b>pisar el canal 16 de marina o una frecuencia de torre puede costar vidas</b>, y eso pasa del terreno administrativo al penal."]}
+     "Y el daño no es igual en todas partes: pisar un canal de taxi molesta, pero <b>pisar el canal 16 de marina o una frecuencia de torre puede costar vidas</b>, y eso pasa del terreno administrativo al penal."]},
+ {k:"LEYENDA", c:"var(--fg3)", t:"Cómo leer cada ficha", leg:1, p:[]}
 ];
 $("#keys").innerHTML=KEYS.map((x,i)=>`<button class="kpill" data-key="${i}" style="--c:${x.c}">${x.k}<i>?</i></button>`).join("");
 $("#keys").addEventListener("click",e=>{
   const b=e.target.closest("[data-key]"); if(!b)return;
   const x=KEYS[+b.dataset.key];
+  const cuerpo = x.leg
+    ? `<div class="legg">${LEGEND.map(([k,t,c,d])=>`<div class="legi"><div class="hh"><span class="stt" style="--c:${c}"><i class="g"></i>${k} · ${t}</span></div>${d}</div>`).join("")}
+       <div class="legi"><div class="hh"><span style="display:flex;gap:3px">${[0,1,2,3].map(i=>`<i style="width:13px;height:3px;border-radius:2px;display:block;background:${RISK[i].c}"></i>`).join("")}</span>Escala de riesgo</div>Daño real que causa una emisión indebida: nulo → molesto → bloquea un servicio → compromete vidas. En RX es siempre nulo, porque recibir no radia.</div>
+       <div class="legi"><div class="hh"><span style="color:var(--warn)">★</span> Favoritos</div>Marca tus bandas habituales y fíltralas con el botón ★ de la cabecera.</div></div>`
+    : x.p.map(p=>`<p style="color:var(--fg2);font-size:14.5px;line-height:1.62;margin-bottom:12px">${p}</p>`).join("");
   povl.querySelector(".sheet").innerHTML=`
     <div class="grab"></div>
     <div class="sh-h" style="--c:${x.c}">
@@ -1580,7 +1581,7 @@ $("#keys").addEventListener("click",e=>{
       <div class="kicker" style="color:${x.c}">${x.k}</div>
       <h2>${esc(x.t)}</h2>
     </div>
-    <div class="sh-b">${x.p.map(p=>`<p style="color:var(--fg2);font-size:14.5px;line-height:1.62;margin-bottom:12px">${p}</p>`).join("")}</div>`;
+    <div class="sh-b">${cuerpo}</div>`;
   povl.classList.add("on"); document.body.style.overflow="hidden"; povlOpened=Date.now();
   povl.querySelector("#kx").onclick=closeProfile;
 });
@@ -1798,6 +1799,7 @@ paintProfileBtn();
 
 
 function paintStats(){
+  const st=$("#stats"); if(st) st.hidden = UC!==null;
   const ch=D.reduce((a,b)=>a+(b.canales?b.canales.length:0),0);
   const puedo=D.filter(b=>fverdict(b).k==="ok").length;
   const esc0=D.filter(b=>b.rx.s===0).length;
@@ -1849,7 +1851,7 @@ ucmenu.addEventListener("click",e=>{
   const i=+b.dataset.uc;
   UC = i<0 ? null : i;
   if(UC!==null){ F={tx:"all",rx:"all",me:"all",rf:"all",cat:"all"}; Q=""; syncChips(); }
-  ucOpen(false); paintUcBtn(); paintQbar(); render();
+  ucOpen(false); paintUcBtn(); paintQbar(); paintStats(); render();
   const u=UC!==null?USECASES[UC]:null;
   const vuelo=!!(u && u.vuelo);
   $("#uas-sec").hidden = !vuelo;                      // el planificador solo aparece si vas a volar
@@ -1864,7 +1866,7 @@ document.addEventListener("keydown",e=>{ if(e.key==="Escape" && !ucmenu.hidden) 
 /* Preparar un vuelo es una tarea en sí: se apartan los bloques de
    consulta general para no mezclarlos con el planificador. */
 function modoVuelo(on){
-  ["lookup-sec","spec-sec","sos-sec"].forEach(id=>{ const el=$("#"+id); if(el) el.hidden=on; });
+  ["spec-sec","sos-sec"].forEach(id=>{ const el=$("#"+id); if(el) el.hidden=on; });
 }
 
 /* Accesos rápidos: las mismas situaciones, a un toque desde la cabecera */
@@ -1878,7 +1880,7 @@ qbar.addEventListener("click",e=>{
   const i=+b.dataset.q;
   UC = i<0 ? null : i;
   if(UC!==null){ F={tx:"all",rx:"all",me:"all",rf:"all",cat:"all"}; Q=""; syncChips(); }
-  paintUcBtn(); paintQbar(); render();
+  paintUcBtn(); paintQbar(); paintStats(); render();
   const u=UC!==null?USECASES[UC]:null;
   const vuelo=!!(u && u.vuelo);
   $("#uas-sec").hidden = !vuelo;
@@ -2041,7 +2043,7 @@ function render(){
   const uc=UC!==null?USECASES[UC]:null;
   const col=(k,tit,items,icon)=>`<div class="bcol" style="--c:${k}"><div class="bh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">${icon}</svg>${tit}</div>${
     items.map(it=>`<div class="bi"><b>${esc(it[0])}</b>${it.length>2?`<span class="bf">${esc(it[1])}</span><span>${esc(it[2])}</span>`:`<span>${esc(it[1])}</span>`}</div>`).join("")}</div>`;
-  const brief=uc&&uc.brief?`<section class="brief">
+  const brief=(uc&&uc.brief&&!uc.vuelo)?`<section class="brief">
       <h3>${esc(uc.brief.tit)}</h3>
       <p class="bsub">${uc.brief.sub}</p>
       <div class="bcols">
