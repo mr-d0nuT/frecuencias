@@ -713,6 +713,16 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
 .ucsearch{position:relative;padding:4px 4px 8px;border-bottom:1px solid var(--line);margin-bottom:5px}
 .ucsearch input{width:100%;height:36px;padding:0 12px;border-radius:8px;border:1px solid var(--line);background:var(--srf);color:var(--fg);font-size:15px;outline:none}
 .ucsearch input:focus{border-color:var(--acc)}
+
+/* ── facetas agrupadas por naturaleza ── */
+.fgroup{display:flex;align-items:center;gap:5px;padding:4px;border-radius:11px;border:1px solid transparent;transition:.15s}
+.fgroup.g-mia{background:color-mix(in srgb,var(--acc) 8%,transparent);border-color:color-mix(in srgb,var(--acc) 26%,transparent)}
+.fgroup.g-reg{background:color-mix(in srgb,var(--info) 7%,transparent);border-color:color-mix(in srgb,var(--info) 24%,transparent)}
+.fgroup.g-amb{background:var(--srf2);border-color:var(--line)}
+.fgroup.act{box-shadow:0 0 0 1px color-mix(in srgb,var(--fg3) 22%,transparent)}
+.fgroup .fcb{background:var(--bg-e)}
+.fgroup.g-amb .fcb{background:var(--srf)}
+@media (max-width:900px){ .fc-in{gap:6px} .fgroup{gap:4px} }
 @media print{
   .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
   body{background:#fff;color:#000;font-size:10pt}
@@ -1884,14 +1894,24 @@ const FACETS=[
  {f:"cat", lab:"Servicio", opts:[["all","Todos"]].concat(cats.map(c=>[c,c]))}
 ];
 const fcIn=$("#facets .fc-in");
+const FGROUPS=[
+  { g:"mia",  ids:["me"] },
+  { g:"reg",  ids:["tx","rx"] },
+  { g:"amb",  ids:["rf","cat"] }
+];
+function facetBtn(fa){
+  const v=F[fa.f], act=v!=="all";
+  const txt=(fa.opts.find(o=>o[0]===v)||["","—"])[1];
+  const c=act&&fa.col?fa.col[v]:null;
+  return `<div class="fc ${act?"on":""}" data-fc="${fa.f}" ${c?`style="--c:${c}"`:""}>
+    <button class="fcb"><span class="lab">${esc(fa.lab)}</span><span class="val">${esc(txt)}</span><span class="car">▼</span></button></div>`;
+}
 function paintFacets(){
   const n=Object.values(F).filter(v=>v!=="all").length;
-  fcIn.innerHTML=FACETS.map(fa=>{
-    const v=F[fa.f], act=v!=="all";
-    const txt=(fa.opts.find(o=>o[0]===v)||["","—"])[1];
-    const c=act&&fa.col?fa.col[v]:null;
-    return `<div class="fc ${act?"on":""}" data-fc="${fa.f}" ${c?`style="--c:${c}"`:""}>
-      <button class="fcb"><span class="lab">${esc(fa.lab)}</span><span class="val">${esc(txt)}</span><span class="car">▼</span></button></div>`;
+  fcIn.innerHTML=FGROUPS.map(g=>{
+    const inner=g.ids.map(id=>facetBtn(FACETS.find(f=>f.f===id))).join("");
+    const activo=g.ids.some(id=>F[id]!=="all");
+    return `<div class="fgroup g-${g.g} ${activo?"act":""}">${inner}</div>`;
   }).join("")+
   `<span class="fc-count" id="cnt"></span>${n?`<button class="fc-clear" id="fclear3">Limpiar ${n}</button>`:""}`;
   const c=$("#cnt"); if(c) c.textContent=lastCount;
