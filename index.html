@@ -727,10 +727,6 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
 .sl-r{font-family:var(--f-mono);font-size:10.5px;color:var(--fg3);white-space:nowrap}
 
 /* ── socorro: compacto y legible de un vistazo ── */
-.sos{padding:var(--s4)}
-.sos-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:11px}
-.sos-h h3{font-size:14.5px;flex:none}
-.sos-h p{font-size:12.3px;color:var(--fg2);margin:0;flex:1;min-width:200px;line-height:1.45}
 .sosg{display:grid;grid-template-columns:repeat(auto-fill,minmax(138px,1fr));gap:6px}
 .sosi{display:flex;align-items:baseline;justify-content:center;gap:5px;flex-wrap:wrap;text-align:center;padding:9px;border-radius:9px;background:color-mix(in srgb,var(--bad) 7%,transparent);border:1px solid color-mix(in srgb,var(--bad) 22%,transparent)}
 .sosi .se{font-size:12px;line-height:1;flex:none}
@@ -741,6 +737,19 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
 
 .lkbox{margin-top:10px;padding-top:11px;border-top:1px solid var(--line)}
 .ad-alt{font-family:var(--f-mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--fg3);margin:16px 0 8px}
+
+/* ── frecuencia junto al título del espectro ── */
+.spec-h{align-items:center}
+.lkinline{display:flex;align-items:center;gap:7px;flex:1;min-width:0;margin-left:6px}
+.lkl{font-family:var(--f-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--fg3);white-space:nowrap}
+.lkinline input{width:120px;height:32px;padding:0 9px;border-radius:8px;border:1px solid var(--line);background:var(--bg-e);color:var(--fg);font-family:var(--f-mono);font-size:14px;outline:none}
+.lkinline input:focus{border-color:var(--acc)}
+.lkinline select{height:32px;padding:0 6px;border-radius:8px;border:1px solid var(--line);background:var(--bg-e);color:var(--fg);font-size:12.5px;outline:none}
+#lkres{margin-top:10px}
+@media (max-width:640px){ .lkinline{order:3;flex:1 1 100%;margin:8px 0 0} .lkl{display:none} .lkinline input{flex:1;width:auto} }
+/* ── socorro plegable ── */
+.sos{padding:0}
+.sosbody{padding:0 var(--s4) var(--s4)}
 @media print{
   .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
   body{background:#fff;color:#000;font-size:10pt}
@@ -872,6 +881,8 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
     <div class="card spec">
       <div class="spec-h">
         <span class="kicker">Explorar el espectro</span>
+        <div class="lkinline"><span class="lkl">o escribe una frecuencia</span><input id="fq" type="text" inputmode="decimal" placeholder="446,09375" aria-label="Frecuencia">
+        <select id="fu" aria-label="Unidad"><option value="1">MHz</option><option value="0.001">kHz</option><option value="1000">GHz</option></select></div>
         <div class="tog" id="mode" role="group" aria-label="Modo de color del espectro">
           <button data-m="tx" class="on">TX</button><button data-m="rx">RX</button>
         </div>
@@ -883,23 +894,19 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
       </div></div>
       <div class="speclens" id="speclens"><span class="sl-hint">Pasa el cursor —o arrastra el dedo— por el espectro</span></div>
       <div class="scrollhint">← desliza para recorrer el espectro →</div>
-      <div class="lkbox">
-      <div class="lk-row">
-        <span class="kicker">O escribe una frecuencia</span>
-        <input id="fq" type="text" inputmode="decimal" placeholder="446,09375" aria-label="Frecuencia">
-        <select id="fu" aria-label="Unidad"><option value="1">MHz</option><option value="0.001">kHz</option><option value="1000">GHz</option></select>
-        
-      </div>
       <div class="lkres" id="lkres"></div>
-      </div>
     </div>
   </section>
 
   <section class="sec" id="sos-sec">
-    <article class="card sos">
-      <div class="sos-h"><h3>Frecuencias de socorro</h3><p>Escucharlas es legal. Emitir fuera de una emergencia real moviliza medios de rescate y se sanciona con severidad.</p></div>
-      <div class="sosg" id="sosg"></div>
-    </article>
+    <details class="card sos">
+      <summary class="uas-sum">
+        <span class="uas-ico">🆘</span>
+        <span class="uas-tt"><b>Frecuencias de socorro</b><span>Escucharlas es legal. Emitir fuera de una emergencia real moviliza medios de rescate y se sanciona con severidad.</span></span>
+        <svg class="caret" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+      </summary>
+      <div class="sosbody"><div class="sosg" id="sosg"></div></div>
+    </details>
   </section>
 
   <div class="facets" id="facets"><div class="wrap fc-in"></div></div>
@@ -2294,11 +2301,6 @@ fq.addEventListener("input",lookup); fu.addEventListener("change",lookup);
 /* ═══════════════ bloques estáticos ═══════════════ */
 $("#sosg").innerHTML=SOS.map(([e,f,u,l])=>
   `<div class="sosi" title="${esc(l)}"><span class="se">${e}</span><span class="sf">${f}${u?`<u>${u}</u>`:""}</span><span class="sl">${esc(l)}</span></div>`).join("");
-$("#legg").innerHTML=LEGEND.map(([k,t,c,d])=>
- `<div class="legi"><div class="hh"><span class="stt" style="--c:${c}"><i class="g"></i>${k} · ${t}</span></div>${d}</div>`).join("")
- +`<div class="legi"><div class="hh"><span style="display:flex;gap:3px">${[0,1,2,3].map(i=>`<i style="width:13px;height:3px;border-radius:2px;display:block;background:${RISK[i].c}"></i>`).join("")}</span>Escala de riesgo</div>Daño real que causa una emisión indebida: nulo → molesto → bloquea un servicio → compromete vidas. En RX es siempre nulo, porque recibir no radia.</div>`
- +`<div class="legi"><div class="hh"><span style="color:var(--warn)">★</span> Favoritos</div>Marca tus bandas habituales y fíltralas con el botón ★ de la cabecera. Se guardan en este navegador.</div>`;
-
 /* ═══════════════ tema ═══════════════ */
 const saved=LS.get("espectro:theme",null);
 if(saved)document.documentElement.dataset.theme=saved;
