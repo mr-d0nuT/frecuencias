@@ -859,7 +859,7 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
 .me-cfg{flex:none;white-space:nowrap}
 .me-cfg .ico{display:none}
 @media (max-width:640px){
-  .me-h .pfx{display:none}
+  .me-cfg .btxt{display:none}
   .me-cfg .ico{display:inline;font-size:13px}
   .me-v{font-size:10.5px}
   .me-h{gap:6px}
@@ -916,6 +916,16 @@ footer .end{margin-top:var(--s3);padding-top:var(--s3)}
 .uas-body .c-nt{margin-top:10px}
 #uas-sec{margin-bottom:6px}
 .uas-body{padding-bottom:9px!important}
+
+/* ── marco del bloque ligado al perfil ── */
+.me-box{position:relative;border:1px solid color-mix(in srgb,var(--acc) 30%,var(--line));border-radius:var(--r3);background:color-mix(in srgb,var(--acc) 4%,transparent);padding:15px 11px 11px;margin:2px 0 0}
+.me-box.vacia{border-color:color-mix(in srgb,var(--warn) 32%,var(--line));background:color-mix(in srgb,var(--warn) 4%,transparent)}
+.me-lg{position:absolute;top:-7px;left:50%;transform:translateX(-50%);padding:0 8px;background:var(--bg);font-family:var(--f-mono);font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--acc);font-weight:700;white-space:nowrap}
+.me-box.vacia .me-lg{color:var(--warn)}
+.me-box .me-h{margin-bottom:8px}
+/* ── el briefing es contenido general, no calculado con el perfil ── */
+.brief-k{display:block;font-family:var(--f-mono);font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--fg3);margin-bottom:5px}
+@media (max-width:520px){ .brief-k{font-size:8.8px;letter-spacing:.1em} }
 @media print{
   .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
   body{background:#fff;color:#000;font-size:10pt}
@@ -2136,15 +2146,17 @@ function paintMe(){
   const n={}; ME.forEach(m=>n[m.v]=D.filter(m.f).length);
   const sinPerfil=!hasProfile();
   el.innerHTML=
-    `<div class="me-h">${sinPerfil
-        ? `<span class="me-t vacio">Perfil vacío</span><span class="me-sep">—</span><button class="me-cfg" id="meCfg">Rellena tu perfil</button>`
-        : `<span class="me-t pfx">Perfil</span><span class="me-sep pfx">—</span><span class="me-v" title="${esc(perfilDetalle())}">${esc(perfilDetalle())}</span><button class="me-cfg" id="meCfg" title="Cambiar perfil"><span class="pfx">Cambiar</span><span class="ico">✎</span></button>`}</div>
+    `<div class="me-box ${sinPerfil?"vacia":""}">
+     <span class="me-lg">Según tu perfil</span>
+     <div class="me-h">${sinPerfil
+        ? `<span class="me-t vacio">Sin licencias ni equipo declarados</span><span class="me-sep">—</span><button class="me-cfg" id="meCfg">Rellena tu perfil</button>`
+        : `<span class="me-v" title="${esc(perfilDetalle())}">${esc(perfilDetalle())}</span><button class="me-cfg" id="meCfg" title="Cambiar perfil"><span class="btxt">Cambiar</span><span class="ico">✎</span></button>`}</div>
      <div class="me-tiles">
        <button class="me-tile ${F.me==="all"?"on":""}" data-me="all"><span class="mn">${D.length}</span><span class="ml">Todas las bandas</span></button>
        ${ME.map(m=>`<button class="me-tile ${F.me===m.v?"on":""}" data-me="${m.v}" style="--c:${m.c}">
           <span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round">${m.i}</svg></span>
           <span class="mn">${n[m.v]}</span><span class="ml">${m.t}</span></button>`).join("")}
-     </div>`;
+     </div></div>`;
   el.querySelectorAll("[data-me]").forEach(b=>b.addEventListener("click",()=>{
     F.me=b.dataset.me; syncChips(); paintMe(); paintFacets(); render();
   }));
@@ -2252,6 +2264,7 @@ function render(){
   const col=(k,tit,items,icon)=>`<div class="bcol" style="--c:${k}"><div class="bh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">${icon}</svg>${tit}</div>${
     items.map(it=>`<div class="bi"><b>${esc(it[0])}</b>${it.length>2?`<span class="bf">${esc(it[1])}</span><span>${esc(it[2])}</span>`:`<span>${esc(it[1])}</span>`}</div>`).join("")}</div>`;
   const brief=(uc&&uc.brief&&!uc.vuelo)?`<section class="brief">
+      <span class="brief-k">Requisitos de esta situación · iguales para todo el mundo</span>
       <h3>${esc(uc.brief.tit)}</h3>
       <p class="bsub">${uc.brief.sub}</p>
       <div class="bcols">
