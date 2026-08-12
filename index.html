@@ -657,6 +657,16 @@ details.svc .grid{padding-top:2px}
 .adhead{margin-bottom:8px}
 .adhead .dn b{font-size:15px}
 .cnote2{font-size:11.5px;color:var(--fg3);line-height:1.45;margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
+
+.fchip.em{background:color-mix(in srgb,var(--bad) 12%,transparent);border-color:color-mix(in srgb,var(--bad) 34%,transparent)}
+.fchip.em b{color:var(--bad)}
+.fchip u{text-decoration:none;font-family:var(--f-mono);font-size:9.5px;color:var(--fg3);margin-left:3px}
+.addet{margin-top:10px}
+.addet>summary{list-style:none;cursor:pointer;font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--fg3);padding:7px 0}
+.addet>summary::-webkit-details-marker{display:none}
+.addet>summary:hover{color:var(--acc)}
+.addet>summary::before{content:"▸ "}
+.addet[open]>summary::before{content:"▾ "}
 @media print{
   .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
   body{background:#fff;color:#000;font-size:10pt}
@@ -2581,7 +2591,7 @@ const AD_CACHE = "espectro:aip:", AD_TTL = 7 * 864e5, AD_TIMEOUT = 25000;
 const esHeli = c => /(^|\/)AD3\//.test((AD[c] && AD[c].u) || "");
 const adCodes = Object.keys(AD).sort((a, b) => AD[a].n.localeCompare(AD[b].n, "es"));
 const opt = c => `<option value="${c}">${esc(AD[c].n)} · ${c}</option>`;
-adSel.innerHTML =
+adSel.innerHTML = `<option value="">Elige un aeródromo o helipuerto…</option>` +
   `<optgroup label="Aeropuertos y aeródromos con frecuencia publicada">${adCodes.filter(c => !esHeli(c)).map(opt).join("")}</optgroup>` +
   `<optgroup label="Helipuertos con servicio ATS (solo 10 en toda España)">${adCodes.filter(esHeli).map(opt).join("")}</optgroup>`;
 
@@ -2630,20 +2640,25 @@ function adStatus(kind, txt) {
     (u ? ` · <a href="${AIP_BASE + u}" target="_blank" rel="noopener">ver PDF oficial</a>` : "");
 }
 function adContact(code) {
-  const a = AD[code], live = cacheGet(code), c = (live && live.c) || a.c || {};
+  const a = AD[code]; if (!a) return "";
+  const live = cacheGet(code), c = (live && live.c) || a.c || {};
   const fr = adBest(code).f || [];
-  const util = f => !/EMERG/i.test((f.r||"")+(f.s||"")) && f.m !== 121.5 && f.m !== 243;
-  const row = re => fr.find(f => util(f) && re.test((f.s||"").trim()));
-  const voz = row(/^TWR$/i)||row(/^(APP\/TWR|TWR\/APP)$/i)||row(/^AFIS$/i)||row(/^(A\/G|RADIO|INFO)/i)||row(/^APP$/i)||row(/TWR/i);
-  const atis = fr.find(f => /^ATIS$/i.test((f.s||"").trim()));
-  const et = voz ? (/TWR/i.test(voz.s)?"Torre":/AFIS/i.test(voz.s)?"AFIS":/APP/i.test(voz.s)?"Aprox.":(voz.s||"Voz")) : "";
   const tel = (c.tel||[]).slice(0,2).map(t=>`<a class="dchip tel" href="tel:${t.replace(/[^\d+]/g,"")}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6.5 3.5h3l1.5 4-2 1.5a12 12 0 006 6l1.5-2 4 1.5v3a2 2 0 01-2.2 2A17.5 17.5 0 014.5 5.7 2 2 0 016.5 3.5z"/></svg>${esc(t)}</a>`).join("");
-  const mail = (c.email||[]).slice(0,1).map(e=>`<a class="dchip" href="mailto:${esc(e)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6 8.5-6"/></svg>${esc(e)}</a>`).join("");
+  const mail = (c.email||[]).slice(0,2).map(e=>`<a class="dchip" href="mailto:${esc(e)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6 8.5-6"/></svg>${esc(e)}</a>`).join("");
   const mapa = a.p ? `<a class="dchip" href="https://www.google.com/maps?q=${a.p[0]},${a.p[1]}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 21s7-6.3 7-11a7 7 0 10-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>${a.p[0]}, ${a.p[1]}</a>` : "";
+  // todas las frecuencias como fichas; las de emergencia, marcadas
+  const ORD=[/^TWR$/i,/^(APP\/TWR|TWR\/APP)$/i,/^ATIS$/i,/^APP$/i,/^(GMC|GND)$/i,/^AFIS$/i,/^(A\/G|RADIO|INFO)/i];
+  const key=[], rest=[];
+  fr.forEach(x=>{ const i=ORD.findIndex(re=>re.test((x.s||"").trim())); (i>=0?key:rest).push({...x,o:i<0?99:i}); });
+  key.sort((a,b)=>a.o-b.o||a.m-b.m); rest.sort((a,b)=>a.m-b.m);
+  const chips = key.concat(rest).map(x=>{
+    const em = /EMERG/i.test((x.r||"")+(x.s||"")) || x.m===121.5 || x.m===243;
+    return `<span class="fchip ${em?"em":""}" title="${esc([x.c,x.r].filter(Boolean).join(" · "))}"><i>${esc((x.s||"·").replace(/^APP\/TWR$/,"TWR"))}</i><b>${fdec(x.m)}</b>${x.h?`<u>ch ${fdec(x.h)}</u>`:""}</span>`;
+  }).join("");
   const sub = [code, esHeli(code)?"helipuerto":null, c.aftn?"AFTN "+esc(c.aftn):null].filter(Boolean).join(" · ");
   return `<div class="dcard2 adhead">
     <div class="dhead2"><span class="dn"><b>${esc(a.n)}</b><span>${sub}</span></span></div>
-    ${(voz||atis)?`<div class="fchips">${voz?`<span class="fchip"><i>${esc(et)}</i><b>${fdec(voz.m)}</b></span>`:""}${atis?`<span class="fchip"><i>ATIS</i><b>${fdec(atis.m)}</b></span>`:""}</div>`:""}
+    ${chips?`<div class="fchips">${chips}</div>`:`<div class="hint2" style="margin:8px 0 0">El AIP no publica frecuencias para este aeródromo.</div>`}
     ${(tel||mail||mapa)?`<div class="dchips">${tel}${mail}${mapa}</div>`:""}
     ${tel?`<div class="cnote2">El teléfono es el que el AIP publica para el aeródromo, normalmente el gestor o la oficina de coordinación, no el directo de la torre.</div>`:""}
   </div>`;
@@ -2654,9 +2669,20 @@ function adStatus(kind, txt) {
   adState.innerHTML = `<span class="pipdot" style="--c:${col}"></span>${txt}` +
     (u ? ` · <a href="${AIP_BASE + u}" target="_blank" rel="noopener">ver PDF oficial</a>` : "");
 }
+function adStatus(kind, txt) {
+  const col = { live: "var(--ok)", snap: "var(--warn)", err: "var(--bad)", load: "var(--info)" }[kind] || "var(--fg3)";
+  const u = AD[adSel.value] && AD[adSel.value].u;
+  adState.innerHTML = `<span class="pipdot" style="--c:${col}"></span>${txt}` +
+    (u ? ` · <a href="${AIP_BASE + u}" target="_blank" rel="noopener">ver PDF oficial</a>` : "");
+}
 function adRender(code) {
+  if (!code || !AD[code]) {
+    adOut.innerHTML = `<p class="hint2" style="margin:0">Elige un aeródromo o helipuerto y verás sus frecuencias, su contacto y su emplazamiento, leídos del AIP.</p>`;
+    adState.innerHTML = ""; adSpin(false); return;
+  }
   const b = adBest(code);
-  adOut.innerHTML = adContact(code) + adTable(b.f);
+  adOut.innerHTML = adContact(code) +
+    (b.f && b.f.length ? `<details class="addet"><summary>Ver indicativos, horarios y notas</summary>${adTable(b.f)}</details>` : "");
   try{ paintUas(); }catch{}
   if (b.src === "live") {
     const mins = Math.round((Date.now() - b.t) / 60000);
@@ -2727,7 +2753,7 @@ async function adFetchLive(code, manual) {
   }
 }
 function adSelect(code, manual) {
-  if (!AD[code]) code = "LERS";
+  if (!code || !AD[code]) { adSel.value = ""; adRender(""); try { localStorage.removeItem("espectro:ad"); } catch {} return; }
   adSel.value = code;
   try { localStorage.setItem("espectro:ad", code); } catch {}
   adRender(code);
@@ -2737,7 +2763,7 @@ function adSelect(code, manual) {
 }
 adSel.addEventListener("change", () => adSelect(adSel.value, false));
 adBtn.addEventListener("click", () => adSelect(adSel.value, true));
-let adStart = "LERS";
+let adStart = "";
 try { const v = localStorage.getItem("espectro:ad"); if (v && AD[v]) adStart = v; } catch {}
 adSelect(adStart, false);
 
