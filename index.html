@@ -82,12 +82,12 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;-webki
 .ib svg{width:17px;height:17px}
 
 /* ════════════════ HERO ════════════════ */
-.hero{padding:var(--s4) 0 var(--s3);max-width:74ch}
+.hero{padding:var(--s3) 0 var(--s3);max-width:74ch}
 .hero h1{font-size:clamp(27px,5.4vw,42px);letter-spacing:-.04em;line-height:1.05;margin:0 0 12px}
 .hero h1 .g{background:linear-gradient(96deg,var(--acc),var(--info));-webkit-background-clip:text;background-clip:text;color:transparent}
 .hero .lede{color:var(--fg2);font-size:clamp(15px,3.4vw,17px);line-height:1.6}
 .hero .lede b{color:var(--fg);font-weight:600}
-.stats{display:flex;flex-wrap:wrap;gap:var(--s5);margin-top:var(--s3);padding-top:var(--s3);border-top:1px solid var(--line)}
+.stats{display:flex;flex-wrap:wrap;gap:var(--s5);margin-top:0;padding-top:0;border-top:0}
 .stat .n{font-size:21px;font-weight:660;letter-spacing:-.03em;line-height:1.1}
 .stat .l{font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--fg3);margin-top:2px}
 
@@ -793,6 +793,33 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
   .qb{width:27px;height:27px;font-size:15px}
   .qb.all{padding:0 5px;font-size:9.5px}
 }
+
+/* ── marca y título en la cabecera ── */
+.brand{gap:7px;min-width:0}
+.brand .bn{font-weight:700;font-size:15px;letter-spacing:-.03em;flex:none}
+.brand .bsep{color:var(--fg3);font-weight:400;flex:none}
+.brand .bt{font-size:13px;font-weight:600;letter-spacing:-.02em;color:var(--fg);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.brand .bflag{font-size:1.05em;line-height:1;margin-left:2px;vertical-align:-1px}
+@media (max-width:760px){
+  .brand{flex:1;min-width:0;gap:5px}
+  .brand .bn{font-size:12.5px}
+  .brand .bsep{font-size:11px}
+  .brand .bt{font-size:10.5px}
+  .brand .mark{width:17px;height:17px}
+  .hbtns{gap:3px}
+  .hbtns .ib,.hbtns .pbtn{height:30px;min-width:30px;border-radius:8px}
+  .hbtns .ib svg{width:15px;height:15px}
+}
+@media (max-width:430px){
+  .brand{gap:4px}
+  .brand .mark{width:16px;height:16px}
+  .brand .bn{font-size:11.5px}
+  .brand .bsep{font-size:10px;margin:0 -1px}
+  .brand .bt{font-size:9.5px}
+  .hbtns{gap:2px}
+  .hbtns .ib,.hbtns .pbtn{height:28px;min-width:28px}
+  .hbtns .ib svg{width:14px;height:14px}
+}
 @media print{
   .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
   body{background:#fff;color:#000;font-size:10pt}
@@ -805,13 +832,13 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
 
 <header class="hdr">
   <div class="wrap hdr-in">
-    <div class="brand" title="Espectro·ES" aria-label="Espectro·ES">
+    <div class="brand" aria-label="Espectro · Frecuencias de radio en España">
       <svg class="mark" viewBox="0 0 32 32" fill="none" aria-hidden="true">
         <circle cx="16" cy="16" r="4.4" fill="var(--acc)"/>
         <path d="M9.4 9.4a9.3 9.3 0 000 13.2M22.6 9.4a9.3 9.3 0 010 13.2" stroke="var(--acc)" stroke-width="2" stroke-linecap="round" opacity=".5"/>
         <path d="M5.6 5.6a14.7 14.7 0 000 20.8M26.4 5.6a14.7 14.7 0 010 20.8" stroke="var(--acc)" stroke-width="1.7" stroke-linecap="round" opacity=".22"/>
       </svg>
-      Espectro<small>·ES</small>
+      <b class="bn">Espectro</b><span class="bsep">—</span><span class="bt">Frecuencias de radio <span class="bflag" role="img" aria-label="España">🇪🇸</span></span>
     </div>
     <div class="wrap qb-in" id="qbar"></div>
     <div class="hsearch" id="hsearch" hidden>
@@ -837,7 +864,6 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
 <main class="wrap" id="top">
 
   <section class="hero">
-    <h1>Frecuencias de radio en <span class="g">España</span></h1>
     <div class="stats" id="stats"></div>
     <div class="keys" id="keys"></div>
   </section>
