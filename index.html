@@ -936,6 +936,11 @@ footer .end{margin-top:var(--s3);padding-top:var(--s3)}
 .rq.no{color:var(--warn);background:color-mix(in srgb,var(--warn) 13%,transparent);border:1px solid color-mix(in srgb,var(--warn) 30%,transparent)}
 .rq.na{color:var(--fg3);background:color-mix(in srgb,var(--fg3) 10%,transparent);border:1px solid var(--line)}
 .bh-n{margin-left:auto;font-size:9px;letter-spacing:.06em;color:var(--fg3);font-weight:600;text-transform:none}
+
+/* ── el porqué del veredicto personal, en la propia tarjeta ── */
+.rtr.me{flex-wrap:wrap;row-gap:0}
+.mewhy{flex:1 1 100%;font-style:normal;font-size:11.6px;line-height:1.5;color:var(--fg2);padding:3px 0 2px 28px;letter-spacing:-.005em}
+@media (max-width:520px){ .mewhy{font-size:11.2px;padding-left:0;padding-top:4px} }
 @media print{
   .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
   body{background:#fff;color:#000;font-size:10pt}
@@ -1819,17 +1824,21 @@ const hasProfile = () => PROFILE.size > 0 || MYEQ !== "none";
 
 /* Veredicto personal para una banda concreta */
 function verdict(b) {
-  if (b.tx.s === 0) return { k: "ok", t: "TX libre", d: "Banda de uso común: no exige ninguna licencia." };
+  if (b.tx.s === 0) return { k: "ok", t: "TX libre", d: "Banda de uso común: sin licencia, sin tasas y sin examen. Solo hay que respetar la potencia, el tipo de antena y el modo que fija el CNAF." };
   const req = b.tx.req || [];
   if (!req.length || req.includes("estado"))
-    return { k: "never", t: "TX prohibida", d: "Espectro reservado a operadores o a servicios del Estado. Ningún particular puede emitir aquí." };
+    return { k: "never", t: "TX prohibida", d: "Aunque tu equipo llegue a esta banda, no hay forma legal de emitir en ella: está reservada a operadores o a servicios del Estado. No existe licencia que un particular pueda pedir para usarla." };
   const missing = req.filter(r => !PROFILE.has(r));
   if (!missing.length)
-    return { k: "ok", t: "TX habilitada con tu licencia", d: "Tienes todo lo que esta banda exige. Recuerda respetar potencia, canalización y modo." };
+    return { k: "ok", t: "TX habilitada con tu licencia", d: "Tienes todo lo que esta banda exige por tu perfil. Sigue siendo tuya la responsabilidad de respetar potencia, canalización y modo." };
   const names = missing.map(r => CRED[r] ? CRED[r].s : r);
   if (missing.length < req.length)
-    return { k: "partial", t: "Te falta: " + names.join(" y "), d: "Es un permiso administrativo, distinto de tener el equipo: hay que solicitarlo. Sin él la emisión no es legal aunque la emisora cumpla.", missing };
-  return { k: "no", t: "Necesitas: " + names.join(" y "), d: "No consta en tu perfil ninguna habilitación para esta banda.", missing };
+    return { k: "partial", t: "Te falta: " + names.join(" y "),
+      d: "El obstáculo no es el equipo, es el papel: se trata de un permiso administrativo que hay que solicitar. Aunque la emisora cumpla y sintonice la banda, emitir sin él es una infracción.",
+      dl: "Por papeles te falta " + names.join(" y ") + ": es un permiso administrativo que hay que solicitar, y sin él la emisión no es legal.", missing };
+  return { k: "no", t: "Necesitas: " + names.join(" y "),
+    d: "No consta en tu perfil ninguna habilitación para esta banda. Tu emisora podrá transmitir ahí, pero hasta obtenerla la emisión no es legal.",
+    dl: "Por papeles, esta banda exige " + names.join(" y ") + ", y no consta en tu perfil.", missing };
 }
 const VK = { ok: "var(--ok)", partial: "var(--warn)", no: "var(--info)", never: "var(--bad)" };
 const VICON = {
@@ -1884,23 +1893,39 @@ const eqCur = () => EQ[MYEQ] || EQ.none;
 /* ¿Llega el equipo a esta banda? */
 const eqCovers = (q, b) => (q.tx || []).some(([a, z]) => z >= b.lo && a <= b.hi);
 
+/* Cifras en el texto: 0.5 → "500 mW", 12 → "12 W" */
+const potTxt = w => w >= 1 ? String(w).replace(".", ",") + " W" : Math.round(w * 1000) + " mW";
+const rangoTxt = (a, z) => a >= 1000 ? `${(a/1000).toString().replace(".",",")}–${(z/1000).toString().replace(".",",")} GHz`
+                                     : `${String(a).replace(".",",")}–${String(z).replace(".",",")} MHz`;
+const CERTN = { pmr446:"un equipo PMR446 homologado", ce:"marcado CE", etso:"una emisora aeronáutica homologada",
+                marino:"una emisora marítima homologada", baliza:"una baliza homologada COSPAS-SARSAT" };
+
 /* Veredicto del equipo para una banda */
 function eqVerdict(b) {
   const q = eqCur();
   if (q.skip) return null;
   if ((b.tx.req || []).includes("estado")) return null;
-  if (q.rxonly) return { k: "no", t: "Tu equipo solo recibe", d: "Un receptor, un escáner o un SDR no transmiten. Para emitir necesitas una emisora." };
+  if (q.rxonly) return { k: "no", t: "Tu equipo solo recibe",
+    d: "No es una cuestión legal: un escáner o un SDR no llevan transmisor, así que físicamente no pueden emitir. Escuchar esta banda sí lo tienes cubierto." };
   if (EQNA.has(b.id)) return null;
-  if (!eqCovers(q, b)) return { k: "no", t: "Tu equipo no llega a esta banda", d: `${q.t}: su margen de transmisión no cubre ${b.txt}.` };
+  if (!eqCovers(q, b)) return { k: "no", t: "Tu equipo no llega a esta banda",
+    d: `Tampoco es una cuestión legal: tu ${q.t} transmite en ${(q.tx||[]).map(([a,z])=>rangoTxt(a,z)).join(" y ")}, y esta banda está en ${b.txt.split("·")[0].trim()}. El equipo no alcanza a emitir aquí.` };
   const r = EQREQ[b.id]; if (!r) return { k: "ok", t: "Tu equipo sirve" };
-  const fail = [];
-  if (r.pwr && q.pwr > r.pwr + 1e-9) fail.push("potencia");
-  if (r.ant === "fija" && q.ant !== "fija") fail.push("antena fija");
-  if (r.cert && !(q.cert || []).includes(r.cert)) fail.push("homologación");
-  if (r.ch833 && !q.ch833) fail.push("canalización de 8,33 kHz");
-  if (r.modes && !r.modes.some(m => (q.modes || []).includes(m))) fail.push("modo de modulación");
-  if (!fail.length) return { k: "ok", t: "Tu equipo cumple" };
-  return { k: "no", t: "Tu equipo no cumple: " + fail.join(", "), d: `Esta banda exige ${r.w}. Estar en la frecuencia correcta no basta: si el equipo no cumple, el uso sigue siendo ilegal.` };
+  // Motivos concretos: la cifra que exige la banda frente a la que da tu equipo
+  const por = [];
+  if (r.pwr && q.pwr > r.pwr + 1e-9)
+    por.push(`el límite aquí es de ${potTxt(r.pwr)} y tu equipo llega a ${potTxt(q.pwr)}`);
+  if (r.ant === "fija" && q.ant !== "fija")
+    por.push(`la antena debe ser la integrada y no desmontable, y la tuya es ${q.ant}`);
+  if (r.cert && !(q.cert || []).includes(r.cert))
+    por.push(`exige ${CERTN[r.cert] || r.cert}, que tu equipo no acredita`);
+  if (r.ch833 && !q.ch833)
+    por.push("exige canalización de 8,33 kHz y tu equipo no la tiene");
+  if (r.modes && !r.modes.some(m => (q.modes || []).includes(m)))
+    por.push(`exige ${r.modes.join(" o ")} y tu equipo solo trabaja en ${(q.modes || []).join(", ")}`);
+  if (!por.length) return { k: "ok", t: "Tu equipo cumple" };
+  return { k: "no", t: "Tu equipo emite ahí, pero no sería legal",
+    d: `Técnicamente sí: tu equipo sintoniza esta banda y transmitiría. Legalmente no, porque ${por.join("; ")}. Estar en la frecuencia correcta no basta — con el equipo fuera de norma, emitir sigue siendo una infracción.` };
 }
 
 /* Veredicto final: manda el obstáculo más grave */
@@ -1911,7 +1936,10 @@ function fverdict(b) {
   if (!eq) return lic;
   if (lic.k === "ok" && eq.k === "ok") return { k: "ok", t: b.tx.s === 0 ? "TX libre" : "TX habilitada con tu equipo y licencia", d: lic.d };
   if (eq.k === "no" && lic.k === "ok") return { k: "eq", t: eq.t, d: eq.d };
-  if (eq.k === "no") { const et = eq.t.charAt(0).toLowerCase() + eq.t.slice(1); return { k: lic.k === "partial" ? "partial" : "no", t: lic.t + " · " + et, d: lic.d + " " + (eq.d || "") }; }
+  // Fallan los papeles y el equipo a la vez: se usa la versión neutral del
+  // motivo legal (lic.dl), porque lic.d da por buena una emisora que aquí no lo es
+  if (eq.k === "no") return { k: lic.k === "partial" ? "partial" : "no", t: lic.t,
+    d: (lic.dl || lic.d) + " " + (eq.d || ""), missing: lic.missing };
   return lic;
 }
 VK.eq = "var(--hot)";
@@ -2297,7 +2325,7 @@ function cardHTML(b){
     <span class="rt">
       <span class="rtr">${pill(b.rx,RXL)}<i class="rmini">no radia</i></span>
       <span class="rtr">${pill(b.tx,TXL,txLabel(b))}${vtag(b)}${b.tx.r?bars(b.tx.r):'<i class="rmini">sin riesgo</i>'}</span>
-      ${hasProfile()?(()=>{const v=fverdict(b);return `<span class="rtr me tap" data-perfil="1" style="--c:${VK[v.k]}"><i class="rtk">TÚ</i>${vBadge(v)}${v.k==="partial"||v.k==="no"?'<i class="edit">ajustar</i>':""}</span>`;})():""}
+      ${hasProfile()?(()=>{const v=fverdict(b);return `<span class="rtr me tap" data-perfil="1" style="--c:${VK[v.k]}"><i class="rtk">TÚ</i>${vBadge(v)}${v.k==="partial"||v.k==="no"?'<i class="edit">ajustar</i>':""}${v.d?`<i class="mewhy">${esc(v.d)}</i>`:""}</span>`;})():""}
     </span>
     <span class="foot"><span>${esc(b.pot.split("·")[0].trim())}</span><span>${esc(b.modo.split("·")[0].trim())}</span>${b.canales?`<span>${b.canales.length} canales</span>`:""}</span>
     <button class="fav ${FAV.has(b.id)?"on":""}" data-fav="${b.id}" aria-label="Marcar como favorito" aria-pressed="${FAV.has(b.id)}">
