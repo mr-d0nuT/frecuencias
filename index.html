@@ -109,14 +109,6 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;-webki
 .exp b{color:var(--fg);font-weight:600}
 
 /* casos de uso */
-.uc{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-.uc::-webkit-scrollbar{display:none}
-.ucb{flex:none;scroll-snap-align:start;display:flex;flex-direction:column;gap:5px;width:172px;padding:13px 14px;border:1px solid var(--line);border-radius:var(--r2);background:var(--srf);text-align:left;transition:.15s;box-shadow:var(--sh1)}
-.ucb:hover,.ucb:active{border-color:var(--acc);transform:translateY(-2px)}
-.ucb .e{font-size:17px;line-height:1}
-.ucb .t{font-size:13.2px;font-weight:580;line-height:1.32;letter-spacing:-.012em}
-.ucb .n{font-family:var(--f-mono);font-size:10px;color:var(--fg3);letter-spacing:.04em}
-.ucb.on{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 8%,var(--srf))}
 
 /* lookup */
 .lk{padding:var(--s4) var(--s5)}
@@ -465,6 +457,35 @@ footer .end{margin-top:var(--s5);padding-top:var(--s4);border-top:1px solid var(
 .cchip.tel:hover{filter:brightness(1.08);color:var(--acc-fg)}
 .cmeta{margin-top:10px;font-size:11.5px;color:var(--fg3);font-family:var(--f-mono);line-height:1.5}
 @media (max-width:760px){ .cchip{flex:1;justify-content:center;min-width:140px} }
+
+.cnote{display:flex;gap:8px;align-items:flex-start;margin-top:11px;padding-top:11px;border-top:1px solid color-mix(in srgb,var(--info) 22%,transparent);font-size:12.2px;color:var(--fg2);line-height:1.5}
+.cnote svg{width:13px;height:13px;flex:none;margin-top:2px;color:var(--warn)}
+.cnote b{color:var(--fg);font-weight:600}
+
+/* ── selector de situación ── */
+.ucsel{position:relative}
+.ucbtn{display:flex;align-items:center;gap:13px;width:100%;text-align:left;padding:14px 16px;border:1px solid var(--line);border-radius:var(--r3);background:var(--srf);box-shadow:var(--sh1);transition:.15s}
+.ucbtn:hover{border-color:var(--line2)}
+.ucbtn.on{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 7%,var(--srf))}
+.ucbtn .uce{font-size:24px;line-height:1;flex:none;width:34px;text-align:center}
+.ucbtn .uct{flex:1;min-width:0}
+.ucbtn .uct b{display:block;font-size:15.5px;font-weight:620;letter-spacing:-.024em;line-height:1.3}
+.ucbtn .uct span{display:block;font-size:12.6px;color:var(--fg2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ucbtn .caret{flex:none;color:var(--fg3);transition:transform .2s}
+.ucbtn[aria-expanded="true"] .caret{transform:rotate(180deg)}
+.ucmenu{position:absolute;z-index:55;left:0;right:0;top:calc(100% + 7px);background:var(--bg-e);border:1px solid var(--line2);border-radius:var(--r3);box-shadow:var(--sh3);padding:7px;max-height:min(62vh,520px);overflow-y:auto;overscroll-behavior:contain;animation:ucin .16s ease}
+@keyframes ucin{from{opacity:0;transform:translateY(-6px)}}
+.ucopt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:11px 12px;border-radius:var(--r2);transition:.12s;border:1px solid transparent}
+.ucopt:hover{background:var(--srf)}
+.ucopt.sel{background:color-mix(in srgb,var(--acc) 11%,transparent);border-color:color-mix(in srgb,var(--acc) 35%,transparent)}
+.ucopt .uce{font-size:20px;line-height:1;flex:none;width:30px;text-align:center}
+.ucopt .uco{flex:1;min-width:0}
+.ucopt .uco b{display:block;font-size:14px;font-weight:600;letter-spacing:-.018em;line-height:1.32}
+.ucopt .uco span{display:block;font-size:11.8px;color:var(--fg3);margin-top:3px;font-family:var(--f-mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ucopt .tick{flex:none;width:16px;height:16px;color:var(--acc);opacity:0}
+.ucopt.sel .tick{opacity:1}
+.ucsep{height:1px;background:var(--line);margin:6px 4px}
+@media (max-width:760px){ .ucmenu{position:fixed;left:10px;right:10px;top:auto;bottom:10px;max-height:70vh;padding-bottom:calc(7px + env(safe-area-inset-bottom))} }
 @media print{
   .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
   body{background:#fff;color:#000;font-size:10pt}
@@ -536,9 +557,12 @@ footer .end{margin-top:var(--s5);padding-top:var(--s4);border-top:1px solid var(
   <section class="sec">
     <div class="sec-h">
       <h2>¿Qué quieres hacer?</h2>
-      <span class="sub">Atajos a las bandas adecuadas para cada necesidad</span>
+      <span class="sub">Elige tu situación y la app te deja solo lo que te sirve</span>
     </div>
-    <div class="uc" id="uc"></div>
+    <div class="ucsel">
+      <button class="ucbtn" id="ucbtn" aria-haspopup="listbox" aria-expanded="false"></button>
+      <div class="ucmenu" id="ucmenu" role="listbox" hidden></div>
+    </div>
   </section>
 
   <section class="sec" id="aero-sec">
@@ -1446,16 +1470,43 @@ function paintStats(){
 $("#ver").textContent="Rev. "+new Date().getFullYear();
 
 /* ═══════════════ casos de uso ═══════════════ */
-$("#uc").innerHTML=USECASES.map((u,i)=>
- `<button class="ucb" data-uc="${i}"><span class="e">${u.e}</span><span class="t">${u.t}</span><span class="n">${u.ids.length} bandas</span></button>`).join("");
-$("#uc").addEventListener("click",e=>{
+const ucbtn=$("#ucbtn"), ucmenu=$("#ucmenu");
+const shortNom=id=>{const b=D.find(x=>x.id===id); return b?b.nom.split(" · ")[0].replace(/ \(.*$/,""):id;};
+const ucDesc=u=>u.ids.map(shortNom).join(" · ");
+const CARET='<svg class="caret" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>';
+const TICK='<svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg>';
+
+function paintUcBtn(){
+  const u=UC!==null?USECASES[UC]:null;
+  ucbtn.innerHTML=u
+    ? `<span class="uce">${u.e}</span><span class="uct"><b>${esc(u.t)}</b><span>${esc(ucDesc(u))}</span></span>${CARET}`
+    : `<span class="uce">🎯</span><span class="uct"><b>Elige tu situación</b><span>${USECASES.length} casos habituales, del monte al aeródromo</span></span>${CARET}`;
+  ucbtn.classList.toggle("on", UC!==null);
+}
+function paintUcMenu(){
+  ucmenu.innerHTML=
+    `<button class="ucopt ${UC===null?"sel":""}" data-uc="-1" role="option"><span class="uce">🎯</span><span class="uco"><b>Todas las bandas</b><span>sin filtrar · ${D.length} bandas</span></span>${TICK}</button>
+     <div class="ucsep"></div>`+
+    USECASES.map((u,i)=>`<button class="ucopt ${UC===i?"sel":""}" data-uc="${i}" role="option">
+       <span class="uce">${u.e}</span>
+       <span class="uco"><b>${esc(u.t)}</b><span>${esc(ucDesc(u))}</span></span>${TICK}</button>`).join("");
+}
+function ucOpen(v){
+  ucmenu.hidden=!v; ucbtn.setAttribute("aria-expanded",v?"true":"false");
+  if(v) paintUcMenu();
+}
+ucbtn.addEventListener("click",e=>{e.stopPropagation();ucOpen(ucmenu.hidden);});
+ucmenu.addEventListener("click",e=>{
   const b=e.target.closest("[data-uc]"); if(!b)return;
   const i=+b.dataset.uc;
-  if(UC===i){UC=null;} else {UC=i; F={tx:"all",rx:"all",me:"all",rf:"all",cat:"all"}; Q=""; $("#q").value=""; syncChips();}
-  $$(".ucb").forEach(x=>x.classList.toggle("on",+x.dataset.uc===UC));
-  render();
-  if(UC!==null)setTimeout(()=>$("#results").scrollIntoView({behavior:"smooth",block:"start"}),60);
+  UC = i<0 ? null : i;
+  if(UC!==null){ F={tx:"all",rx:"all",me:"all",rf:"all",cat:"all"}; Q=""; $("#q").value=""; syncChips(); }
+  ucOpen(false); paintUcBtn(); render();
+  if(UC!==null) setTimeout(()=>$("#results").scrollIntoView({behavior:"smooth",block:"start"}),60);
 });
+document.addEventListener("click",e=>{ if(!ucmenu.hidden && !ucmenu.contains(e.target) && e.target!==ucbtn) ucOpen(false); });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape" && !ucmenu.hidden) ucOpen(false); });
+paintUcBtn();
 
 /* ═══════════════ filtros ═══════════════ */
 const cats=[...new Set(D.map(b=>b.cat))].sort((a,b)=>ORDER.indexOf(a)-ORDER.indexOf(b));
@@ -1466,7 +1517,7 @@ function syncChips(){
 $("#fpanel").addEventListener("click",e=>{
   const c=e.target.closest(".ch"); if(!c)return;
   F[c.dataset.f]=c.dataset.v;
-  if(UC!==null){UC=null;$$(".ucb").forEach(x=>x.classList.remove("on"));}
+  if(UC!==null){UC=null;paintUcBtn();}
   syncChips(); render();
 });
 function activeCount(){return Object.values(F).filter(v=>v!=="all").length+(UC!==null?1:0)+(FAVONLY?1:0)}
@@ -1478,7 +1529,7 @@ const closeF=()=>{fpanel.classList.remove("open");fbk.classList.remove("on");if(
 $("#openf").addEventListener("click",openF);
 fbk.addEventListener("click",closeF);
 $("#fapply").addEventListener("click",closeF);
-$("#fclear2").addEventListener("click",()=>{F={tx:"all",rx:"all",me:"all",rf:"all",cat:"all"};UC=null;FAVONLY=false;$("#favbtn").classList.remove("on");$$(".ucb").forEach(x=>x.classList.remove("on"));syncChips();render()});
+$("#fclear2").addEventListener("click",()=>{F={tx:"all",rx:"all",me:"all",rf:"all",cat:"all"};UC=null;FAVONLY=false;$("#favbtn").classList.remove("on");paintUcBtn();syncChips();render()});
 const mq=window.matchMedia("(max-width:760px)");
 function applyMQ(){ $("#fapply").style.display=mq.matches?"block":"none"; if(!mq.matches)closeF(); }
 mq.addEventListener?.("change",applyMQ); applyMQ();
@@ -1560,8 +1611,8 @@ $("#results").addEventListener("keydown",e=>{
   const c=e.target.closest(".bc"); if(!c||e.target.closest("[data-fav]"))return;
   e.preventDefault(); openBand(c.dataset.id);
 });
-$("#q").addEventListener("input",e=>{Q=e.target.value.trim().toLowerCase();if(UC!==null){UC=null;$$(".ucb").forEach(x=>x.classList.remove("on"))}render()});
-$("#favbtn").addEventListener("click",e=>{FAVONLY=!FAVONLY;e.currentTarget.classList.toggle("on",FAVONLY);if(FAVONLY&&UC!==null){UC=null;$$(".ucb").forEach(x=>x.classList.remove("on"))}render()});
+$("#q").addEventListener("input",e=>{Q=e.target.value.trim().toLowerCase();if(UC!==null){UC=null;paintUcBtn();}render()});
+$("#favbtn").addEventListener("click",e=>{FAVONLY=!FAVONLY;e.currentTarget.classList.toggle("on",FAVONLY);if(FAVONLY&&UC!==null){UC=null;paintUcBtn();}render()});
 
 /* ═══════════════ ficha ═══════════════ */
 const ov=$("#ov"), sheet=$("#sheet");
@@ -2222,6 +2273,7 @@ function adContact(code) {
     <div class="ch2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 8v5M12 16v.01"/><circle cx="12" cy="12" r="9"/></svg>Coordinación por teléfono</div>
     <p>En la mayoría de operaciones con dron la coordinación con el aeródromo <b>no se hace por radio, sino por teléfono</b>. Estos son los contactos que publica el AIP.</p>
     <div class="cchips">${tel}${mail}</div>
+    <div class="cnote"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 8v5M12 16v.01"/><circle cx="12" cy="12" r="9"/></svg><span>Es el contacto que el AIP publica <b>para el aeródromo</b> —normalmente el gestor o la oficina de coordinación—, no necesariamente el número directo de la torre. El teléfono concreto para coordinar tu vuelo suele venir en tu propia autorización.</span></div>
     ${c.adm || c.aftn ? `<div class="cmeta">${c.adm ? "Gestor: " + esc(c.adm) : ""}${c.adm && c.aftn ? " · " : ""}${c.aftn ? "AFTN: " + esc(c.aftn) : ""}${c.dir ? "<br>" + esc(c.dir) : ""}</div>` : ""}
   </div>`;
 }
