@@ -723,6 +723,19 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
 .fgroup .fcb{background:var(--bg-e)}
 .fgroup.g-amb .fcb{background:var(--srf)}
 @media (max-width:900px){ .fc-in{gap:6px} .fgroup{gap:4px} }
+
+/* ── lupa del espectro, al estilo del Dock ── */
+.specbar{touch-action:none;cursor:crosshair}
+.seg{transform-origin:center bottom;will-change:transform,left,width}
+.specbar.lens .seg{transition:none}
+.specline{position:absolute;top:-3px;bottom:-3px;width:1px;background:var(--fg);opacity:0;pointer-events:none;z-index:5;box-shadow:0 0 0 1px color-mix(in srgb,var(--bg) 60%,transparent)}
+.specbar.lens .specline{opacity:.55}
+.speclens{min-height:34px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:9px;padding:7px 11px;border-radius:var(--r1);border:1px solid var(--line);background:var(--srf2);transition:border-color .15s}
+.speclens.on{border-color:var(--acc)}
+.sl-hint{font-size:12.3px;color:var(--fg3)}
+.sl-f{font-family:var(--f-mono);font-size:15px;font-weight:700;color:var(--acc);letter-spacing:-.02em;white-space:nowrap}
+.sl-n{font-size:13.4px;font-weight:620;letter-spacing:-.016em;flex:1;min-width:120px}
+.sl-r{font-family:var(--f-mono);font-size:10.5px;color:var(--fg3);white-space:nowrap}
 @media print{
   .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
   body{background:#fff;color:#000;font-size:10pt}
@@ -874,6 +887,7 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
         <div class="axis" id="axis"></div>
         <div class="regions" id="regions"></div>
       </div></div>
+      <div class="speclens" id="speclens"><span class="sl-hint">Pasa el cursor —o arrastra el dedo— por el espectro</span></div>
       <div class="scrollhint">← desliza para recorrer el espectro →</div>
     </div>
   </section>
@@ -2159,11 +2173,71 @@ if(window.matchMedia("(hover:hover)").matches){
   });
   specbar.addEventListener("mouseleave",()=>tip.style.opacity=0);
 }
+
+/* ── Lupa del espectro: magnificación tipo Dock ──
+   Se integra una densidad gaussiana centrada en el puntero y se remapean
+   los bordes de cada segmento con la acumulada, de modo que lo señalado
+   se ensancha y el resto se comprime sin salirse de la barra. */
+const lensOut=$("#speclens");
+const specline=document.createElement("i"); specline.className="specline"; specbar.appendChild(specline);
+const N=240, dens=new Float64Array(N+1), acc=new Float64Array(N+1);
+const K=6.5, W=7;                       // intensidad y anchura de la lupa, en % de la barra
+function lensMap(c){
+  for(let i=0;i<=N;i++){ const x=i*100/N, d=(x-c)/W; dens[i]=1+K*Math.exp(-d*d); }
+  acc[0]=0;
+  for(let i=1;i<=N;i++) acc[i]=acc[i-1]+(dens[i-1]+dens[i])/2;
+  const tot=acc[N];
+  for(let i=0;i<=N;i++) acc[i]=acc[i]*100/tot;
+  return x=>{ const t=Math.max(0,Math.min(N,x*N/100)), i=Math.floor(t), f=t-i;
+              return i>=N?acc[N]:acc[i]+(acc[i+1]-acc[i])*f; };
+}
+const invPos=p=>Math.pow(10, L0 + (p/100)*(L1-L0));   // % de la barra → MHz
+const segEls=()=>[...specbar.querySelectorAll(".seg")];
+function lensOff(){
+  specbar.classList.remove("lens");
+  segEls().forEach(el=>{ const b=D.find(x=>x.id===el.dataset.id); if(!b)return;
+    const a=pos(b.lo), w=Math.max(pos(b.hi)-a,0.4);
+    el.style.left=a+"%"; el.style.width=w+"%"; el.style.transform="";
+  });
+  lensOut.classList.remove("on");
+  lensOut.innerHTML=`<span class="sl-hint">Pasa el cursor —o arrastra el dedo— por el espectro</span>`;
+}
+let raf=0;
+function lensAt(px){
+  const r=specbar.getBoundingClientRect();
+  const c=Math.max(0,Math.min(100,(px-r.left)/r.width*100));
+  const m=lensMap(c);
+  specbar.classList.add("lens");
+  specline.style.left=m(c)+"%";
+  segEls().forEach(el=>{
+    const b=D.find(x=>x.id===el.dataset.id); if(!b)return;
+    const a=pos(b.lo), z=Math.max(pos(b.hi),a+0.4);
+    const A=m(a), Z=m(z);
+    el.style.left=A+"%"; el.style.width=Math.max(Z-A,0.5)+"%";
+    const mid=(a+z)/2, d=(mid-c)/(W*1.6);
+    el.style.transform="scaleY("+(1+0.34*Math.exp(-d*d))+")";
+  });
+  // lectura: frecuencia bajo el puntero y banda que la contiene
+  const f=invPos(c);
+  const b=D.find(x=>f>=x.lo&&f<=x.hi);
+  const fmt=f>=1000?(f/1000).toFixed(3)+" GHz":f>=1?f.toFixed(f<30?3:2)+" MHz":(f*1000).toFixed(1)+" kHz";
+  lensOut.classList.add("on");
+  lensOut.innerHTML=`<span class="sl-f">${dec(fmt)}</span>`+
+    (b?`<span class="sl-n">${esc(b.nom)}</span>${pill(b.rx,RXL)}${pill(b.tx,TXL,txLabel(b))}`
+      :`<span class="sl-n" style="color:var(--fg3);font-weight:500">Sin banda catalogada en este punto</span>`);
+}
+specbar.addEventListener("pointermove",e=>{
+  if(e.pointerType!=="mouse" && e.buttons===0) return;   // en táctil, solo con el dedo apoyado
+  if(raf) return; raf=requestAnimationFrame(()=>{ raf=0; lensAt(e.clientX); });
+});
+specbar.addEventListener("pointerdown",e=>{ specbar.setPointerCapture?.(e.pointerId); lensAt(e.clientX); });
+["pointerleave","pointerup","pointercancel"].forEach(ev=>specbar.addEventListener(ev,lensOff));
+
 $("#mode").addEventListener("click",e=>{
   const b=e.target.closest("button"); if(!b)return;
   MODE=b.dataset.m;
   $$("#mode button").forEach(x=>x.classList.toggle("on",x===b));
-  drawSpec();
+  drawSpec(); lensOff();
 });
 
 /* ═══════════════ identificar frecuencia ═══════════════ */
