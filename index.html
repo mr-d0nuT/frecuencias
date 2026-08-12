@@ -573,6 +573,13 @@ details.svc .grid{padding-top:2px}
 .uas-body{padding:var(--s4) var(--s5) var(--s5)}
 .uas-body h5:first-of-type{margin-top:0}
 @media (max-width:760px){ .uas>.uas-sum{padding:13px 14px} .uas-body{padding:var(--s4)} }
+
+.cfreqs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.cf{display:inline-flex;align-items:baseline;gap:6px;padding:8px 12px;border-radius:var(--r1);border:1px solid var(--line);background:var(--srf)}
+.cf i{font-style:normal;font-family:var(--f-mono);font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--fg3)}
+.cf b{font-family:var(--f-mono);font-size:14.5px;font-weight:650;color:var(--acc);letter-spacing:-.02em}
+.cf u{text-decoration:none;font-family:var(--f-mono);font-size:10px;color:var(--fg3)}
+@media (max-width:760px){ .cf{flex:1;justify-content:center;min-width:120px} }
 @media print{
   .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
   body{background:#fff;color:#000;font-size:10pt}
@@ -666,8 +673,7 @@ details.svc .grid{padding-top:2px}
       <p class="hint2">El enlace de mando y el vídeo van en el propio dron; el resto depende de tu perfil.</p>
       <div class="uas-radio" id="uasRadio"></div>
 
-      <h5>Tu aeródromo de referencia</h5>
-      <div id="uasAd"></div>
+      <a class="golink" href="#aero-sec"><span><b>Frecuencias y teléfono de tu aeródromo</b>Elige cualquiera de los 72 aeródromos y helipuertos en el apartado siguiente: torre, ATIS y contacto de coordinación, leídos del AIP.</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
 
       <div class="cal c-nt" style="margin-top:16px"><span class="kicker">Alcance de esta guía</span>Esto ordena el marco general para que sepas qué tienes que mirar; no sustituye a tu autorización ni a la normativa aplicable. Los requisitos concretos dependen de la categoría de la operación y de la zona: la fuente son AESA y ENAIRE, y para las frecuencias, el CNAF y el AIP.</div>
       </div>
@@ -2431,9 +2437,18 @@ function adContact(code) {
   if (!c || (!c.tel || !c.tel.length) && !(c.email || []).length) return "";
   const tel = (c.tel || []).map(t => `<a class="cchip tel" href="tel:${t.replace(/[^\d+]/g, "")}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6.5 3.5h3l1.5 4-2 1.5a12 12 0 006 6l1.5-2 4 1.5v3a2 2 0 01-2.2 2A17.5 17.5 0 014.5 5.7 2 2 0 016.5 3.5z"/></svg>${esc(t)}</a>`).join("");
   const mail = (c.email || []).slice(0, 2).map(e => `<a class="cchip" href="mailto:${esc(e)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6 8.5-6"/></svg>${esc(e)}</a>`).join("");
+  const fr=adBest(code).f||[];
+  // el contacto de voz principal: torre antes que aproximación, y nunca una de emergencia
+  const util=f=>!/EMERG/i.test((f.r||"")+(f.s||"")) && f.m!==121.5 && f.m!==243;
+  const row=re=>fr.find(f=>util(f)&&re.test((f.s||"").trim()));
+  const voz=row(/^TWR$/i)||row(/^(APP\/TWR|TWR\/APP)$/i)||row(/^AFIS$/i)||row(/^(A\/G|RADIO|INFO)/i)||row(/^APP$/i)||row(/TWR/i);
+  const atisR=fr.find(f=>/ATIS/i.test((f.s||"").trim())&&!/D-ATIS/i.test((f.s||"").trim())&&f.m);
+  const et=voz?(/TWR/i.test(voz.s)?"Torre":/AFIS/i.test(voz.s)?"AFIS":/APP/i.test(voz.s)?"Aproximación":(voz.s||"Voz")):"";
+  const freqs=(voz||atisR)?`<div class="cfreqs">${voz?`<span class="cf"><i>${esc(et)}</i><b>${fdec(voz.m)}</b><u>MHz</u></span>`:""}${atisR?`<span class="cf"><i>ATIS</i><b>${fdec(atisR.m)}</b><u>MHz</u></span>`:""}</div>`:"";
   return `<div class="contact">
     <div class="ch2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 8v5M12 16v.01"/><circle cx="12" cy="12" r="9"/></svg>Coordinación por teléfono</div>
     <p>En la mayoría de operaciones con dron la coordinación con el aeródromo <b>no se hace por radio, sino por teléfono</b>. Estos son los contactos que publica el AIP.</p>
+    ${freqs}
     <div class="cchips">${tel}${mail}</div>
     <div class="cnote"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 8v5M12 16v.01"/><circle cx="12" cy="12" r="9"/></svg><span>Es el contacto que el AIP publica <b>para el aeródromo</b> —normalmente el gestor o la oficina de coordinación—, no necesariamente el número directo de la torre. El teléfono concreto para coordinar tu vuelo suele venir en tu propia autorización.</span></div>
     ${c.adm || c.aftn ? `<div class="cmeta">${c.adm ? "Gestor: " + esc(c.adm) : ""}${c.adm && c.aftn ? " · " : ""}${c.aftn ? "AFTN: " + esc(c.aftn) : ""}${c.dir ? "<br>" + esc(c.dir) : ""}</div>` : ""}
@@ -2522,19 +2537,6 @@ function paintUas(){
     else { const v=x.propio?verdict(b):fverdict(b); k=v.k; t=v.k==="ok"?"puedes":v.k==="never"?"no habilitable":v.t.replace(/^(Te falta|Necesitas):\s*/,"falta "); }
     return `<div class="urow" style="--c:${VK[k]}"><i class="ui"></i><span class="un">${esc(x.n)}</span><span class="uf">${esc(x.f)}</span><span class="uv">${esc(t)}</span></div>`;
   }).join("");
-  const ad=$("#uasAd"); if(!ad) return;
-  const code=(typeof adSel!=="undefined"&&adSel.value)||"LERS", a=AD[code];
-  if(!a){ad.innerHTML="";return;}
-  const live=cacheGet(code), fr=(live&&live.f)||a.f||[], con=(live&&live.c)||a.c;
-  const pick=re=>{const x=fr.find(f=>re.test((f.s||"")+" "+(f.r||"")));return x?fdec(x.m)+" MHz":null;};
-  const atis=pick(/ATIS/i), twr=pick(/TWR|APP/i);
-  const tel=con&&con.tel&&con.tel[0];
-  ad.innerHTML=`<div class="uasad">
-    <span class="uan">${esc(a.n)} · ${code}</span>
-    <span class="uaf">${twr?`Torre <b>${twr}</b>`:""}${twr&&atis?" · ":""}${atis?`ATIS <b>${atis}</b>`:""}</span>
-    ${tel?`<a class="cchip tel" href="tel:${tel.replace(/[^\d+]/g,"")}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6.5 3.5h3l1.5 4-2 1.5a12 12 0 006 6l1.5-2 4 1.5v3a2 2 0 01-2.2 2A17.5 17.5 0 014.5 5.7 2 2 0 016.5 3.5z"/></svg>${esc(tel)}</a>`:""}
-  </div>
-  <p class="hint2" style="margin:9px 0 0">Cambia de aeródromo en el apartado anterior y esto se actualiza. El teléfono es el que publica el AIP para el aeródromo, no necesariamente el de coordinación de tu vuelo.</p>`;
 }
 
 /* ═══════════════ arranque ═══════════════ */
