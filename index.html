@@ -669,6 +669,17 @@ details.svc .grid{padding-top:2px}
 details[open]>.uas-sum .caret{transform:rotate(180deg)}
 details[open]>.uas-sum{border-bottom:1px solid var(--line)}
 @media (max-width:760px){ .uas-sum{padding:13px 14px} }
+
+/* ── accesos rápidos por situación ── */
+.qbar{border-top:1px solid var(--line);background:color-mix(in srgb,var(--bg) 70%,transparent)}
+.qb-in{display:flex;gap:5px;align-items:center;padding:6px 0;overflow-x:auto;scrollbar-width:none}
+.qb-in::-webkit-scrollbar{display:none}
+.qb{flex:none;width:34px;height:34px;border-radius:9px;border:1px solid transparent;background:transparent;font-size:17px;line-height:1;display:grid;place-items:center;transition:.14s;position:relative}
+.qb:hover{background:var(--srf);border-color:var(--line)}
+.qb.on{background:color-mix(in srgb,var(--acc) 14%,transparent);border-color:color-mix(in srgb,var(--acc) 45%,transparent)}
+.qb.all{font-size:13px;font-family:var(--f-mono);font-weight:700;color:var(--fg3);width:auto;padding:0 10px}
+.qb.all.on{color:var(--acc)}
+@media (max-width:760px){ .qb{width:32px;height:32px;font-size:16px} }
 @media print{
   .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
   body{background:#fff;color:#000;font-size:10pt}
@@ -704,6 +715,7 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
       </button>
     </div>
   </div>
+  <div class="qbar"><div class="wrap qb-in" id="qbar"></div></div>
 </header>
 
 <main class="wrap" id="top">
@@ -734,6 +746,17 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
           <p>Y el daño no es igual en todas partes: pisar un canal de taxi molesta, pero <b>pisar el canal 16 de marina o una frecuencia de torre puede costar vidas</b>, y eso pasa del terreno administrativo al penal.</p>
         </div>
       </details>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-h">
+      <h2>¿Qué quieres hacer?</h2>
+      <span class="sub">Elige tu situación y la app te deja solo lo que te sirve</span>
+    </div>
+    <div class="ucsel">
+      <button class="ucbtn" id="ucbtn" aria-haspopup="listbox" aria-expanded="false"></button>
+      <div class="ucmenu" id="ucmenu" role="listbox" hidden></div>
     </div>
   </section>
 
@@ -804,16 +827,6 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
     </div>
   </section>
 
-  <section class="sec">
-    <div class="sec-h">
-      <h2>¿Qué quieres hacer?</h2>
-      <span class="sub">Elige tu situación y la app te deja solo lo que te sirve</span>
-    </div>
-    <div class="ucsel">
-      <button class="ucbtn" id="ucbtn" aria-haspopup="listbox" aria-expanded="false"></button>
-      <div class="ucmenu" id="ucmenu" role="listbox" hidden></div>
-    </div>
-  </section>
 
   <section class="sec">
     <div class="card lk">
@@ -1751,7 +1764,7 @@ ucmenu.addEventListener("click",e=>{
   const i=+b.dataset.uc;
   UC = i<0 ? null : i;
   if(UC!==null){ F={tx:"all",rx:"all",me:"all",rf:"all",cat:"all"}; Q=""; $("#q").value=""; syncChips(); }
-  ucOpen(false); paintUcBtn(); render();
+  ucOpen(false); paintUcBtn(); paintQbar(); render();
   const u=UC!==null?USECASES[UC]:null;
   $("#uas-sec").hidden = !(u && u.vuelo);             // el planificador solo aparece si vas a volar
   if(u && u.vuelo) planVuelo();
@@ -1759,7 +1772,25 @@ ucmenu.addEventListener("click",e=>{
 });
 document.addEventListener("click",e=>{ if(!ucmenu.hidden && !ucmenu.contains(e.target) && e.target!==ucbtn) ucOpen(false); });
 document.addEventListener("keydown",e=>{ if(e.key==="Escape" && !ucmenu.hidden) ucOpen(false); });
-paintUcBtn();
+
+/* Accesos rápidos: las mismas situaciones, a un toque desde la cabecera */
+const qbar=$("#qbar");
+function paintQbar(){
+  qbar.innerHTML=`<button class="qb all ${UC===null?"on":""}" data-q="-1" title="Todas las bandas">TODO</button>`+
+    USECASES.map((u,i)=>`<button class="qb ${UC===i?"on":""}" data-q="${i}" title="${esc(u.t)}" aria-label="${esc(u.t)}">${u.e}</button>`).join("");
+}
+qbar.addEventListener("click",e=>{
+  const b=e.target.closest("[data-q]"); if(!b)return;
+  const i=+b.dataset.q;
+  UC = i<0 ? null : i;
+  if(UC!==null){ F={tx:"all",rx:"all",me:"all",rf:"all",cat:"all"}; Q=""; $("#q").value=""; syncChips(); }
+  paintUcBtn(); paintQbar(); render();
+  const u=UC!==null?USECASES[UC]:null;
+  $("#uas-sec").hidden = !(u && u.vuelo);
+  if(u && u.vuelo) planVuelo();
+  else if(UC!==null) setTimeout(()=>$("#results").scrollIntoView({behavior:"smooth",block:"start"}),60);
+});
+paintQbar();
 
 /* ═══════════════ filtros ═══════════════ */
 const cats=[...new Set(D.map(b=>b.cat))].sort((a,b)=>ORDER.indexOf(a)-ORDER.indexOf(b));
@@ -1770,7 +1801,7 @@ function syncChips(){
 $("#fpanel").addEventListener("click",e=>{
   const c=e.target.closest(".ch"); if(!c)return;
   F[c.dataset.f]=c.dataset.v;
-  if(UC!==null){UC=null;paintUcBtn();}
+  if(UC!==null){UC=null;paintUcBtn();paintQbar();}
   syncChips(); render();
 });
 function activeCount(){return Object.values(F).filter(v=>v!=="all").length+(UC!==null?1:0)+(FAVONLY?1:0)}
@@ -1880,7 +1911,7 @@ $("#results").addEventListener("keydown",e=>{
   const c=e.target.closest(".bc"); if(!c||e.target.closest("[data-fav]"))return;
   e.preventDefault(); openBand(c.dataset.id);
 });
-$("#q").addEventListener("input",e=>{Q=e.target.value.trim().toLowerCase();if(UC!==null){UC=null;paintUcBtn();}render()});
+$("#q").addEventListener("input",e=>{Q=e.target.value.trim().toLowerCase();if(UC!==null){UC=null;paintUcBtn();paintQbar();}render()});
 $("#favbtn").addEventListener("click",e=>{FAVONLY=!FAVONLY;e.currentTarget.classList.toggle("on",FAVONLY);if(FAVONLY&&UC!==null){UC=null;paintUcBtn();}render()});
 
 /* ═══════════════ ficha ═══════════════ */
