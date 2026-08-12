@@ -65,7 +65,7 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;-webki
 /* ════════════════ HEADER ════════════════ */
 .hdr{position:sticky;top:0;z-index:70;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top)}
 .hdr-in{display:flex;align-items:center;gap:10px;height:var(--hdr)}
-.brand{display:flex;align-items:center;flex:none}
+.brand{display:flex;align-items:center;gap:8px;font-weight:680;font-size:15px;letter-spacing:-.03em;white-space:nowrap;flex:none}
 .brand .mark{width:22px;height:22px;flex:none}
 .brand small{color:var(--fg3);font-weight:560}
 .search{flex:1;position:relative;min-width:0;max-width:460px}
@@ -82,8 +82,8 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;-webki
 .ib svg{width:17px;height:17px}
 
 /* ════════════════ HERO ════════════════ */
-.hero{padding:var(--s6) 0 var(--s3);max-width:74ch}
-.hero h1{font-size:clamp(27px,5.4vw,42px);letter-spacing:-.04em;line-height:1.05;margin:9px 0 13px}
+.hero{padding:var(--s4) 0 var(--s3);max-width:74ch}
+.hero h1{font-size:clamp(27px,5.4vw,42px);letter-spacing:-.04em;line-height:1.05;margin:0 0 12px}
 .hero h1 .g{background:linear-gradient(96deg,var(--acc),var(--info));-webkit-background-clip:text;background-clip:text;color:transparent}
 .hero .lede{color:var(--fg2);font-size:clamp(15px,3.4vw,17px);line-height:1.6}
 .hero .lede b{color:var(--fg);font-weight:600}
@@ -811,6 +811,7 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
         <path d="M9.4 9.4a9.3 9.3 0 000 13.2M22.6 9.4a9.3 9.3 0 010 13.2" stroke="var(--acc)" stroke-width="2" stroke-linecap="round" opacity=".5"/>
         <path d="M5.6 5.6a14.7 14.7 0 000 20.8M26.4 5.6a14.7 14.7 0 010 20.8" stroke="var(--acc)" stroke-width="1.7" stroke-linecap="round" opacity=".22"/>
       </svg>
+      Espectro<small>·ES</small>
     </div>
     <div class="wrap qb-in" id="qbar"></div>
     <div class="hsearch" id="hsearch" hidden>
@@ -836,7 +837,6 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
 <main class="wrap" id="top">
 
   <section class="hero">
-    <div class="kicker">Cuadro de consulta · basado en el CNAF</div>
     <h1>Frecuencias de radio en <span class="g">España</span></h1>
     <div class="stats" id="stats"></div>
     <div class="keys" id="keys"></div>
@@ -1857,8 +1857,8 @@ function paintStats(){
   const puedo=D.filter(b=>fverdict(b).k==="ok").length;
   const esc0=D.filter(b=>b.rx.s===0).length;
   const items=hasProfile()
-    ? [[D.length,"bandas"],[puedo,"puedes transmitir"],[esc0,"de escucha libre"],[ch,"canales listados"]]
-    : [[D.length,"bandas"],[D.filter(b=>b.tx.s===0).length,"con TX libre"],[esc0,"de escucha libre"],[ch,"canales listados"]];
+    ? [[D.length,"bandas"],[puedo,"TX libre"],[esc0,"RX libre"],[ch,"canales listados"]]
+    : [[D.length,"bandas"],[D.filter(b=>b.tx.s===0).length,"TX libre"],[esc0,"RX libre"],[ch,"canales listados"]];
   $("#stats").innerHTML=items.map(([n,l])=>`<div class="stat"><div class="n">${n}</div><div class="l">${l}</div></div>`).join("");
 }
 $("#ver").textContent="Rev. "+new Date().getFullYear();
