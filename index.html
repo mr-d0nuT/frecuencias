@@ -92,7 +92,7 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;-webki
 .stat .l{font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--fg3);margin-top:2px}
 
 /* ════════════════ SECCIONES ════════════════ */
-.sec{margin:var(--s6) 0}
+.sec{margin:var(--s5) 0}
 .sec-h{display:flex;align-items:baseline;gap:10px;margin-bottom:var(--s4);flex-wrap:wrap}
 .sec-h h2{font-size:clamp(18px,4vw,21px)}
 .sec-h .sub{color:var(--fg3);font-size:13.5px}
@@ -146,7 +146,6 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;-webki
 .tip{position:fixed;z-index:90;pointer-events:none;background:var(--srf3);border:1px solid var(--line2);border-radius:9px;padding:8px 11px;font-size:12px;box-shadow:var(--sh2);opacity:0;transition:opacity .12s;max-width:250px}
 .tip .tn{font-weight:620;margin-bottom:3px}
 .tip .tf{font-family:var(--f-mono);font-size:11px;color:var(--fg3)}
-.scrollhint{display:none;font-family:var(--f-mono);font-size:10px;color:var(--fg3);text-align:center;margin-top:6px}
 
 /* ════════════════ FILTROS ════════════════ */
 .fbar{display:none}
@@ -170,15 +169,15 @@ html[data-theme="light"] .ch.on[data-c]{color:#fff}
 .svc-h h3{font-size:13px;font-weight:640;letter-spacing:-.01em}
 .svc-h .ln{flex:1;height:1px;background:var(--line)}
 .svc-h .qt{font-family:var(--f-mono);font-size:10.5px;color:var(--fg3)}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(318px,1fr));gap:var(--s3)}
-.bc{position:relative;display:flex;flex-direction:column;text-align:left;background:var(--srf);border:1px solid var(--line);border-radius:var(--r3);padding:15px 16px 13px;transition:transform .16s,border-color .16s,box-shadow .16s;box-shadow:var(--sh1);width:100%}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(318px,1fr));gap:9px}
+.bc{position:relative;display:flex;flex-direction:column;text-align:left;background:var(--srf);border:1px solid var(--line);border-radius:var(--r3);padding:12px 14px 11px;transition:transform .16s,border-color .16s,box-shadow .16s;box-shadow:var(--sh1);width:100%}
 .bc:hover{transform:translateY(-2px);border-color:var(--line2);box-shadow:var(--sh2)}
 .bc:active{transform:translateY(0)}
 .bc-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
 .bc .tag{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--fg3)}
 .bc h4{font-size:15.5px;letter-spacing:-.026em;margin:6px 0 4px;line-height:1.28;padding-right:20px}
 .bc .rng{font-family:var(--f-mono);font-size:12.2px;color:var(--acc);font-weight:520;letter-spacing:-.02em}
-.bc .dsc{font-size:13px;color:var(--fg2);margin:9px 0 12px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;flex:1}
+.bc .dsc{font-size:13px;color:var(--fg2);margin:7px 0 9px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;flex:1}
 .rt{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--srf2)}
 .rtr{display:flex;align-items:center;gap:8px;padding:7px 10px;min-height:33px}
 .rtr+.rtr{border-top:1px solid var(--line)}
@@ -189,7 +188,7 @@ html[data-theme="light"] .ch.on[data-c]{color:#fff}
 .bars i{width:13px;height:3px;border-radius:2px;background:var(--line2)}
 .bars i.f{background:var(--rc)}
 .rmini{margin-left:auto;font-family:var(--f-mono);font-size:9.5px;color:var(--fg3);flex:none;letter-spacing:.02em}
-.bc .foot{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px;font-family:var(--f-mono);font-size:10px;color:var(--fg3);letter-spacing:.01em}
+.bc .foot{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px;font-family:var(--f-mono);font-size:10px;color:var(--fg3);letter-spacing:.01em}
 .bc .foot span{background:var(--srf2);border:1px solid var(--line);border-radius:5px;padding:2px 6px}
 .fav{position:absolute;top:11px;right:10px;width:28px;height:28px;display:grid;place-items:center;color:var(--fg3);opacity:.5;border-radius:7px;transition:.14s}
 .fav:hover{opacity:1;background:var(--srf2)}
@@ -271,8 +270,7 @@ footer .end{margin-top:var(--s5);padding-top:var(--s4);border-top:1px solid var(
   .lk .hint{display:none}
   .grid{grid-template-columns:1fr;gap:10px}
   .specin{min-width:560px}
-  .scrollhint{display:block}
-  .hit{flex-wrap:wrap}
+    .hit{flex-wrap:wrap}
   .hit .hp{flex-direction:row;gap:10px;width:100%;padding-top:8px;border-top:1px solid var(--line);flex-wrap:wrap}
 
   /* barra de filtros compacta + hoja inferior */
@@ -441,7 +439,7 @@ footer .end{margin-top:var(--s5);padding-top:var(--s4);border-top:1px solid var(
 
 /* ── selector de situación ── */
 .ucsel{position:relative}
-.ucbtn{display:flex;align-items:center;gap:13px;width:100%;text-align:left;padding:14px 16px;border:1px solid var(--line);border-radius:var(--r3);background:var(--srf);box-shadow:var(--sh1);transition:.15s}
+.ucbtn{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:11px 14px;border:1px solid var(--line);border-radius:var(--r3);background:var(--srf);box-shadow:var(--sh1);transition:.15s}
 .ucbtn:hover{border-color:var(--line2)}
 .ucbtn.on{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 7%,var(--srf))}
 .ucbtn .uce{font-size:24px;line-height:1;flex:none;width:34px;text-align:center}
@@ -488,7 +486,7 @@ details.svc>summary h3{transition:color .15s}
 .svc{margin-bottom:0}
 details.svc{margin-bottom:2px;border-bottom:1px solid var(--line)}
 details.svc:last-child{border-bottom:0}
-details.svc[open]{margin-bottom:var(--s4);padding-bottom:var(--s2)}
+details.svc[open]{margin-bottom:var(--s3);padding-bottom:2px}
 details.svc>summary.svc-h{margin:0;padding:13px 2px;gap:12px}
 details.svc[open]>summary.svc-h{padding-bottom:11px}
 details.svc>summary.svc-h h3{font-size:14px}
@@ -723,12 +721,6 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
 .specbar.lens .seg{transition:none}
 .specline{position:absolute;top:-3px;bottom:-3px;width:1px;background:var(--fg);opacity:0;pointer-events:none;z-index:5;box-shadow:0 0 0 1px color-mix(in srgb,var(--bg) 60%,transparent)}
 .specbar.lens .specline{opacity:.55}
-.speclens{min-height:34px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:9px;padding:7px 11px;border-radius:var(--r1);border:1px solid var(--line);background:var(--srf2);transition:border-color .15s}
-.speclens.on{border-color:var(--acc)}
-.sl-hint{font-size:12.3px;color:var(--fg3)}
-.sl-f{font-family:var(--f-mono);font-size:15px;font-weight:700;color:var(--acc);letter-spacing:-.02em;white-space:nowrap}
-.sl-n{font-size:13.4px;font-weight:620;letter-spacing:-.016em;flex:1;min-width:120px}
-.sl-r{font-family:var(--f-mono);font-size:10.5px;color:var(--fg3);white-space:nowrap}
 
 /* ── socorro: compacto y legible de un vistazo ── */
 .sosi{display:flex;align-items:baseline;justify-content:center;gap:5px;flex-wrap:wrap;text-align:center;padding:9px;border-radius:9px;background:color-mix(in srgb,var(--bad) 7%,transparent);border:1px solid color-mix(in srgb,var(--bad) 22%,transparent)}
@@ -757,8 +749,6 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
 .sos-t{font-size:14.5px;font-weight:650;letter-spacing:-.02em;flex:none}
 .sos-h select{flex:1;min-width:190px;height:36px;padding:0 9px;border-radius:9px;border:1px solid color-mix(in srgb,var(--bad) 30%,var(--line));background:var(--bg-e);color:var(--fg);font-size:14px;outline:none}
 .sos-h select:focus{border-color:var(--bad)}
-.sos-w{font-size:12.2px;color:var(--fg2);line-height:1.5;margin:9px 0 0}
-.sos-w b{color:var(--fg)}
 .sosi.big{margin-top:11px;padding:14px;gap:8px}
 .sosi.big .se{font-size:19px}
 .sosi.big .sf{font-size:22px}
@@ -780,6 +770,17 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
 .me-tile .ml{font-size:11.5px;color:var(--fg2);line-height:1.25}
 .me-tile.on .ml{color:var(--fg)}
 @media (max-width:760px){ .me-tiles{grid-template-columns:1fr 1fr} .mefilter{padding:9px 0 2px} }
+
+/* ── etiqueta de lectura sobre el espectro ── */
+.specin{padding-top:46px}
+.spectag{position:absolute;top:0;transform:translateX(-50%);display:none;flex-direction:column;align-items:center;gap:2px;pointer-events:none;z-index:6;white-space:nowrap}
+.spectag.on{display:flex}
+.spectag::after{content:"";width:1px;height:6px;background:var(--fg);opacity:.4}
+.st-f{font-family:var(--f-mono);font-size:13px;font-weight:700;color:var(--acc);letter-spacing:-.02em}
+.st-n{font-size:11.5px;font-weight:620;color:var(--fg);max-width:230px;overflow:hidden;text-overflow:ellipsis}
+.st-p{display:flex;gap:7px}
+.st-p .stt{font-size:9.5px}
+.st-p .stt .g{width:5px;height:5px;box-shadow:none}
 @media print{
   .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
   body{background:#fff;color:#000;font-size:10pt}
@@ -918,24 +919,22 @@ details[open]>.uas-sum{border-bottom:1px solid var(--line)}
         </div>
       </div>
       <div class="specscroll"><div class="specin">
+        <div class="spectag" id="spectag"></div>
         <div class="specbar" id="specbar"></div>
         <div class="axis" id="axis"></div>
         <div class="regions" id="regions"></div>
       </div></div>
-      <div class="speclens" id="speclens"><span class="sl-hint">Pasa el cursor —o arrastra el dedo— por el espectro</span></div>
-      <div class="scrollhint">← desliza para recorrer el espectro →</div>
       <div class="lkres" id="lkres"></div>
     </div>
   </section>
 
   <section class="sec" id="sos-sec">
-    <article class="card sos">
+    <article class="card sos" title="Escucharlas es legal. Emitir en ellas fuera de una emergencia real moviliza medios de rescate y se sanciona con severidad. En tierra, el teléfono es el 112.">
       <div class="sos-h">
         <span class="uas-ico">🆘</span>
         <span class="sos-t">Frecuencias de socorro</span>
         <select id="sossel" aria-label="Elige una frecuencia de socorro"></select>
       </div>
-      <p class="sos-w">Escucharlas es legal. Emitir en ellas fuera de una emergencia real moviliza medios de rescate y se sanciona con severidad. En tierra, el teléfono es el <b>112</b>.</p>
       <div id="sosout"></div>
     </article>
   </section>
@@ -1862,7 +1861,7 @@ function paintUcBtn(){
   const u=UC!==null?USECASES[UC]:null;
   ucbtn.innerHTML=u
     ? `<span class="uce">${u.e}</span><span class="uct"><b>${esc(u.t)}</b><span>${esc(ucDesc(u))}</span></span>${CARET}`
-    : `<span class="uce">🎯</span><span class="uct"><b>Elige tu situación</b><span>${USECASES.length} casos habituales, del monte al aeródromo</span></span>${CARET}`;
+    : `<span class="uce">🎯</span><span class="uct"><b>Elige tu situación</b></span>${CARET}`;
   ucbtn.classList.toggle("on", UC!==null);
 }
 function paintUcMenu(){
@@ -2267,7 +2266,7 @@ if(window.matchMedia("(hover:hover)").matches){
    Se integra una densidad gaussiana centrada en el puntero y se remapean
    los bordes de cada segmento con la acumulada, de modo que lo señalado
    se ensancha y el resto se comprime sin salirse de la barra. */
-const lensOut=$("#speclens");
+const specTag=$("#spectag");
 const specline=document.createElement("i"); specline.className="specline"; specbar.appendChild(specline);
 const N=240, dens=new Float64Array(N+1), acc=new Float64Array(N+1);
 const K=6.5, W=7;                       // intensidad y anchura de la lupa, en % de la barra
@@ -2288,8 +2287,7 @@ function lensOff(){
     const a=pos(b.lo), w=Math.max(pos(b.hi)-a,0.4);
     el.style.left=a+"%"; el.style.width=w+"%"; el.style.transform="";
   });
-  lensOut.classList.remove("on");
-  lensOut.innerHTML=`<span class="sl-hint">Pasa el cursor —o arrastra el dedo— por el espectro</span>`;
+  specTag.classList.remove("on");
 }
 let raf=0;
 function lensAt(px){
@@ -2310,10 +2308,34 @@ function lensAt(px){
   const f=invPos(c);
   const b=D.find(x=>f>=x.lo&&f<=x.hi);
   const fmt=f>=1000?(f/1000).toFixed(3)+" GHz":f>=1?f.toFixed(f<30?3:2)+" MHz":(f*1000).toFixed(1)+" kHz";
-  lensOut.classList.add("on");
-  lensOut.innerHTML=`<span class="sl-f">${dec(fmt)}</span>`+
-    (b?`<span class="sl-n">${esc(b.nom)}</span>${pill(b.rx,RXL)}${pill(b.tx,TXL,txLabel(b))}`
-      :`<span class="sl-n" style="color:var(--fg3);font-weight:500">Sin banda catalogada en este punto</span>`);
+  marcaEspectro(m(c), fmt, b);
+}
+
+/* Etiqueta sobre la barra: la misma para el puntero y para la frecuencia tecleada */
+function marcaEspectro(xpc, fmt, b){
+  specTag.classList.add("on");
+  specTag.style.left=xpc+"%";
+  specTag.innerHTML=`<span class="st-f">${dec(fmt)}</span>`+
+    (b?`<span class="st-n">${esc(b.nom)}</span><span class="st-p">${pill(b.rx,RXL)}${pill(b.tx,TXL,txLabel(b))}</span>`
+      :`<span class="st-n" style="color:var(--fg3)">sin banda catalogada</span>`);
+}
+/* Al teclear una frecuencia, se señala en el espectro */
+function marcaFrecuencia(mhz){
+  if(!isFinite(mhz)||mhz<=0){ lensOff(); return; }
+  const p=Math.max(0,Math.min(100,pos(mhz)));
+  const m=lensMap(p);
+  specbar.classList.add("lens");
+  specline.style.left=m(p)+"%";
+  segEls().forEach(el=>{
+    const bb=D.find(x=>x.id===el.dataset.id); if(!bb)return;
+    const a=pos(bb.lo), z=Math.max(pos(bb.hi),a+0.4);
+    const A=m(a), Z=m(z);
+    el.style.left=A+"%"; el.style.width=Math.max(Z-A,0.5)+"%";
+    const mid=(a+z)/2, d=(mid-p)/(W*1.6);
+    el.style.transform="scaleY("+(1+0.34*Math.exp(-d*d))+")";
+  });
+  const fmt=mhz>=1000?(mhz/1000).toFixed(3)+" GHz":mhz>=1?mhz.toFixed(mhz<30?3:2)+" MHz":(mhz*1000).toFixed(1)+" kHz";
+  marcaEspectro(m(p), fmt, D.find(x=>mhz>=x.lo&&mhz<=x.hi));
 }
 specbar.addEventListener("pointermove",e=>{
   if(e.pointerType!=="mouse" && e.buttons===0) return;   // en táctil, solo con el dedo apoyado
@@ -2355,7 +2377,12 @@ function lookup(){
   }).join("");
   lkres.querySelectorAll(".hit").forEach(el=>el.addEventListener("click",()=>openBand(el.dataset.id)));
 }
-fq.addEventListener("input",lookup); fu.addEventListener("change",lookup);
+function lookupYMarca(){
+  lookup();
+  const raw=parseFloat(String(fq.value).replace(",","."));
+  isNaN(raw) ? lensOff() : marcaFrecuencia(raw*parseFloat(fu.value));
+}
+fq.addEventListener("input",lookupYMarca); fu.addEventListener("change",lookupYMarca);
 
 /* ═══════════════ bloques estáticos ═══════════════ */
 const sosSel=$("#sossel"), sosOut=$("#sosout");
