@@ -521,6 +521,15 @@ details.svc .grid{padding-top:2px}
 .vtag.ok{background:color-mix(in srgb,var(--ok) 17%,transparent);color:var(--ok);border:1px solid color-mix(in srgb,var(--ok) 38%,transparent)}
 .vtag.half{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn);border:1px solid color-mix(in srgb,var(--warn) 38%,transparent)}
 .rtr .vtag{margin-left:6px}
+
+.tagk{font-family:var(--f-mono);font-size:9px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;padding:2px 7px;border-radius:20px;margin-left:7px;vertical-align:1px}
+.tagk.eq{background:color-mix(in srgb,var(--acc) 16%,transparent);color:var(--acc)}
+.tagk.pm{background:color-mix(in srgb,var(--info) 16%,transparent);color:var(--info)}
+.hint2{font-size:12.3px;color:var(--fg3);margin:-4px 0 12px;line-height:1.5}
+.sub5{opacity:.75}
+.rtr.tap{cursor:pointer}
+.rtr.tap:hover{background:color-mix(in srgb,var(--c) 14%,transparent)}
+.rtr .edit{margin-left:auto;font-family:var(--f-mono);font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--c);border:1px solid color-mix(in srgb,var(--c) 40%,transparent);border-radius:20px;padding:2px 8px;flex:none}
 @media print{
   .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
   body{background:#fff;color:#000;font-size:10pt}
@@ -1316,9 +1325,9 @@ const rngTxt=b=>`${b.lo<1?dec((b.lo*1000).toFixed(1))+" kHz":dec(b.lo)+" MHz"} �
 const CRED = {
   ham:     { g: "Radioafición",  t: "Licencia de radioaficionado",           s: "Radioaficionado", d: "Indicativo EA, EB o EC tras el examen del Ministerio." },
   mar_op:  { g: "Marítimo",      t: "Título de operador (SRC, LRC o GOC)",   s: "Operador marítimo", d: "Habilita a la persona: fraseología y procedimientos." },
-  mar_est: { g: "Marítimo",      t: "Licencia de estación de barco",         s: "Estación de barco", d: "Habilita al equipo instalado a bordo." },
+  mar_est: { g: "Marítimo",      t: "Licencia de estación de barco",         s: "Estación de barco", d: "Permiso administrativo para el equipo instalado a bordo. Comprar la radio no lo incluye." },
   aer_op:  { g: "Aeronáutico",   t: "Habilitación de radiotelefonía",        s: "Radiotelefonía aérea", d: "Habilita a la persona. Suele obtenerse con la licencia de piloto o en el curso de RPA." },
-  aer_est: { g: "Aeronáutico",   t: "Licencia de estación aeronáutica",      s: "Estación aeronáutica", d: "Habilita al equipo: exige emisora homologada y canalización de 8,33 kHz." },
+  aer_est: { g: "Aeronáutico",   t: "Licencia de estación aeronáutica",      s: "Estación aeronáutica", d: "Permiso administrativo para que tu emisora opere como estación. Tener la emisora no basta: hay que solicitarla aparte." },
   pmr:     { g: "Profesional",   t: "Concesión de uso privativo (PMR)",      s: "Concesión PMR", d: "Frecuencia asignada nominalmente a tu nombre o al de tu empresa." },
   pmse:    { g: "Profesional",   t: "Autorización PMSE",                     s: "PMSE", d: "Para micrófonos y enlaces de producción en 470–694 MHz." },
   plb:     { g: "Emergencia",    t: "Baliza PLB o EPIRB registrada",         s: "Baliza registrada", d: "Homologada y registrada a tu nombre. Solo ante peligro real." },
@@ -1356,7 +1365,7 @@ function verdict(b) {
     return { k: "ok", t: "Habilitado con tu licencia", d: "Tienes todo lo que esta banda exige. Recuerda respetar potencia, canalización y modo." };
   const names = missing.map(r => CRED[r] ? CRED[r].s : r);
   if (missing.length < req.length)
-    return { k: "partial", t: "Te falta: " + names.join(" y "), d: "Tienes parte de lo necesario, pero no todo: sin ello no puedes emitir legalmente.", missing };
+    return { k: "partial", t: "Te falta: " + names.join(" y "), d: "Es un permiso administrativo, distinto de tener el equipo: hay que solicitarlo. Sin él no puedes emitir legalmente aunque la emisora cumpla.", missing };
   return { k: "no", t: "Necesitas: " + names.join(" y "), d: "No consta en tu perfil ninguna habilitación para esta banda.", missing };
 }
 const VK = { ok: "var(--ok)", partial: "var(--warn)", no: "var(--info)", never: "var(--bad)" };
@@ -1471,13 +1480,15 @@ function openProfile(first) {
     </div>
     <div class="sh-b">
       <div class="cal c-nt" style="margin-bottom:18px"><span class="kicker">Cómo funciona</span>Un <b>título de operador</b> habilita a la persona; una <b>licencia de estación</b> habilita al equipo. Muchas bandas exigen las dos cosas, así que se marcan por separado: así la app puede decirte exactamente qué te falta.</div>
-      <h5>Tu equipo · un solo toque</h5>
+      <h5>1 · Tu equipo <span class="tagk eq">el aparato</span></h5>
       <div class="eqgrid">${Object.entries(EQ).map(([id, q]) => `
         <button class="eqt ${MYEQ === id ? "on" : ""}" data-eq="${id}">
           <span class="e">${q.e}</span><b>${esc(q.t)}</b><span>${esc(q.d)}</span>
         </button>`).join("")}</div>
+      <h5 style="margin-top:22px">2 · Tus habilitaciones <span class="tagk pm">los permisos</span></h5>
+      <p class="hint2">Son trámites administrativos, independientes del equipo que tengas.</p>
       ${Object.entries(groups).map(([g, items]) => `
-        <h5>${esc(g)}</h5>
+        <h5 class="sub5">${esc(g)}</h5>
         <div class="creds">${items.map(([id, c]) => `
           <label class="cred ${PROFILE.has(id) ? "on" : ""}">
             <input type="checkbox" data-cred="${id}" ${PROFILE.has(id) ? "checked" : ""}>
@@ -1618,7 +1629,7 @@ function cardHTML(b){
     <span class="rt">
       <span class="rtr"><i class="rtk">RX</i>${pill(b.rx,RXL)}<i class="rmini">no radia</i></span>
       <span class="rtr"><i class="rtk">TX</i>${pill(b.tx,TXL,txLabel(b))}${vtag(b)}${b.tx.r?bars(b.tx.r):'<i class="rmini">sin riesgo</i>'}</span>
-      ${hasProfile()?(()=>{const v=fverdict(b);return `<span class="rtr me" style="--c:${VK[v.k]}"><i class="rtk">TÚ</i>${vBadge(v)}</span>`;})():""}
+      ${hasProfile()?(()=>{const v=fverdict(b);return `<span class="rtr me tap" data-perfil="1" style="--c:${VK[v.k]}"><i class="rtk">TÚ</i>${vBadge(v)}${v.k==="partial"||v.k==="no"?'<i class="edit">ajustar</i>':""}</span>`;})():""}
     </span>
     <span class="foot"><span>${esc(b.pot.split("·")[0].trim())}</span><span>${esc(b.modo.split("·")[0].trim())}</span>${b.canales?`<span>${b.canales.length} canales</span>`:""}</span>
     <button class="fav ${FAV.has(b.id)?"on":""}" data-fav="${b.id}" aria-label="Marcar como favorito" aria-pressed="${FAV.has(b.id)}">
@@ -1672,6 +1683,7 @@ function render(){
   }));
 }
 $("#results").addEventListener("click",e=>{
+  if(e.target.closest("[data-perfil]")){e.preventDefault();e.stopPropagation();openProfile(false);return;}
   if(e.target.closest("#bcred")){const uc=USECASES[UC]; if(uc&&uc.cred){PROFILE.add(uc.cred);saveProfile();paintProfileBtn();paintStats();render();} return;}
   const f=e.target.closest("[data-fav]");
   if(f){e.preventDefault();e.stopPropagation();const id=f.dataset.fav;FAV.has(id)?FAV.delete(id):FAV.add(id);LS.set("espectro:fav",[...FAV]);render();return;}
