@@ -372,7 +372,8 @@ footer .end{margin-top:var(--s5);padding-top:var(--s4);border-top:1px solid var(
 .pbtn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pbtn:hover{border-color:var(--line2);color:var(--fg)}
 .pbtn.on{border-color:color-mix(in srgb,var(--acc) 50%,transparent);color:var(--acc);background:color-mix(in srgb,var(--acc) 9%,var(--srf))}
-.vd{display:inline-flex;align-items:center;gap:6px;font-size:11.8px;font-weight:640;color:var(--c);letter-spacing:-.008em;min-width:0}
+.vd{display:inline-flex;align-items:center;gap:6px;font-size:11.8px;font-weight:640;color:var(--c);letter-spacing:-.008em;min-width:0;overflow:hidden}
+.vd b,.vd span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .vd svg{width:12px;height:12px;flex:none}
 .rtr.me{background:color-mix(in srgb,var(--c) 8%,transparent)}
 .creds{display:flex;flex-direction:column;gap:7px;margin-bottom:6px}
@@ -1323,17 +1324,17 @@ const rngTxt=b=>`${b.lo<1?dec((b.lo*1000).toFixed(1))+" kHz":dec(b.lo)+" MHz"} �
    equipo. Son permisos distintos y muchas bandas exigen los dos, así que
    se modelan por separado para poder decir qué falta exactamente.      */
 const CRED = {
-  ham:     { g: "Radioafición",  t: "Licencia de radioaficionado",           s: "Radioaficionado", d: "Indicativo EA, EB o EC tras el examen del Ministerio." },
-  mar_op:  { g: "Marítimo",      t: "Título de operador (SRC, LRC o GOC)",   s: "Operador marítimo", d: "Habilita a la persona: fraseología y procedimientos." },
-  mar_est: { g: "Marítimo",      t: "Licencia de estación de barco",         s: "Estación de barco", d: "Permiso administrativo para el equipo instalado a bordo. Comprar la radio no lo incluye." },
-  aer_op:  { g: "Aeronáutico",   t: "Habilitación de radiotelefonía",        s: "Radiotelefonía aérea", d: "Habilita a la persona. Suele obtenerse con la licencia de piloto o en el curso de RPA." },
-  aer_est: { g: "Aeronáutico",   t: "Licencia de estación aeronáutica",      s: "Estación aeronáutica", d: "Permiso administrativo para que tu emisora opere como estación. Tener la emisora no basta: hay que solicitarla aparte." },
-  pmr:     { g: "Profesional",   t: "Concesión de uso privativo (PMR)",      s: "Concesión PMR", d: "Frecuencia asignada nominalmente a tu nombre o al de tu empresa." },
-  pmse:    { g: "Profesional",   t: "Autorización PMSE",                     s: "PMSE", d: "Para micrófonos y enlaces de producción en 470–694 MHz." },
-  plb:     { g: "Emergencia",    t: "Baliza PLB o EPIRB registrada",         s: "Baliza registrada", d: "Homologada y registrada a tu nombre. Solo ante peligro real." },
-  bcast:   { g: "Difusión",      t: "Concesión de radiodifusión",            s: "Radiodifusión", d: "Licencia de emisora de radio o televisión." },
-  earth:   { g: "",              t: "Licencia de estación terrena",          s: "Estación terrena", d: "Enlace ascendente a satélite.", off: 1 },
-  estado:  { g: "",              t: "Reservado a operadores o al Estado",    s: "No habilitable", d: "Ningún particular puede obtener permiso para emitir aquí.", off: 1 }
+  ham:     { g: "Radioafición",  t: "Licencia de radioaficionado",           s: "Licencia de radioaficionado", k: "Radioaficionado", d: "Indicativo EA, EB o EC tras el examen del Ministerio." },
+  mar_op:  { g: "Marítimo",      t: "Título de operador (SRC, LRC o GOC)",   s: "Título de operador marítimo", k: "Título marítimo", d: "Habilita a la persona: fraseología y procedimientos." },
+  mar_est: { g: "Marítimo",      t: "Licencia de estación de barco",         s: "Licencia de estación de barco", k: "Estación de barco", d: "Permiso administrativo para el equipo instalado a bordo. Comprar la radio no lo incluye." },
+  aer_op:  { g: "Aeronáutico",   t: "Habilitación de radiotelefonía",        s: "Habilitación de radiotelefonía", k: "Radiotelefonía", d: "Habilita a la persona. Suele obtenerse con la licencia de piloto o en el curso de RPA." },
+  aer_est: { g: "Aeronáutico",   t: "Licencia de estación aeronáutica",      s: "Licencia de estación aeronáutica", k: "Estación aeronáutica", d: "Permiso administrativo para que tu emisora opere como estación. Tener la emisora no basta: hay que solicitarla aparte." },
+  pmr:     { g: "Profesional",   t: "Concesión de uso privativo (PMR)",      s: "Concesión de uso privativo", k: "Concesión PMR", d: "Frecuencia asignada nominalmente a tu nombre o al de tu empresa." },
+  pmse:    { g: "Profesional",   t: "Autorización PMSE",                     s: "Autorización PMSE", k: "PMSE", d: "Para micrófonos y enlaces de producción en 470–694 MHz." },
+  plb:     { g: "Emergencia",    t: "Baliza PLB o EPIRB registrada",         s: "Baliza PLB o EPIRB registrada", k: "Baliza", d: "Homologada y registrada a tu nombre. Solo ante peligro real." },
+  bcast:   { g: "Difusión",      t: "Concesión de radiodifusión",            s: "Concesión de radiodifusión", k: "Radiodifusión", d: "Licencia de emisora de radio o televisión." },
+  earth:   { g: "",              t: "Licencia de estación terrena",          s: "Licencia de estación terrena", k: "Estación terrena", d: "Enlace ascendente a satélite.", off: 1 },
+  estado:  { g: "",              t: "Reservado a operadores o al Estado",    s: "Reservado a operadores o al Estado", k: "No habilitable", d: "Ningún particular puede obtener permiso para emitir aquí.", off: 1 }
 };
 
 /* Requisitos de transmisión por banda. Las que no aparecen son de uso común. */
@@ -1375,7 +1376,7 @@ const VICON = {
   no: '<path d="M12 7v6M12 17v.01"/>',
   never: '<path d="M6 6l12 12M18 6L6 18"/>'
 };
-const vBadge = v => `<span class="vd" style="--c:${VK[v.k]}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">${VICON[v.k]}</svg>${esc(v.t)}</span>`;
+const vBadge = v => `<span class="vd" title="${esc(v.t)}" style="--c:${VK[v.k]}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">${VICON[v.k]}</svg>${esc(v.t)}</span>`;
 
 /* ═══════════════ EQUIPO ═══════════════
    Un solo toque. Nada de formularios: perfiles cerrados que cubren
@@ -1459,7 +1460,7 @@ const povl = $("#povl"), pbtn = $("#pbtn");
 function profileLabel() {
   const eq = MYEQ !== "none" ? EQ[MYEQ].t : "";
   let lic = "";
-  if (PROFILE.size) { const k = [...PROFILE]; lic = k.length <= 2 ? k.map(x => CRED[x].s).join(" + ") : k.length + " habilitaciones"; }
+  if (PROFILE.size) { const k = [...PROFILE]; lic = k.length <= 2 ? k.map(x => CRED[x].k || CRED[x].s).join(" + ") : k.length + " habilitaciones"; }
   if (eq && lic) return eq + " · " + lic;
   return eq || lic || "Mi perfil";
 }
