@@ -623,6 +623,9 @@ details.svc .grid{padding-top:2px}
 .nn b{display:block;font-size:13.2px;font-weight:600;line-height:1.3}
 .nn span{display:block;font-family:var(--f-mono);font-size:11px;color:var(--fg3);margin-top:2px}
 .nsub{font-family:var(--f-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--fg3);margin:12px 0 7px}
+
+.adbox{border:1px solid var(--line);border-radius:var(--r2);padding:14px;background:var(--srf2);margin-bottom:var(--s3)}
+.adbox .ad-top{margin-bottom:10px}
 @media print{
   .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
   body{background:#fff;color:#000;font-size:10pt}
@@ -708,47 +711,8 @@ details.svc .grid{padding-top:2px}
         <div id="nearOut"></div>
       </div>
 
-      <h5>La radio: qué necesitas de verdad</h5>
-      <p class="hint2">El enlace de mando y el vídeo van en el propio dron; el resto depende de tu perfil.</p>
-      <div class="uas-radio" id="uasRadio"></div>
-
-      <div class="uas-intro">
-        <p>Volar un dron cruza <b>dos marcos distintos</b> que se confunden a menudo. La <b>operación</b> la regulan AESA y ENAIRE: registro, zonas geográficas y autorización. El <b>espectro</b> lo regula el CNAF: qué frecuencias puedes usar. Cumplir uno no te cubre el otro, y la mayor parte de la coordinación no se hace por radio.</p>
-      </div>
-
-      <h5>El trámite, por orden</h5>
-      <ol class="steps">
-        <li><b>Regístrate como operador UAS</b><span>En AESA. Te dan un número de operador que debe ir en la aeronave.</span></li>
-        <li><b>Consulta la zona antes de cada vuelo</b><span>En ENAIRE Drones. Ahí ves si el punto está en zona restringida, en el entorno de un aeródromo o en espacio aéreo controlado.</span></li>
-        <li><b>Solicita autorización si la zona lo exige</b><span>Lo que haga falta depende de la categoría de la operación y de la zona concreta. La resolución te llega con sus condiciones.</span></li>
-        <li><b>Coordina con la dependencia</b><span>Aquí está la clave: <b>normalmente por teléfono</b>, con el número que figura en tu propia autorización. La radio con ATC es la excepción, no la norma.</span></li>
-        <li><b>Antes de despegar, escucha</b><span>El ATIS y la torre te dan pista en servicio, viento y tráfico real. Escuchar es libre y no exige ningún permiso.</span></li>
-      </ol>
-
-      <a class="golink" href="#aero-sec"><span><b>Frecuencias y teléfono de tu aeródromo</b>Elige cualquiera de los 72 aeródromos y helipuertos en el apartado siguiente: torre, ATIS y contacto de coordinación, leídos del AIP.</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-
-      <div class="cal c-nt" style="margin-top:16px"><span class="kicker">Alcance de esta guía</span>Esto ordena el marco general para que sepas qué tienes que mirar; no sustituye a tu autorización ni a la normativa aplicable. Los requisitos concretos dependen de la categoría de la operación y de la zona: la fuente son AESA y ENAIRE, y para las frecuencias, el CNAF y el AIP.</div>
-      </div>
-    </details>
-  </section>
-
-  <section class="sec">
-    <div class="sec-h">
-      <h2>¿Qué quieres hacer?</h2>
-      <span class="sub">Elige tu situación y la app te deja solo lo que te sirve</span>
-    </div>
-    <div class="ucsel">
-      <button class="ucbtn" id="ucbtn" aria-haspopup="listbox" aria-expanded="false"></button>
-      <div class="ucmenu" id="ucmenu" role="listbox" hidden></div>
-    </div>
-  </section>
-
-  <section class="sec" id="aero-sec">
-    <div class="sec-h">
-      <h2>Aeródromos y helipuertos de España</h2>
-      <span class="sub">Frecuencias de torre, ATIS y aproximación · consultadas al AIP de ENAIRE</span>
-    </div>
-    <div class="card lk">
+      <h5 id="aero-sec">Consultar un aeródromo concreto</h5>
+      <div class="adbox">
       <div class="ad-top">
         <select id="adsel" aria-label="Elige aeródromo"></select>
         <button class="btn pri" id="adlive">
@@ -761,7 +725,7 @@ details.svc .grid{padding-top:2px}
       <div id="adout"></div>
     </div>
 
-    <details class="card rst" id="rst-sec">
+      <details class="card rst" id="rst-sec">
       <summary class="uas-sum">
         <span class="uas-ico">🚁</span>
         <span class="uas-tt"><b>Helipuertos y aeródromos restringidos</b><span>318 instalaciones sin servicio ATS: hospitales, bomberos, puertos, empresas</span></span>
@@ -779,6 +743,39 @@ details.svc .grid{padding-top:2px}
         <div class="ad-state" id="rstFoot" style="margin:10px 0 0"></div>
       </div>
     </details>
+
+      <h5>La radio: qué necesitas de verdad</h5>
+      <p class="hint2">El enlace de mando y el vídeo van en el propio dron; el resto depende de tu perfil.</p>
+      <div class="uas-radio" id="uasRadio"></div>
+
+      <div class="uas-intro">
+        <p>Volar un dron cruza <b>dos marcos distintos</b> que se confunden a menudo. La <b>operación</b> la regulan AESA y ENAIRE: registro, zonas geográficas y autorización. El <b>espectro</b> lo regula el CNAF: qué frecuencias puedes usar. Cumplir uno no te cubre el otro, y la mayor parte de la coordinación no se hace por radio.</p>
+      </div>
+
+      <h5>El trámite, por orden</h5>
+      <ol class="steps">
+        <li><b>Regístrate como operador UAS</b><span>En AESA. Te dan un número de operador que debe ir en la aeronave.</span></li>
+        <li><b>Consulta la zona antes de cada vuelo</b><span>En ENAIRE Drones. Ahí ves si el punto está en zona restringida, en el entorno de un aeródromo o en espacio aéreo controlado.</span></li>
+        <li><b>Solicita autorización si la zona lo exige</b><span>Lo que haga falta depende de la categoría de la operación y de la zona concreta. La resolución te llega con sus condiciones.</span></li>
+        <li><b>Coordina con la dependencia</b><span>Aquí está la clave: <b>normalmente por teléfono</b>, con el número que figura en tu propia autorización. La radio con ATC es la excepción, no la norma.</span></li>
+        <li><b>Antes de despegar, escucha</b><span>El ATIS y la torre te dan pista en servicio, viento y tráfico real. Escuchar es libre y no exige ningún permiso.</span></li>
+      </ol>
+
+
+      <div class="cal c-nt" style="margin-top:16px"><span class="kicker">Alcance de esta guía</span>Esto ordena el marco general para que sepas qué tienes que mirar; no sustituye a tu autorización ni a la normativa aplicable. Los requisitos concretos dependen de la categoría de la operación y de la zona: la fuente son AESA y ENAIRE, y para las frecuencias, el CNAF y el AIP.</div>
+      </div>
+    </details>
+  </section>
+
+  <section class="sec">
+    <div class="sec-h">
+      <h2>¿Qué quieres hacer?</h2>
+      <span class="sub">Elige tu situación y la app te deja solo lo que te sirve</span>
+    </div>
+    <div class="ucsel">
+      <button class="ucbtn" id="ucbtn" aria-haspopup="listbox" aria-expanded="false"></button>
+      <div class="ucmenu" id="ucmenu" role="listbox" hidden></div>
+    </div>
   </section>
 
   <section class="sec">
@@ -1830,7 +1827,7 @@ function render(){
       <summary class="svc-h"><h3>${esc(c)}</h3><span class="ln"></span><span class="qt">${arr.length}</span>
         <svg class="caret" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></summary>
       <div class="grid">${arr.map(cardHTML).join("")}</div>
-      ${c==="RC y drones"?`<a class="golink" href="#uas-sec"><span><b>¿Vas a volar un dron cerca de un aeródromo?</b>Coordinar el vuelo es un trámite aparte del espectro: pasos, teléfonos y qué radio necesitas de verdad.</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>`:""}
+      ${c==="RC y drones"?`<a class="golink" href="#uas-sec"><span><b>¿Vas a volar un dron?</b>Abre el planificador: qué aeródromos y helipuertos hay cerca de tu punto, con sus frecuencias y teléfonos, y qué trámite toca.</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>`:""}
     </details>`).join("");
   $$("#results details.svc").forEach(d=>d.addEventListener("toggle",()=>{
     if(filtrando)return;                       // no memorizar aperturas automáticas
@@ -2818,6 +2815,18 @@ function rstFoot(t, amdt){
   rstFootMsg(`Leído del AIP oficial${amdt?" · "+amdt:""} · ${mins<1?"hace un momento":"hace "+mins+" min"}`, "live");
 }
 $("#rst-sec").addEventListener("toggle", () => { if ($("#rst-sec").open && !rstDone) rstLive(false); });
+$("#uas-sec").querySelector("details.uas").addEventListener("toggle", e => { if (e.target.open && !rstDone) rstLive(false); });
+/* Precarga en segundo plano: al abrir el planificador ya está listo.
+   Se salta si el usuario pidió ahorro de datos o va por red lenta. */
+(function preload(){
+  const c = LS.get(RST_KEY, null);
+  if (c && c.r && c.r.length && Date.now() - c.t < AD_TTL) { rstDone = true; return; }
+  const n = navigator.connection || {};
+  if (n.saveData || /^(slow-2g|2g|3g)$/.test(n.effectiveType || "")) return;
+  const go = () => rstLive(false);
+  if ("requestIdleCallback" in window) requestIdleCallback(go, { timeout: 6000 });
+  else setTimeout(go, 2500);
+})();
 $("#rstUpd").addEventListener("click", () => rstLive(true));
 
 
