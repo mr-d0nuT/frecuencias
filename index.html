@@ -1137,6 +1137,42 @@ section.svc{margin:0 0 12px;scroll-margin-top:calc(var(--hdr) + 16px)}
 
 
 
+  <section class="sec" id="spec-sec">
+    <div class="card spec">
+      <div class="spec-h">
+        <span class="kicker">Explorar el espectro</span>
+        <div class="lkinline"><span class="lkl">o escribe una frecuencia</span><input id="fq" type="text" inputmode="decimal" placeholder="446,09375" aria-label="Frecuencia">
+        <select id="fu" aria-label="Unidad"><option value="1">MHz</option><option value="0.001">kHz</option><option value="1000">GHz</option></select></div>
+        <div class="tog" id="mode" role="group" aria-label="Modo de color del espectro">
+          <button data-m="tx" class="on">TX</button><button data-m="rx">RX</button>
+        </div>
+      </div>
+      <div class="specscroll"><div class="specin">
+        <div class="specbar" id="specbar"></div>
+        <div class="axis" id="axis"></div>
+        <div class="regions" id="regions"></div>
+      </div></div>
+      <div class="lkres" id="lkres"></div>
+    </div>
+  </section>
+
+  <section class="sec" id="sos-sec">
+    <article class="card sos" title="Escucharlas es legal. Emitir en ellas fuera de una emergencia real moviliza medios de rescate y se sanciona con severidad. En tierra, el teléfono es el 112.">
+      <div class="sos-h">
+        <span class="uas-ico">🆘</span>
+        <span class="sos-t">Frecuencias de socorro</span>
+        <select id="sossel" aria-label="Elige una frecuencia de socorro"></select>
+      </div>
+      <div id="sosout"></div>
+    </article>
+  </section>
+
+  <section class="sec">
+    <div class="ucsel">
+      <button class="ucbtn" id="ucbtn" aria-haspopup="listbox" aria-expanded="false"></button>
+      <div class="ucmenu" id="ucmenu" role="listbox" hidden></div>
+    </div>
+  </section>
   <section class="sec" id="uas-sec" hidden>
     <div class="card uas">
       <div class="uas-body">
@@ -1203,45 +1239,8 @@ section.svc{margin:0 0 12px;scroll-margin-top:calc(var(--hdr) + 16px)}
       </div>
     </div>
   </section>
+  <div id="ucpanel"></div>
 
-
-
-  <section class="sec" id="spec-sec">
-    <div class="card spec">
-      <div class="spec-h">
-        <span class="kicker">Explorar el espectro</span>
-        <div class="lkinline"><span class="lkl">o escribe una frecuencia</span><input id="fq" type="text" inputmode="decimal" placeholder="446,09375" aria-label="Frecuencia">
-        <select id="fu" aria-label="Unidad"><option value="1">MHz</option><option value="0.001">kHz</option><option value="1000">GHz</option></select></div>
-        <div class="tog" id="mode" role="group" aria-label="Modo de color del espectro">
-          <button data-m="tx" class="on">TX</button><button data-m="rx">RX</button>
-        </div>
-      </div>
-      <div class="specscroll"><div class="specin">
-        <div class="specbar" id="specbar"></div>
-        <div class="axis" id="axis"></div>
-        <div class="regions" id="regions"></div>
-      </div></div>
-      <div class="lkres" id="lkres"></div>
-    </div>
-  </section>
-
-  <section class="sec" id="sos-sec">
-    <article class="card sos" title="Escucharlas es legal. Emitir en ellas fuera de una emergencia real moviliza medios de rescate y se sanciona con severidad. En tierra, el teléfono es el 112.">
-      <div class="sos-h">
-        <span class="uas-ico">🆘</span>
-        <span class="sos-t">Frecuencias de socorro</span>
-        <select id="sossel" aria-label="Elige una frecuencia de socorro"></select>
-      </div>
-      <div id="sosout"></div>
-    </article>
-  </section>
-
-  <section class="sec">
-    <div class="ucsel">
-      <button class="ucbtn" id="ucbtn" aria-haspopup="listbox" aria-expanded="false"></button>
-      <div class="ucmenu" id="ucmenu" role="listbox" hidden></div>
-    </div>
-  </section>
 
   <div class="facets" id="facets"><div class="wrap">
     <div class="mefilter" id="mefilter"></div>
@@ -2648,7 +2647,10 @@ function render(){
   const filtrando = !!Q || UC!==null || FAVONLY || Object.values(F).some(v=>v!=="all");
   const indice = groups.length>1 ? `<nav class="secidx" aria-label="Ir a una sección">${
     groups.map(([c,arr])=>`<button data-goto="${esc(c)}">${esc(c)}<i>${arr.length}</i></button>`).join("")}</nav>` : "";
-  $("#results").innerHTML=brief+indice+groups.map(([c,arr])=>`
+  // el panel de la situación vive bajo su selector, no dentro del listado:
+  // así el orden es siempre control → panel → perfil → filtros → resultados
+  const up=$("#ucpanel"); if(up){ up.innerHTML=brief; up.hidden=!brief; }
+  $("#results").innerHTML=indice+groups.map(([c,arr])=>`
     <section class="svc" data-cat="${esc(c)}" id="sec-${esc(c).replace(/[^a-zA-Z]/g,"")}">
       <h3 class="svc-h"><span>${esc(c)}</span><span class="ln"></span><span class="qt">${arr.length}</span></h3>
       <div class="blist">${arr.map(rowHTML).join("")}</div>
