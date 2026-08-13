@@ -18,6 +18,9 @@
   --line:#1e2430; --line2:#2a3140;
   --acc:#2dd4bf; --acc-fg:#04201c;
   --ok:#34c78a; --warn:#e0a336; --hot:#e8834a; --bad:#e75a63; --info:#5b93f0;
+  /* Vivos: rellenos, puntos y barras. No son texto, así que no los ata el
+     contraste de lectura y pueden ir a saturación plena. */
+  --acc-v:#19e6cb; --ok-v:#1fe089; --warn-v:#ffb224; --hot-v:#ff8a3d; --bad-v:#ff5964; --info-v:#4d9bff;
   --sel:color-mix(in srgb,var(--acc) 22%,transparent);
 
   --f-mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,"Cascadia Mono",Consolas,monospace;
@@ -34,8 +37,9 @@ html[data-theme="light"]{
   --bg:#dee3ea; --bg-e:#d4dae3; --srf:#eef1f6; --srf2:#e7ebf2; --srf3:#dde2ea;
   --fg:#1a1f28; --fg2:#4e5665; --fg3:#767f8f;
   --line:#ccd3df; --line2:#b6bfcf;
-  --acc:#076b62; --acc-fg:#ffffff;
-  --ok:#0a6b47; --warn:#7d5808; --hot:#b04f16; --bad:#bd2f38; --info:#2559bf;
+  --acc:#0f7568; --acc-fg:#ffffff;
+  --ok:#12764e; --warn:#8a6212; --hot:#a6501f; --bad:#c1323d; --info:#2359c9;
+  --acc-v:#00b39c; --ok-v:#0ec46a; --warn-v:#f0a30a; --hot-v:#f2620f; --bad-v:#e5283a; --info-v:#1f6ae8;
   --sh1:0 1px 2px rgba(20,26,40,.06);
   --sh2:0 1px 2px rgba(20,26,40,.06),0 10px 28px -16px rgba(20,26,40,.3);
   --sh3:0 24px 64px -16px rgba(20,26,40,.34);
@@ -183,7 +187,7 @@ html[data-theme="light"] .ch.on[data-c]{color:#fff}
 .rtr+.rtr{border-top:1px solid var(--line)}
 .rtk{font-family:var(--f-mono);font-size:9.5px;font-weight:680;letter-spacing:.11em;color:var(--fg3);width:20px;flex:none}
 .stt{display:inline-flex;align-items:center;gap:6px;font-size:11.8px;font-weight:600;color:var(--c);letter-spacing:-.008em;min-width:0}
-.stt .g{width:6px;height:6px;border-radius:50%;background:var(--c);flex:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 17%,transparent)}
+.stt .g{width:7px;height:7px;border-radius:50%;background:var(--cv,var(--c));flex:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--cv,var(--c)) 22%,transparent)}
 .bars{display:flex;gap:3px;margin-left:auto;flex:none}
 .bars i{width:13px;height:3px;border-radius:2px;background:var(--line2)}
 .bars i.f{background:var(--rc)}
@@ -1025,6 +1029,41 @@ section.svc{margin:0 0 12px;scroll-margin-top:calc(var(--hdr) + 16px)}
   .brow .bfq{font-size:10.4px}
   .brow .bcel .stt,.brow .bcel .vd{font-size:10.2px}
 }
+
+/* ═══ bloque del perfil: total aparte, RX y TX en pares rotulados ═══ */
+.me-tiles{display:flex;align-items:stretch;gap:10px;flex-wrap:nowrap}
+.me-tile.total{flex:none;min-width:74px;justify-content:center;align-items:center;text-align:center;
+  background:color-mix(in srgb,var(--fg) 6%,var(--srf));border-color:var(--line2)}
+.me-tile.total .mn{color:var(--fg)}
+.me-tile.total .ml{font-family:var(--f-mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--fg3)}
+.me-grp{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:4px}
+.me-gl{font-family:var(--f-mono);font-size:8.8px;letter-spacing:.16em;text-transform:uppercase;color:var(--fg3);text-align:center;font-weight:700}
+.me-pair{display:grid;grid-template-columns:1fr 1fr;gap:6px;flex:1}
+.me-pair .me-tile{align-items:center;text-align:center;justify-content:center;padding:7px 4px;gap:0}
+/* el color vivo es el que da la lectura de intensidad; el texto queda legible */
+.me-pair .me-tile .mn{color:var(--cv,var(--c));font-size:19px}
+.me-pair .me-tile .ml{font-family:var(--f-mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--fg3)}
+.me-pair .me-tile.on{border-color:var(--cv,var(--c));background:color-mix(in srgb,var(--cv,var(--c)) 13%,var(--srf));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--cv,var(--c)) 30%,transparent)}
+.me-pair .me-tile.on .ml{color:var(--c)}
+@media (max-width:760px){
+  .me-tiles{gap:7px}
+  .me-tile.total{min-width:58px}
+  .me-tile.total .mn{font-size:16px}
+  .me-pair{gap:5px}
+  .me-pair .me-tile .mn{font-size:16px}
+  .me-pair .me-tile .ml{font-size:8.2px;letter-spacing:.07em}
+  .me-gl{font-size:8px;letter-spacing:.1em}
+}
+
+/* alineación y peso visual del bloque de perfil */
+.me-grp.tot{flex:none;width:86px}
+.me-pair.uno{grid-template-columns:1fr}
+.me-tile.total{min-width:0;width:100%}
+/* un tinte de fondo mínimo hace que el verde y el rojo se lean sin seleccionar */
+.me-pair .me-tile{background:color-mix(in srgb,var(--cv,var(--c)) 5%,var(--srf));border-color:color-mix(in srgb,var(--cv,var(--c)) 20%,var(--line))}
+.me-pair .me-tile:hover{background:color-mix(in srgb,var(--cv,var(--c)) 10%,var(--srf))}
+@media (max-width:760px){ .me-grp.tot{width:62px} }
+@media (max-width:430px){ .me-grp.tot{width:54px} .me-tile.total .ml{font-size:7.6px} }
 @media print{
   .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
   body{background:#fff;color:#000;font-size:10pt}
@@ -1666,8 +1705,8 @@ function txLabel(b){
   if(!req.length) return TXL[1].t;
   return "TX con "+(TXPAIR[req.join("+")]||req.map(r=>TXPH[r]).join(" + "));
 }
-const RXL=[{t:"RX libre",c:"var(--ok)"},{t:"RX legal · no divulgable",c:"var(--warn)"},{t:"RX ilícita",c:"var(--bad)"}];
-const TXL=[{t:"TX libre",c:"var(--ok)"},{t:"TX con licencia",c:"var(--info)"},{t:"TX prohibida",c:"var(--bad)"}];
+const RXL=[{t:"RX libre",c:"var(--ok)",v:"var(--ok-v)"},{t:"RX legal · no divulgable",c:"var(--warn)",v:"var(--warn-v)"},{t:"RX ilícita",c:"var(--bad)",v:"var(--bad-v)"}];
+const TXL=[{t:"TX libre",c:"var(--ok)",v:"var(--ok-v)"},{t:"TX con licencia",c:"var(--info)",v:"var(--info-v)"},{t:"TX prohibida",c:"var(--bad)",v:"var(--bad-v)"}];
 const RISK=[{t:"Nulo",c:"var(--ok)"},{t:"Bajo",c:"var(--warn)"},{t:"Alto",c:"var(--hot)"},{t:"Crítico",c:"var(--bad)"}];
 const ORDER=["Walkies y uso personal","Radioafición","Aviación","Náutica y marina","Redes profesionales (PMR)","Emergencias","Radio y televisión","Datos, WiFi e IoT","RC y drones","Micrófonos y audio","Telefonía móvil","Satélite y espacio"];
 const USECASES=[
@@ -1817,7 +1856,8 @@ let FAV=new Set(LS.get("espectro:fav",[]));
 const bars=r=>`<span class="bars" style="--rc:${RISK[r].c}" aria-label="riesgo ${RISK[r].t}">${[0,1,2,3].map(i=>`<i class="${i<=r&&r>0?"f":""}"></i>`).join("")}</span>`;
 const pill=(o,L,txt)=>{
   const tag = L===RXL ? "RX" : L===TXL ? "TX" : "";
-  return `<span class="stt" style="--c:${L[o.s].c}"><i class="g"></i>${tag?`<i class="pk">${tag}</i>`:""}${esc(txt||L[o.s].t)}</span>`;
+  const viv = L[o.s].v || L[o.s].c;
+  return `<span class="stt" style="--c:${L[o.s].c};--cv:${viv}"><i class="g"></i>${tag?`<i class="pk">${tag}</i>`:""}${esc(txt||L[o.s].t)}</span>`;
 };
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const dec=s=>String(s).replace(".",",");
@@ -2400,10 +2440,15 @@ function paintMe(){
         ? `<span class="me-t vacio">Sin licencias ni equipo declarados</span><span class="me-sep">—</span><button class="me-cfg" id="meCfg">Rellena tu perfil</button>`
         : `<span class="me-v" title="${esc(perfilDetalle())}">${esc(perfilDetalle())}</span><button class="me-cfg" id="meCfg" title="Cambiar perfil"><span class="btxt">Cambiar</span><span class="ico">✎</span></button>`}</div>
      <div class="me-tiles">
-       <button class="me-tile ${F.me==="all"?"on":""}" data-me="all" title="Todo el catálogo, sin filtrar por tu perfil."><span class="mn">${D.length}</span><span class="ml">Todas las bandas</span></button>
-       ${ME.map(m=>`<button class="me-tile ${F.me===m.v?"on":""}" data-me="${m.v}" style="--c:${m.c}" title="${esc(m.d||m.t)}">
-          <span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round">${m.i}</svg></span>
-          <span class="mn">${n[m.v]}</span><span class="ml">${m.t}</span></button>`).join("")}
+       <div class="me-grp tot"><span class="me-gl">Catálogo</span><div class="me-pair uno">
+         <button class="me-tile total ${F.me==="all"?"on":""}" data-me="all" title="Todo el catálogo, sin filtrar por tu perfil.">
+           <span class="mn">${D.length}</span><span class="ml">bandas</span></button></div></div>
+       ${[["Escuchar",["rxsi","rxno"]],["Transmitir",["txsi","txno"]]].map(([rot,ids])=>`
+         <div class="me-grp"><span class="me-gl">${rot}</span><div class="me-pair">${
+           ids.map(id=>{const m=ME.find(x=>x.v===id);
+             return `<button class="me-tile ${F.me===id?"on":""}" data-me="${id}" style="--c:${m.c};--cv:${m.c.replace(")","-v)")}" title="${esc(m.d||m.t)}">
+               <span class="mn">${n[id]}</span><span class="ml">${m.t.split(" ")[1]}</span></button>`;}).join("")
+         }</div></div>`).join("")}
      </div></div>`;
   el.querySelectorAll("[data-me]").forEach(b=>b.addEventListener("click",()=>{
     F.me=b.dataset.me; syncChips(); paintMe(); paintFacets(); render();
@@ -2670,7 +2715,7 @@ let specline=null, specTag=null;   // se reinsertan tras cada repintado de la ba
 function drawSpec(){
   specbar.innerHTML=D.map(b=>{
     const a=pos(b.lo), w=Math.max(pos(b.hi)-a,0.4);
-    const col=MODE==="tx"?(b.tx.r>=3?"var(--bad)":TXL[b.tx.s].c):RXL[b.rx.s].c;
+    const col=MODE==="tx"?(b.tx.r>=3?"var(--bad-v)":TXL[b.tx.s].v):RXL[b.rx.s].v;
     return `<i class="seg" data-id="${b.id}" style="left:${a}%;width:${w}%;background:${col}"></i>`;
   }).join("");
   if(specline) specbar.appendChild(specline);
