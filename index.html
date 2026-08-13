@@ -31,13 +31,13 @@
   --hdr:56px;
 }
 html[data-theme="light"]{
-  --bg:#fbfbfd; --bg-e:#f3f5f9; --srf:#ffffff; --srf2:#f7f8fc; --srf3:#eef1f7;
-  --fg:#131720; --fg2:#5a6273; --fg3:#8b93a3;
-  --line:#e5e8ef; --line2:#d2d7e2;
-  --acc:#0d9488; --acc-fg:#ffffff;
-  --ok:#0f9d68; --warn:#b07d10; --hot:#d0631f; --bad:#d33f48; --info:#2f6ee0;
-  --sh1:0 1px 2px rgba(20,26,40,.05);
-  --sh2:0 1px 2px rgba(20,26,40,.05),0 10px 28px -16px rgba(20,26,40,.35);
+  --bg:#dee3ea; --bg-e:#d4dae3; --srf:#eef1f6; --srf2:#e7ebf2; --srf3:#dde2ea;
+  --fg:#1a1f28; --fg2:#4e5665; --fg3:#767f8f;
+  --line:#ccd3df; --line2:#b6bfcf;
+  --acc:#076b62; --acc-fg:#ffffff;
+  --ok:#0a6b47; --warn:#7d5808; --hot:#b04f16; --bad:#bd2f38; --info:#2559bf;
+  --sh1:0 1px 2px rgba(20,26,40,.06);
+  --sh2:0 1px 2px rgba(20,26,40,.06),0 10px 28px -16px rgba(20,26,40,.3);
   --sh3:0 24px 64px -16px rgba(20,26,40,.34);
 }
 *,*::before,*::after{box-sizing:border-box}
@@ -1931,20 +1931,21 @@ const vBadge = v => `<span class="vd" title="${esc(v.t)}" style="--c:${VK[v.k]}"
    los casos reales, con sus límites técnicos ya dentro.            */
 const EQ = {
   none: { e: "❔", t: "Sin especificar", d: "No comprobar el equipo", skip: 1 },
-  rx:   { e: "📻", t: "Solo receptor", d: "Escáner, SDR o receptor de banda aérea", rxonly: 1 },
+  rx:   { e: "📻", t: "Solo receptor", d: "Escáner, SDR o receptor de banda aérea", rxonly: 1, vari: 1 },
   pmr:  { e: "🚶", t: "Walkie PMR446", d: "Homologado: 500 mW y antena fija",
-          tx: [[446, 446.2]], pwr: 0.5, ant: "fija", modes: ["FM"], cert: ["pmr446"] },
+          tx: [[446, 446.2]], rx: [[446, 446.2]], pwr: 0.5, ant: "fija", modes: ["FM"], cert: ["pmr446"] },
   ht:   { e: "📱", t: "Walkie UHF/VHF", d: "Tipo Baofeng, Quansheng o TIDRADIO: 5 W, antena desmontable",
-          tx: [[136, 174], [400, 470]], pwr: 5, ant: "desmontable", modes: ["FM"], cert: ["ce"] },
+          tx: [[136, 174], [400, 470]], rx: [[65, 108], [136, 174], [400, 470]], pwr: 5, ant: "desmontable", modes: ["FM"], cert: ["ce"], vari: 1 },
   cb:   { e: "🛻", t: "Emisora CB-27", d: "4 W en AM/FM, 12 W en banda lateral",
-          tx: [[26.9, 27.5]], pwr: 12, ant: "exterior", modes: ["AM", "FM", "SSB"], cert: ["ce"] },
+          tx: [[26.9, 27.5]], rx: [[26.9, 27.5]], pwr: 12, ant: "exterior", modes: ["AM", "FM", "SSB"], cert: ["ce"] },
   ham:  { e: "🗼", t: "Equipo de radioafición", d: "Multibanda HF, VHF y UHF con antena exterior",
-          tx: [[0.13, 30], [50, 52], [70.1, 70.3], [144, 146], [430, 440], [1240, 1300]], pwr: 100, ant: "exterior",
-          modes: ["AM", "FM", "SSB", "CW"], cert: ["ce"] },
+          tx: [[0.13, 30], [50, 52], [70.1, 70.3], [144, 146], [430, 440], [1240, 1300]],
+          rx: [[0.15, 30], [50, 54], [70, 70.5], [144, 148], [430, 440], [1240, 1300]], pwr: 100, ant: "exterior",
+          modes: ["AM", "FM", "SSB", "CW"], cert: ["ce"], vari: 1 },
   aer:  { e: "✈️", t: "Emisora aeronáutica", d: "Homologada, con canalización de 8,33 kHz",
-          tx: [[118, 137]], pwr: 6, ant: "fija", modes: ["AM"], cert: ["etso"], ch833: 1 },
+          tx: [[118, 137]], rx: [[118, 137]], pwr: 6, ant: "fija", modes: ["AM"], cert: ["etso"], ch833: 1 },
   mar:  { e: "⛵", t: "Emisora marina VHF", d: "Con llamada selectiva digital",
-          tx: [[156, 162.1]], pwr: 25, ant: "exterior", modes: ["FM"], cert: ["marino"] }
+          tx: [[156, 162.1]], rx: [[156, 163]], pwr: 25, ant: "exterior", modes: ["FM"], cert: ["marino"] }
 };
 
 /* Qué habilitaciones presupone cada equipo.
@@ -1989,13 +1990,37 @@ const rangoTxt = (a, z) => a >= 1000 ? `${(a/1000).toString().replace(".",",")}�
 const CERTN = { pmr446:"un equipo PMR446 homologado", ce:"marcado CE", etso:"una emisora aeronáutica homologada",
                 marino:"una emisora marítima homologada", baliza:"una baliza homologada COSPAS-SARSAT" };
 
+/* Cierre obligatorio de toda nota personal: qué pasa con la ESCUCHA.
+   Antes solo se resolvía la transmisión y el usuario se quedaba sin saber si
+   su equipo al menos recibía ahí. Se juntan las dos mitades: si el equipo la
+   cubre o no, y si escucharla es legal o no —que son cosas distintas—. */
+const rxCubre = (q, b) => (q.rx || []).some(([a, z]) => z >= b.lo && a <= b.hi);
+function rxNota(b) {
+  const q = eqCur();
+  const legal = b.rx.s === 2
+    ? "Escuchar esta banda no es lícito: es señal cifrada o telecomunicación privada."
+    : (b.rx.s === 1 ? "Escucharla es legal; el límite está en no divulgar lo que oigas."
+                    : "Escucharla es libre para cualquiera.");
+  if (q.skip) return legal;
+  // Un escáner o un SDR varían tanto de un modelo a otro que afirmar su
+  // cobertura sería inventar; se dice lo que sí se sabe y se acota el resto.
+  if (q.rxonly && !q.rx)
+    return "En recepción depende de tu aparato: un SDR cubre casi todo el espectro; un receptor de banda aérea, solo 118 – 137 MHz. " + legal;
+  const cubre = rxCubre(q, b);
+  if (q.vari)
+    return (cubre ? "En recepción, un equipo de este tipo suele cubrirla —confírmalo en el tuyo—. "
+                  : "En recepción, un equipo de este tipo no suele llegar ahí —depende del modelo—. ") + legal;
+  return (cubre ? "Recibirla sí la recibe. "
+                : "Tampoco la recibe: su margen de recepción es " + (q.rx || []).map(([a, z]) => rangoTxt(a, z)).join(" y ") + ", así que para escucharla te haría falta otro receptor. ") + legal;
+}
+
 /* Veredicto del equipo para una banda */
 function eqVerdict(b) {
   const q = eqCur();
   if (q.skip) return null;
   if ((b.tx.req || []).includes("estado")) return null;
   if (q.rxonly) return { k: "no", c: "Solo recibe", t: "Tu equipo solo recibe",
-    d: "No es una cuestión legal: un escáner o un SDR no llevan transmisor, así que físicamente no pueden emitir. Escuchar esta banda sí lo tienes cubierto." };
+    d: "No es una cuestión legal: un escáner o un SDR no llevan transmisor, así que físicamente no pueden emitir." };
   if (EQNA.has(b.id)) return null;
   if (!eqCovers(q, b)) return { k: "no", c: "Fuera de tu equipo", t: "Tu equipo no llega a esta banda",
     d: `Tampoco es una cuestión legal: tu ${q.t} transmite en ${(q.tx||[]).map(([a,z])=>rangoTxt(a,z)).join(" y ")}, y esta banda está en ${b.txt.split("·")[0].trim()}. El equipo no alcanza a emitir aquí.` };
@@ -2019,6 +2044,11 @@ function eqVerdict(b) {
 
 /* Veredicto final: manda el obstáculo más grave */
 function fverdict(b) {
+  const v = fverdictTX(b);
+  return { ...v, d: (v.d ? v.d.trim() + " " : "") + rxNota(b) };
+}
+/* Solo la parte de transmisión; la de escucha la añade fverdict al cerrar. */
+function fverdictTX(b) {
   const lic = verdict(b);
   if (lic.k === "never") return lic;
   const eq = eqVerdict(b);
