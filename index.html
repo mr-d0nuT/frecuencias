@@ -442,7 +442,7 @@ footer .end{margin-top:var(--s5);padding-top:var(--s4);border-top:1px solid var(
 .ucbtn .uct span{display:block;font-size:12.6px;color:var(--fg2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ucbtn .caret{flex:none;color:var(--fg3);transition:transform .2s}
 .ucbtn[aria-expanded="true"] .caret{transform:rotate(180deg)}
-.ucmenu{position:absolute;z-index:55;left:0;right:0;top:calc(100% + 7px);background:var(--bg-e);border:1px solid var(--line2);border-radius:var(--r3);box-shadow:var(--sh3);padding:7px;max-height:min(62vh,520px);overflow-y:auto;overscroll-behavior:contain;animation:ucin .16s ease}
+.ucmenu{position:absolute;z-index:65;left:0;right:0;top:calc(100% + 7px);background:var(--bg-e);border:1px solid var(--line2);border-radius:var(--r3);box-shadow:var(--sh3);padding:7px;max-height:min(62vh,520px);overflow-y:auto;overscroll-behavior:contain;animation:ucin .16s ease}
 @keyframes ucin{from{opacity:0;transform:translateY(-6px)}}
 .ucopt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:11px 12px;border-radius:var(--r2);transition:.12s;border:1px solid transparent}
 .ucopt:hover{background:var(--srf)}
@@ -952,6 +952,10 @@ footer .end{margin-top:var(--s3);padding-top:var(--s3)}
 /* ── habilitaciones que presupone el equipo declarado ── */
 .cimp{flex:none;align-self:center;margin-left:8px;font-family:var(--f-mono);font-size:8.6px;letter-spacing:.07em;text-transform:uppercase;font-weight:700;padding:3px 6px;border-radius:5px;white-space:nowrap;color:var(--warn);background:color-mix(in srgb,var(--warn) 13%,transparent);border:1px solid color-mix(in srgb,var(--warn) 32%,transparent)}
 .cal.eqimp{margin:0 0 12px}
+
+/* ── el desplegable de situación va por encima de las barras pegajosas
+      (.facets z58, .fbar z60) y por debajo de la cabecera (z70) ── */
+.ucmenu{z-index:65}
 @media print{
   .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
   body{background:#fff;color:#000;font-size:10pt}
