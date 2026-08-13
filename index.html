@@ -956,6 +956,75 @@ footer .end{margin-top:var(--s3);padding-top:var(--s3)}
 /* ── el desplegable de situación va por encima de las barras pegajosas
       (.facets z58, .fbar z60) y por debajo de la cabecera (z70) ── */
 .ucmenu{z-index:65}
+
+/* ═══ listado denso: todo visible, columnas alineadas ═══ */
+.secidx{display:flex;gap:6px;overflow-x:auto;padding:2px 0 8px;margin:0 0 2px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.secidx::-webkit-scrollbar{display:none}
+.secidx button{flex:none;display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:20px;border:1px solid var(--line);background:var(--srf);color:var(--fg2);font-size:11.8px;font-weight:560;white-space:nowrap;transition:.12s}
+.secidx button:hover{border-color:var(--acc);color:var(--fg)}
+.secidx button i{font-style:normal;font-family:var(--f-mono);font-size:9.5px;color:var(--fg3)}
+
+section.svc{margin:0 0 12px;scroll-margin-top:calc(var(--hdr) + 16px)}
+.svc-h{position:sticky;top:calc(var(--hdr) + env(safe-area-inset-top));z-index:12;display:flex;align-items:center;gap:11px;padding:7px 2px 6px;margin:0;
+  background:color-mix(in srgb,var(--bg) 93%,transparent);backdrop-filter:blur(10px)}
+.svc-h>span:first-child{font-size:15px;font-weight:650;letter-spacing:-.026em;flex:none}
+.svc-h .ln{flex:1;height:1px;background:var(--line)}
+.svc-h .qt{font-family:var(--f-mono);font-size:11px;color:var(--fg3);flex:none}
+
+.blist{border:1px solid var(--line);border-radius:var(--r2);overflow:hidden;background:var(--srf)}
+.brow{display:grid;grid-template-columns:26px minmax(0,1fr) 148px 150px 168px 168px;align-items:center;gap:10px;
+  padding:9px 11px 9px 4px;cursor:pointer;transition:background .12s;position:relative}
+.brow+.brow{border-top:1px solid var(--line)}
+.brow:hover{background:color-mix(in srgb,var(--acc) 5%,transparent)}
+.brow:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
+.brow .fav{position:static;width:26px;height:26px;flex:none;opacity:.35}
+.brow .fav.on,.brow:hover .fav{opacity:1}
+.brow .bn{min-width:0;display:flex;align-items:baseline;gap:7px}
+.brow .bn b{font-size:13.6px;font-weight:600;letter-spacing:-.017em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.brow .bt{font-style:normal;font-family:var(--f-mono);font-size:8.8px;letter-spacing:.09em;color:var(--fg3);flex:none}
+.brow .bfq{font-family:var(--f-mono);font-size:11.6px;color:var(--acc);font-weight:560;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brow .bcel{min-width:0;display:flex;align-items:center}
+.brow .bcel .stt,.brow .bcel .vd{font-size:11.2px;min-width:0;overflow:hidden}
+.brow .bcel .vd{display:inline-flex;gap:5px;align-items:center;min-width:0;max-width:100%}
+.brow .bcel .vd .vt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.brow .bcel .vd svg{width:13px;height:13px;flex:none}
+
+/* Estrecho: las columnas NO se apilan, bajan a una segunda fila manteniendo
+   la rejilla de tres. Lo que se compara sigue alineado entre bandas. */
+@media (max-width:1180px){ .brow{grid-template-columns:26px minmax(0,1fr) 128px 138px 146px 152px;gap:9px} }
+@media (max-width:1000px){
+  .brow{grid-template-columns:24px repeat(3,minmax(0,1fr));gap:3px 10px;padding:9px 11px 10px 3px}
+  .brow .fav{grid-area:1/1/2/2}
+  .brow .bn{grid-area:1/2/2/5}
+  .brow .bfq{grid-area:2/2/3/5}
+  .brow .c1{grid-area:3/2/4/3}
+  .brow .c2{grid-area:3/3/4/4}
+  .brow .c3{grid-area:3/4/4/5}
+  .brow .bcel{margin-top:2px}
+}
+@media (max-width:760px){
+  .brow{gap:2px 8px;padding:8px 9px 9px 2px}
+  .brow .bn b{font-size:12.8px}
+  .brow .bfq{font-size:10.8px}
+  .brow .bcel .stt,.brow .bcel .vd{font-size:10.2px}
+  .svc-h>span:first-child{font-size:13.6px}
+  .secidx button{font-size:11px;padding:4px 9px}
+}
+/* Muy estrecho: RX y TX comparten línea —son los dos cortos— y el veredicto
+   personal, que es el largo, ocupa la de abajo entero. */
+@media (max-width:520px){
+  .brow{grid-template-columns:22px minmax(0,1fr) minmax(0,1fr);gap:2px 8px;padding:7px 9px 8px 2px}
+  .brow .fav{grid-area:1/1/2/2}
+  .brow .bn{grid-area:1/2/2/4}
+  .brow .bfq{grid-area:2/2/3/4}
+  .brow .c1{grid-area:3/2/4/3}
+  .brow .c2{grid-area:3/3/4/4}
+  .brow .c3{grid-area:4/2/5/4}
+  .brow .bcel{margin-top:1px}
+  .brow .bn b{font-size:12.4px}
+  .brow .bfq{font-size:10.4px}
+  .brow .bcel .stt,.brow .bcel .vd{font-size:10.2px}
+}
 @media print{
   .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
   body{background:#fff;color:#000;font-size:10pt}
@@ -1832,19 +1901,19 @@ const hasProfile = () => PROFILE.size > 0 || MYEQ !== "none";
 
 /* Veredicto personal para una banda concreta */
 function verdict(b) {
-  if (b.tx.s === 0) return { k: "ok", t: "TX libre", d: "Banda de uso común: sin licencia, sin tasas y sin examen. Solo hay que respetar la potencia, el tipo de antena y el modo que fija el CNAF." };
+  if (b.tx.s === 0) return { k: "ok", c: "TX libre", t: "TX libre", d: "Banda de uso común: sin licencia, sin tasas y sin examen. Solo hay que respetar la potencia, el tipo de antena y el modo que fija el CNAF." };
   const req = b.tx.req || [];
   if (!req.length || req.includes("estado"))
-    return { k: "never", t: "TX prohibida", d: "Aunque tu equipo llegue a esta banda, no hay forma legal de emitir en ella: está reservada a operadores o a servicios del Estado. No existe licencia que un particular pueda pedir para usarla." };
+    return { k: "never", c: "Prohibida", t: "TX prohibida", d: "Aunque tu equipo llegue a esta banda, no hay forma legal de emitir en ella: está reservada a operadores o a servicios del Estado. No existe licencia que un particular pueda pedir para usarla." };
   const missing = req.filter(r => !PROFILE.has(r));
   if (!missing.length)
-    return { k: "ok", t: "TX habilitada con tu licencia", d: "Tienes todo lo que esta banda exige por tu perfil. Sigue siendo tuya la responsabilidad de respetar potencia, canalización y modo." };
+    return { k: "ok", c: "Habilitada", t: "TX habilitada con tu licencia", d: "Tienes todo lo que esta banda exige por tu perfil. Sigue siendo tuya la responsabilidad de respetar potencia, canalización y modo." };
   const names = missing.map(r => CRED[r] ? CRED[r].s : r);
   if (missing.length < req.length)
-    return { k: "partial", t: "Te falta: " + names.join(" y "),
+    return { k: "partial", c: "Falta " + names.join(" y "), t: "Te falta: " + names.join(" y "),
       d: "El obstáculo no es el equipo, es el papel: se trata de un permiso administrativo que hay que solicitar. Aunque la emisora cumpla y sintonice la banda, emitir sin él es una infracción.",
       dl: "Por papeles te falta " + names.join(" y ") + ": es un permiso administrativo que hay que solicitar, y sin él la emisión no es legal.", missing };
-  return { k: "no", t: "Necesitas: " + names.join(" y "),
+  return { k: "no", c: "Falta " + names.join(" y "), t: "Necesitas: " + names.join(" y "),
     d: "No consta en tu perfil ninguna habilitación para esta banda. Tu emisora podrá transmitir ahí, pero hasta obtenerla la emisión no es legal.",
     dl: "Por papeles, esta banda exige " + names.join(" y ") + ", y no consta en tu perfil.", missing };
 }
@@ -1925,10 +1994,10 @@ function eqVerdict(b) {
   const q = eqCur();
   if (q.skip) return null;
   if ((b.tx.req || []).includes("estado")) return null;
-  if (q.rxonly) return { k: "no", t: "Tu equipo solo recibe",
+  if (q.rxonly) return { k: "no", c: "Solo recibe", t: "Tu equipo solo recibe",
     d: "No es una cuestión legal: un escáner o un SDR no llevan transmisor, así que físicamente no pueden emitir. Escuchar esta banda sí lo tienes cubierto." };
   if (EQNA.has(b.id)) return null;
-  if (!eqCovers(q, b)) return { k: "no", t: "Tu equipo no llega a esta banda",
+  if (!eqCovers(q, b)) return { k: "no", c: "Fuera de tu equipo", t: "Tu equipo no llega a esta banda",
     d: `Tampoco es una cuestión legal: tu ${q.t} transmite en ${(q.tx||[]).map(([a,z])=>rangoTxt(a,z)).join(" y ")}, y esta banda está en ${b.txt.split("·")[0].trim()}. El equipo no alcanza a emitir aquí.` };
   const r = EQREQ[b.id]; if (!r) return { k: "ok", t: "Tu equipo sirve" };
   // Motivos concretos: la cifra que exige la banda frente a la que da tu equipo
@@ -1944,7 +2013,7 @@ function eqVerdict(b) {
   if (r.modes && !r.modes.some(m => (q.modes || []).includes(m)))
     por.push(`exige ${r.modes.join(" o ")} y tu equipo solo trabaja en ${(q.modes || []).join(", ")}`);
   if (!por.length) return { k: "ok", t: "Tu equipo cumple" };
-  return { k: "no", t: "Tu equipo emite ahí, pero no sería legal",
+  return { k: "no", c: "Equipo no legal aquí", t: "Tu equipo emite ahí, pero no sería legal",
     d: `Técnicamente sí: tu equipo sintoniza esta banda y transmitiría. Legalmente no, porque ${por.join("; ")}. Estar en la frecuencia correcta no basta — con el equipo fuera de norma, emitir sigue siendo una infracción.` };
 }
 
@@ -1954,11 +2023,11 @@ function fverdict(b) {
   if (lic.k === "never") return lic;
   const eq = eqVerdict(b);
   if (!eq) return lic;
-  if (lic.k === "ok" && eq.k === "ok") return { k: "ok", t: b.tx.s === 0 ? "TX libre" : "TX habilitada con tu equipo y licencia", d: lic.d };
-  if (eq.k === "no" && lic.k === "ok") return { k: "eq", t: eq.t, d: eq.d };
+  if (lic.k === "ok" && eq.k === "ok") return { k: "ok", c: b.tx.s === 0 ? "TX libre" : "Habilitada", t: b.tx.s === 0 ? "TX libre" : "TX habilitada con tu equipo y licencia", d: lic.d };
+  if (eq.k === "no" && lic.k === "ok") return { k: "eq", c: eq.c, t: eq.t, d: eq.d };
   // Fallan los papeles y el equipo a la vez: se usa la versión neutral del
   // motivo legal (lic.dl), porque lic.d da por buena una emisora que aquí no lo es
-  if (eq.k === "no") return { k: lic.k === "partial" ? "partial" : "no", t: lic.t,
+  if (eq.k === "no") return { k: lic.k === "partial" ? "partial" : "no", c: lic.c, t: lic.t,
     d: (lic.dl || lic.d) + " " + (eq.d || ""), missing: lic.missing };
   return lic;
 }
@@ -2378,6 +2447,22 @@ function matches(b){
   }
   return true;
 }
+/* Fila del listado: lo comparable va en columnas fijas —rango, RX, TX y tu
+   veredicto— para que dos bandas se lean de un golpe de vista. El detalle
+   completo sigue abriéndose en su ficha al pulsar. */
+function rowHTML(b){
+  const v = hasProfile() ? fverdict(b) : null;
+  return `<div class="brow" data-id="${b.id}" role="button" tabindex="0" aria-label="${esc(b.nom)}">
+    <button class="fav ${FAV.has(b.id)?"on":""}" data-fav="${b.id}" aria-label="Marcar como favorito" aria-pressed="${FAV.has(b.id)}">
+      <svg viewBox="0 0 24 24" fill="${FAV.has(b.id)?"currentColor":"none"}" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M12 3.6l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8L3.5 9.8l5.9-.9z"/></svg>
+    </button>
+    <span class="bn"><b>${esc(b.nom)}</b><i class="bt">${b.rf}</i></span>
+    <span class="bfq">${esc(b.txt.split("·")[0].trim())}</span>
+    <span class="bcel c1">${pill(b.rx,RXL)}</span>
+    <span class="bcel c2">${pill(b.tx,TXL,txLabel(b))}</span>
+    <span class="bcel c3 bme">${v?`<span class="vd" style="--c:${VK[v.k]}" title="${esc(v.d||v.t)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">${VICON[v.k]}</svg><span class="vt">${esc(v.c || v.t)}</span></span>`:""}</span>
+  </div>`;
+}
 function cardHTML(b){
   return `<div class="bc" data-id="${b.id}" role="button" tabindex="0" aria-label="${esc(b.nom)}">
     <span class="tag">${b.rf}</span>
@@ -2440,18 +2525,17 @@ function render(){
   // solos, para que nunca parezca que no hay resultados
   const abre=new Set(LS.get("espectro:abiertos",[]));
   const filtrando = !!Q || UC!==null || FAVONLY || Object.values(F).some(v=>v!=="all");
-  $("#results").innerHTML=brief+groups.map(([c,arr])=>`
-    <details class="svc" data-cat="${esc(c)}" ${(filtrando||abre.has(c))?"open":""}>
-      <summary class="svc-h"><h3>${esc(c)}</h3><span class="ln"></span><span class="qt">${arr.length}</span>
-        <svg class="caret" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></summary>
-      <div class="grid">${arr.map(cardHTML).join("")}</div>
+  const indice = groups.length>1 ? `<nav class="secidx" aria-label="Ir a una sección">${
+    groups.map(([c,arr])=>`<button data-goto="${esc(c)}">${esc(c)}<i>${arr.length}</i></button>`).join("")}</nav>` : "";
+  $("#results").innerHTML=brief+indice+groups.map(([c,arr])=>`
+    <section class="svc" data-cat="${esc(c)}" id="sec-${esc(c).replace(/[^a-zA-Z]/g,"")}">
+      <h3 class="svc-h"><span>${esc(c)}</span><span class="ln"></span><span class="qt">${arr.length}</span></h3>
+      <div class="blist">${arr.map(rowHTML).join("")}</div>
       ${c==="RC y drones"?`<a class="golink" href="#uas-sec" id="goUas"><span><b>¿Vas a volar un dron?</b>Abre el planificador: qué aeródromos y helipuertos hay cerca de tu punto, con sus frecuencias y teléfonos, y qué trámite toca.</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>`:""}
-    </details>`).join("");
-  $$("#results details.svc").forEach(d=>d.addEventListener("toggle",()=>{
-    if(filtrando)return;                       // no memorizar aperturas automáticas
-    const s=new Set(LS.get("espectro:abiertos",[]));
-    d.open?s.add(d.dataset.cat):s.delete(d.dataset.cat);
-    LS.set("espectro:abiertos",[...s]);
+    </section>`).join("");
+  $$("#results [data-goto]").forEach(b=>b.addEventListener("click",()=>{
+    const s=$$("#results section.svc").find(x=>x.dataset.cat===b.dataset.goto);
+    if(s) s.scrollIntoView({behavior:"smooth",block:"start"});
   }));
 }
 $("#results").addEventListener("click",e=>{
@@ -2462,11 +2546,11 @@ $("#results").addEventListener("click",e=>{
   if(e.target.closest("#bcred")){const uc=USECASES[UC]; if(uc&&uc.cred){PROFILE.add(uc.cred);perfilCambiado();} return;}
   const f=e.target.closest("[data-fav]");
   if(f){e.preventDefault();e.stopPropagation();const id=f.dataset.fav;FAV.has(id)?FAV.delete(id):FAV.add(id);LS.set("espectro:fav",[...FAV]);render();return;}
-  const c=e.target.closest(".bc"); if(c)openBand(c.dataset.id);
+  const c=e.target.closest(".bc,.brow"); if(c)openBand(c.dataset.id);
 });
 $("#results").addEventListener("keydown",e=>{
   if(e.key!=="Enter"&&e.key!==" ")return;
-  const c=e.target.closest(".bc"); if(!c||e.target.closest("[data-fav]"))return;
+  const c=e.target.closest(".bc,.brow"); if(!c||e.target.closest("[data-fav]"))return;
   e.preventDefault(); openBand(c.dataset.id);
 });
 
