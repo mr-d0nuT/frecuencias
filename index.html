@@ -1085,6 +1085,11 @@ section.svc{margin:0 0 12px;scroll-margin-top:calc(var(--hdr) + 16px)}
 .kidx button:hover{background:color-mix(in srgb,var(--c) 12%,var(--srf))}
 .kidx button b{font-family:var(--f-mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--c)}
 .kidx button span{font-size:14.2px;font-weight:560;color:var(--fg);line-height:1.35}
+
+/* enlace de ruta: abre Maps con tu posición y el punto a la vez */
+.dchip.ruta,.rlink.ruta{color:var(--acc);border-color:color-mix(in srgb,var(--acc) 34%,var(--line));background:color-mix(in srgb,var(--acc) 8%,transparent)}
+.dchip.ruta svg,.rlink.ruta svg{width:13px;height:13px;flex:none}
+.rlink.ruta{display:inline-flex;align-items:center;gap:5px}
 @media print{
   .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
   body{background:#fff;color:#000;font-size:10pt}
@@ -3519,13 +3524,15 @@ function adStatus(kind, txt) {
   adState.innerHTML = `<span class="pipdot" style="--c:${col}"></span>${txt}` +
     (u ? ` · <a href="${AIP_BASE + u}" target="_blank" rel="noopener">ver PDF oficial</a>` : "");
 }
+const rutaGM=(la,lo)=>`https://www.google.com/maps/dir/?api=1&destination=${la},${lo}&travelmode=driving`;
+const chipRuta=(la,lo,cls="dchip")=>`<a class="${cls} ruta" href="${rutaGM(la,lo)}" target="_blank" rel="noopener" title="Abre Google Maps con tu posición actual y este punto a la vez, con la distancia entre ambos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-8-8 18-2-8-8-2z"/></svg>Ruta desde mi posición</a>`;
 function adContact(code) {
   const a = AD[code]; if (!a) return "";
   const live = cacheGet(code), c = (live && live.c) || a.c || {};
   const fr = adBest(code).f || [];
   const tel = (c.tel||[]).slice(0,2).map(t=>`<a class="dchip tel" href="tel:${t.replace(/[^\d+]/g,"")}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6.5 3.5h3l1.5 4-2 1.5a12 12 0 006 6l1.5-2 4 1.5v3a2 2 0 01-2.2 2A17.5 17.5 0 014.5 5.7 2 2 0 016.5 3.5z"/></svg>${esc(t)}</a>`).join("");
   const mail = (c.email||[]).slice(0,2).map(e=>`<a class="dchip" href="mailto:${esc(e)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6 8.5-6"/></svg>${esc(e)}</a>`).join("");
-  const mapa = a.p ? `<a class="dchip" href="https://www.google.com/maps?q=${a.p[0]},${a.p[1]}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 21s7-6.3 7-11a7 7 0 10-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>${a.p[0]}, ${a.p[1]}</a>` : "";
+  const mapa = a.p ? chipRuta(a.p[0],a.p[1]) + `<a class="dchip" href="https://www.google.com/maps?q=${a.p[0]},${a.p[1]}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 21s7-6.3 7-11a7 7 0 10-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>${a.p[0]}, ${a.p[1]}</a>` : "";
   // todas las frecuencias como fichas; las de emergencia, marcadas
   const ORD=[/^TWR$/i,/^(APP\/TWR|TWR\/APP)$/i,/^ATIS$/i,/^APP$/i,/^(GMC|GND)$/i,/^AFIS$/i,/^(A\/G|RADIO|INFO)/i];
   const key=[], rest=[];
@@ -3722,7 +3729,7 @@ function rstRender() {
     return `<div class="ritem">
       <div class="rtop"><b>${esc(x.n)}</b><span class="rk ${cls}">${lab}</span>${x.i ? `<span class="rico">${esc(x.i)}</span>` : ""}${x.d !== undefined ? `<span class="rdist">${x.d < 1 ? Math.round(x.d * 1000) + " m" : x.d.toFixed(1) + " km"}</span>` : ""}</div>
       ${x.o ? `<div class="rbot">${esc(x.o)}</div>` : ""}
-      <div class="rlinks"><a class="rlink" href="https://www.google.com/maps?q=${x.la},${x.lo}" target="_blank" rel="noopener">📍 ${x.la}, ${x.lo}</a>${tel}</div>
+      <div class="rlinks"><a class="rlink" href="https://www.google.com/maps?q=${x.la},${x.lo}" target="_blank" rel="noopener">📍 ${x.la}, ${x.lo}</a>${chipRuta(x.la,x.lo,"rlink")}${tel}</div>
       ${tel?"":`<div class="rnone">Sin contacto publicado en el AIP · <a href="https://duckduckgo.com/?q=${encodeURIComponent((x.o||x.n)+" teléfono")}" target="_blank" rel="noopener">buscar al titular ↗</a></div>`}
     </div>`;
   }).join("")}</div>`;
@@ -3806,7 +3813,7 @@ function nearRender(pos, etiqueta){
 
   const tel=t=>`<a class="dchip tel" href="tel:${t.replace(/[^\d+]/g,"")}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6.5 3.5h3l1.5 4-2 1.5a12 12 0 006 6l1.5-2 4 1.5v3a2 2 0 01-2.2 2A17.5 17.5 0 014.5 5.7 2 2 0 016.5 3.5z"/></svg>${esc(t)}</a>`;
   const mail=e=>`<a class="dchip" href="mailto:${esc(e)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6 8.5-6"/></svg>${esc(e)}</a>`;
-  const mapa=(la,lo)=>`<a class="dchip" href="https://www.google.com/maps?q=${la},${lo}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 21s7-6.3 7-11a7 7 0 10-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>${la}, ${lo}</a>`;
+  const mapa=(la,lo)=>chipRuta(la,lo) + `<a class="dchip" href="https://www.google.com/maps?q=${la},${lo}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 21s7-6.3 7-11a7 7 0 10-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>${la}, ${lo}</a>`;
 
   // frecuencias: primero las operativas, y si hay más se indica cuántas
   const ORD=[/^TWR$/i,/^(APP\/TWR|TWR\/APP)$/i,/^ATIS$/i,/^APP$/i,/^(GMC|GND)$/i,/^AFIS$/i,/^(A\/G|RADIO|INFO)/i];
