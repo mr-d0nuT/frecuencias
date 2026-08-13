@@ -1363,34 +1363,126 @@ const RX_NOD="Recibir es legal y tener el receptor también. Lo que la ley prote
 /* ═══════════════ BASE DE DATOS ═══════════════
    rx / tx → s: 0 libre · 1 condicionado · 2 vetado   |   r: riesgo 0-3
    ══════════════════════════════════════════════ */
+/* ═══ Listados de frecuencias ═══
+   Donde existe una canalización definida se lista entera. Donde no existe
+   —frecuencias asignadas nominalmente, bandas continuas o reparto que no se
+   publica— la ficha lo explica en lugar de inventar una tabla. */
+const ch=(n,f,nota)=>({n,f,nota});
+const cr=(n,f,nota)=>({n,f,nota,raw:1});
+const AEROEMG=[ch("Socorro",121.5,"Frecuencia internacional de socorro y urgencia · VHF guard"),
+ ch("Militar",243.0,"El mismo cometido en UHF militar; una emergencia en 121,500 se replica aquí"),
+ ch("Baliza",406.0,"ELT satelital COSPAS-SARSAT · las de 121,5 ya no se procesan por satélite")];
+const CB9=[ch(9,27.065,"Emergencias y auxilio en carretera · por convenio, sin servicio oficial de escucha"),
+ ch(19,27.185,"Canal habitual de carretera · tráfico y avisos entre camioneros")];
+const MAR16=[ch(16,156.800,"SOCORRO, urgencia y llamada · escucha permanente obligatoria a bordo"),
+ ch(70,156.525,"Llamada selectiva digital (LSD/DSC) de socorro · solo datos, nunca voz")];
+const MARMF=[cr("2182 kHz","2182 kHz","SOCORRO y llamada en radiotelefonía MF"),
+ cr("2187,5 kHz","2187,5 kHz","Llamada selectiva digital (LSD/DSC) de socorro en MF")];
+const FPVB={A:[5865,5845,5825,5805,5785,5765,5745,5725],B:[5733,5752,5771,5790,5809,5828,5847,5866],
+ E:[5705,5685,5665,5645,5885,5905,5925,5945],F:[5740,5760,5780,5800,5820,5840,5860,5880],
+ R:[5658,5695,5732,5769,5806,5843,5880,5917]};
+const FPV58=Object.entries(FPVB).flatMap(([b,fs])=>fs.map((f,i)=>
+  ch(b+(i+1),f,(f>=5725&&f<=5875)?"Dentro del tramo de uso común (25 mW PIRE)":"FUERA de 5725-5875: emitir aqui no es uso común")));
+const DECT10=Array.from({length:10},(_,i)=>ch(i+1,+(1881.792+i*1.728).toFixed(3),i===0?"Portadora más baja del sistema":""));
+const WIFI5=[36,40,44,48,52,56,60,64,100,104,108,112,116,120,124,128,132,136,140]
+  .map(n=>ch(n,5000+5*n,n>=52?"Requiere DFS y control de potencia (radar meteorológico)":"Interior · 200 mW PIRE"));
+const WIFI6E=[1,5,9,13,17,21,25,29,33,37,41,45,49,53,57,61,65,69,73,77,81,85,89,93]
+  .map(n=>ch(n,5950+5*n,"Solo interior (LPI) · 250 mW PIRE"));
+const GNSSCH=[ch("GPS L1",1575.42,"Uso civil abierto · el que usa tu móvil y tu dron"),
+ ch("GPS L2",1227.60,"Segunda frecuencia · corrección ionosférica"),ch("GPS L5",1176.45,"Aviación · protegida"),
+ ch("Galileo E1",1575.42,"Comparte frecuencia con GPS L1"),ch("Galileo E5a",1176.45,"Comparte con GPS L5"),
+ ch("Galileo E5b",1207.14,""),ch("Galileo E6",1278.75,"Servicio de alta precisión"),
+ ch("GLONASS L1",1602.00,"Rejilla FDMA en torno a esta frecuencia")];
+const METEOCH=[ch("NOAA-15",137.620,"APT analógico"),ch("NOAA-18",137.9125,"APT analógico"),
+ ch("NOAA-19",137.100,"APT analógico"),ch("Meteor-M2",137.900,"LRPT digital")];
+const EPIRBCH=[cr("Alerta","406,022 - 406,076 MHz","La baliza transmite su identidad y, con GPS, su posicion"),
+ ch("Localización",121.5,"Señal de aproximación final para que el rescate te encuentre")];
+const SRD868=[cr("863-865","863 - 865 MHz","25 mW · sin límite de ciclo (audio)"),
+ cr("865-868","865 - 868 MHz","25 mW · 1 % de ciclo de trabajo"),
+ cr("868-868,6","868,0 - 868,6 MHz","25 mW · 1 % · el tramo típico de LoRa y alarmas"),
+ cr("868,7-869,2","868,7 - 869,2 MHz","25 mW · 0,1 %"),
+ cr("869,4-869,65","869,4 - 869,65 MHz","500 mW · 10 % · el de más alcance"),
+ cr("869,7-870","869,7 - 870,0 MHz","5 mW sin límite de ciclo, o 25 mW al 1 %")];
+const SRD169=[cr("169,4-169,475","169,400 - 169,475 MHz","Telelectura de contadores · 500 mW"),
+ cr("169,4-169,825","169,400 - 169,825 MHz","Sistemas de ayuda auditiva · 500 mW"),
+ cr("169,475-169,4875","169,475 - 169,4875 MHz","Alarmas sociales · 10 mW")];
+const MICROSCH=[cr("174-216","174 - 216 MHz","Compartido con DAB · uso común 50 mW"),
+ cr("470-694","470 - 694 MHz","Huecos de TDT · exige autorización PMSE en producciones grandes"),
+ cr("823-832","823 - 832 MHz","Uso común 20 mW · dividendo digital"),
+ cr("863-865","863 - 865 MHz","Uso común 10 mW · el tramo libre habitual"),
+ cr("1785-1805","1785 - 1805 MHz","Uso común 20 mW")];
+const TDTCH=Array.from({length:28},(_,i)=>ch(21+i,474+i*8,i===0?"Primer canal tras el segundo dividendo digital":(21+i===48?"Último canal disponible":"")));
+const DABCH=[["5A",174.928],["5B",176.640],["5C",178.352],["5D",180.064],["6A",181.936],["6B",183.648],["6C",185.360],["6D",187.072],
+ ["7A",188.928],["7B",190.640],["7C",192.352],["7D",194.064],["8A",195.936],["8B",197.648],["8C",199.360],["8D",201.072],
+ ["9A",202.928],["9B",204.640],["9C",206.352],["9D",208.064],["10A",209.936],["10B",211.648],["10C",213.360],["10D",215.072],
+ ["11A",216.928],["11B",218.640],["11C",220.352],["11D",222.064],["12A",223.936],["12B",225.648],["12C",227.360],["12D",229.072]]
+ .map(([n,f])=>ch(n,f,""));
+const HAM2M=[cr("144,000-144,110","144,000 - 144,110 MHz","CW · EME en el extremo bajo"),
+ cr("144,110-144,150","144,110 - 144,150 MHz","CW y modos digitales"),
+ cr("144,150-144,400","144,150 - 144,400 MHz","SSB · llamada en 144,300"),
+ cr("144,400-144,490","144,400 - 144,490 MHz","Balizas"),
+ cr("144,800-144,990","144,800 - 144,990 MHz","Datos · APRS en 144,800"),
+ cr("145,000-145,194","145,000 - 145,194 MHz","Entrada de repetidores"),
+ cr("145,206-145,594","145,206 - 145,594 MHz","FM simplex · LLAMADA en 145,500"),
+ cr("145,594-145,794","145,594 - 145,794 MHz","Salida de repetidores"),
+ cr("145,806-146,000","145,806 - 146,000 MHz","Satélites")];
+const HAM70=[cr("432,000-432,100","432,000 - 432,100 MHz","CW · EME"),
+ cr("432,100-432,400","432,100 - 432,400 MHz","SSB · llamada en 432,200"),
+ cr("432,400-432,500","432,400 - 432,500 MHz","Balizas"),
+ cr("433,000-433,400","433,000 - 433,400 MHz","Salida de repetidores FM"),
+ cr("433,400-433,600","433,400 - 433,600 MHz","FM simplex · LLAMADA en 433,500"),
+ cr("433,600-434,600","433,600 - 434,600 MHz","Datos · compartido con ISM y LPD433"),
+ cr("435,000-438,000","435,000 - 438,000 MHz","Satélites"),
+ cr("438,000-440,000","438,000 - 440,000 MHz","ATV, enlaces y entrada de repetidores")];
+const HAM6=[cr("50,000-50,100","50,000 - 50,100 MHz","CW y balizas"),
+ cr("50,100-50,500","50,100 - 50,500 MHz","SSB · DX en 50,110 · llamada en 50,150"),
+ cr("50,500-52,000","50,500 - 52,000 MHz","FM y digitales · llamada FM en 51,510"),
+ cr("70,150-70,200","70,150 - 70,200 MHz","Banda de 4 metros · autorización específica")];
+const HAM23=[cr("23 cm","1240 - 1300 MHz","SSB en 1296, ATV y satélites"),
+ cr("13 cm","2300 - 2450 MHz","Compartido con ISM 2,4 GHz"),
+ cr("6 cm","5650 - 5850 MHz","Compartido con FPV y WiFi"),
+ cr("3 cm","10,0 - 10,5 GHz","Enlaces y EME")];
+const FMCH=[cr("87,5-108","87,5 - 108,0 MHz","Rejilla de 100 kHz · emisoras en ,1 ,3 ,5 ,7 y ,9"),
+ cr("87,5-88","87,5 - 88,0 MHz","Tramo de emisoras de baja potencia y municipales")];
+const OMCH=[cr("531-1602","531 - 1602 kHz","Rejilla de 9 kHz · 120 canales posibles"),
+ cr("Nocturna","531 - 1602 kHz","De noche la propagación ionosferica multiplica el alcance")];
+const OCCH=[cr("49 m","5900 - 6200 kHz","Buen alcance nocturno"),cr("41 m","7200 - 7450 kHz","Muy usada en Europa"),
+ cr("31 m","9400 - 9900 kHz","La más constante"),cr("25 m","11600 - 12100 kHz","Día y noche"),
+ cr("19 m","15100 - 15800 kHz","Diurna de largo alcance"),cr("16 m","17480 - 17900 kHz","Diurna"),
+ cr("13 m","21450 - 21850 kHz","Solo con propagación alta")];
+
 const D=[
 {id:"ndb",nom:"Radiofaros NDB · navegación LF",cat:"Aviación",rf:"LF/MF",lo:0.19,hi:0.535,txt:"190 – 535 kHz",
  pot:"Estaciones autorizadas",modo:"A2A / NON",desc:"Radiofaros no direccionales para navegación aérea y marítima, más servicio aeronáutico en onda larga.",
  rx:{s:0,r:0,n:RX_LIB+" Se reciben con cualquier receptor de onda larga y una antena de hilo."},
  tx:{s:2,r:3,n:"Ayudas a la navegación: una emisión ajena puede desviar un instrumento de a bordo."},
  notas:["Excelente punto de partida para iniciarse en la escucha de onda larga con un SDR económico."],
- alt:"Para transmitir en LF con licencia: banda de 2200 m (135,7 kHz) de radioaficionado."},
+ alt:"Para transmitir en LF con licencia: banda de 2200 m (135,7 kHz) de radioaficionado.",
+ nolist:"Cada radiofaro tiene su propia frecuencia dentro de 190 – 535 kHz y su identificativo en Morse; no hay canalización común. Las de cada NDB se publican en el AIP, aeródromo por aeródromo."},
 
 {id:"om",nom:"Radiodifusión AM · Onda Media",cat:"Radio y televisión",rf:"LF/MF",lo:0.5265,hi:1.6065,txt:"526,5 – 1606,5 kHz",
  pot:"Según concesión",modo:"AM (DSB)",desc:"Emisoras comerciales y públicas de onda media, con canales cada 9 kHz.",
  rx:{s:0,r:0,n:RX_LIB},
  tx:{s:1,r:2,n:"Requiere concesión de servicio de radiodifusión. Una emisora sin licencia se localiza en horas y bloquea a una emisora legal en toda su zona de servicio."},
  notas:["De noche la propagación permite recibir emisoras de media Europa."],
- alt:"Streaming o podcast; o concurrir al concurso público de licencias de radiodifusión."},
+ alt:"Streaming o podcast; o concurrir al concurso público de licencias de radiodifusión.",
+ canales:OMCH,colch:["Tramo","Rango","Nota"]},
 
 {id:"mar-mf",nom:"Marítima MF · socorro 2182 kHz",cat:"Náutica y marina",rf:"HF",lo:1.605,hi:4.0,txt:"1,6 – 4 MHz",
  pot:"Según equipo y licencia",modo:"SSB · DSC",desc:"Radiotelefonía marítima de media distancia. 2182 kHz es la frecuencia internacional de socorro en MF.",
  rx:{s:1,r:0,n:RX_NOD},
  tx:{s:1,r:3,n:"Requiere título de operador (LRC/GOC) y licencia de estación de barco. Es tráfico de seguridad de la vida humana en el mar."},
  notas:["2187,5 kHz: llamada selectiva digital (DSC) de socorro en MF."],
- alt:"Título LRC o GOC. Desde costa, el 112 y Salvamento Marítimo."},
+ alt:"Título LRC o GOC. Desde costa, el 112 y Salvamento Marítimo.",
+ canales:MARMF,colch:["Frecuencia","Valor","Uso"]},
 
 {id:"oc",nom:"Radiodifusión en Onda Corta",cat:"Radio y televisión",rf:"HF",lo:3.9,hi:26.1,txt:"3,9 – 26,1 MHz · bandas de metros",
  pot:"Estatal",modo:"AM · DRM",desc:"Emisoras internacionales en las bandas de 75, 60, 49, 41, 31, 25, 22, 19, 16, 13 y 11 metros.",
  rx:{s:0,r:0,n:RX_LIB+" Es el terreno clásico del DX-ista."},
  tx:{s:1,r:2,n:"Radiodifusión internacional reservada a operadores autorizados."},
  notas:["La propagación varía con la hora y el ciclo solar: bandas bajas de noche, altas de día."],
- alt:"Licencia de radioaficionado para emitir en HF."},
+ alt:"Licencia de radioaficionado para emitir en HF.",
+ canales:OCCH,colch:["Banda","Rango","Propagación"]},
 
 {id:"ham-hf",nom:"Radioaficionado · HF",cat:"Radioafición",rf:"HF",lo:0.1357,hi:29.7,txt:"135,7 kHz – 29,7 MHz · 13 bandas",
  pot:"Hasta 1.500 W PEP según banda y autorización",modo:"CW · SSB · FT8 · RTTY · PSK",
@@ -1431,14 +1523,16 @@ const D=[
  pot:"Según autorización",modo:"SSB · CW · FM · digitales",desc:"La «banda mágica»: en verano la esporádica E abre Europa entera con pocos vatios.",
  rx:{s:0,r:0,n:RX_LIB},
  tx:{s:1,r:1,n:"Licencia de radioaficionado. En 4 m, además, autorización especial en España."},
- notas:["50,110 MHz (SSB) y 50,313 MHz (FT8) son los puntos de encuentro."],alt:"Licencia de radioaficionado."},
+ notas:["50,110 MHz (SSB) y 50,313 MHz (FT8) son los puntos de encuentro."],alt:"Licencia de radioaficionado.",
+ canales:HAM6,colch:["Tramo","Rango","Uso · plan IARU R1"]},
 
 {id:"fm",nom:"Radiodifusión FM comercial",cat:"Radio y televisión",rf:"VHF",lo:87.5,hi:108,txt:"87,5 – 108 MHz",
  pot:"Según concesión autonómica",modo:"FM · RDS",desc:"Las emisoras de siempre, con RDS y subportadoras de datos.",
  rx:{s:0,r:0,n:RX_LIB},
  tx:{s:1,r:2,n:"Concesión autonómica obligatoria. Una emisora sin licencia interfiere a emisoras legales y a servicios adyacentes: es de las infracciones más perseguidas."},
  notas:["Los transmisores FM de coche (móvil → autorradio) se toleran a potencia mínima, del orden de 50 nW ERP.","Escuchar y grabar para uso privado es libre; redifundir tiene además implicaciones de derechos de autor."],
- alt:"Radio online o podcast; o concurso público de licencias FM en tu comunidad autónoma."},
+ alt:"Radio online o podcast; o concurso público de licencias FM en tu comunidad autónoma.",
+ canales:FMCH,colch:["Tramo","Rango","Nota"]},
 
 {id:"aero-emg",nom:"Banda Aérea de EMERGENCIA · 121,500 MHz",cat:"Aviación",rf:"VHF",lo:121.5,hi:121.5,txt:"121,500 MHz · frecuencia de guardia",
  pot:"Estaciones aeronáuticas autorizadas",modo:"AM · 25 kHz",
@@ -1448,7 +1542,8 @@ const D=[
  notas:["243,000 MHz: la misma función en UHF militar; una emergencia en 121,500 se replica ahí.",
   "Nunca para pruebas, comprobaciones de equipo ni llamadas de cortesía: una emisión indebida moviliza medios de búsqueda y salvamento.",
   "Las balizas ELT antiguas emitían aquí; desde 2009 el sistema satelital solo procesa las de 406 MHz."],
- alt:"Escucharla es libre. Para una emergencia en tierra, el 112."},
+ alt:"Escucharla es libre. Para una emergencia en tierra, el 112.",
+ canales:AEROEMG,colch:["Uso","MHz","Nota"]},
 {id:"aero",nom:"Banda Aérea VHF",cat:"Aviación",rf:"VHF",lo:108,hi:137,txt:"108 – 136,975 MHz",
  pot:"Solo estaciones autorizadas",modo:"AM · separación 8,33 kHz",
  desc:"Torre, rodadura, aproximación, ruta, ATIS y ayudas a la navegación. La banda favorita de los spotters.",
@@ -1463,7 +1558,8 @@ const D=[
  desc:"Imágenes de satélites polares NOAA y Meteor-M, recibibles con un SDR de 20 € y una antena en V.",
  rx:{s:0,r:0,n:RX_LIB+" Uno de los mejores proyectos para empezar con SDR."},
  tx:{s:2,r:3,n:"Enlace descendente de satélite: solo operadores espaciales. Interferir afecta a la recepción de datos meteorológicos."},
- notas:["NOAA-15: 137,620 · NOAA-18: 137,912 · NOAA-19: 137,100 MHz."],alt:"RX libre."},
+ notas:["NOAA-15: 137,620 · NOAA-18: 137,912 · NOAA-19: 137,100 MHz."],alt:"RX libre.",
+ canales:METEOCH,colch:["Satélite","MHz","Modo"]},
 
 {id:"ham-2m",nom:"Radioaficionado · 2 metros",cat:"Radioafición",rf:"VHF",lo:144,hi:146,txt:"144 – 146 MHz",
  pot:"Según autorización",modo:"FM · SSB · CW · digitales · satélite",
@@ -1471,7 +1567,8 @@ const D=[
  rx:{s:0,r:0,n:RX_LIB},
  tx:{s:1,r:1,n:"Requiere licencia e indicativo. Sin ella no hay uso legal, ni siquiera para pruebas de cobertura."},
  notas:["145,500 MHz: llamada FM. 144,300 MHz: llamada SSB. 145,800 MHz: bajada de la ISS.","Muchos repetidores usan subtono CTCSS de 88,5 Hz.","Los walkies tipo UV-5R cubren esta banda: poseerlos es legal, emitir sin licencia no."],
- alt:"Licencia de radioaficionado. Para uso familiar de corto alcance, PMR446 es libre."},
+ alt:"Licencia de radioaficionado. Para uso familiar de corto alcance, PMR446 es libre.",
+ canales:HAM2M,colch:["Tramo","Rango","Uso · plan IARU R1"]},
 
 {id:"pmr-vhf",nom:"PMR profesional VHF · taxi, industria, obra",cat:"Redes profesionales (PMR)",rf:"VHF",lo:146,hi:174,txt:"146 – 174 MHz",
  pot:"Según concesión · típicamente 5–25 W",modo:"FM 12,5 kHz · DMR",
@@ -1479,7 +1576,8 @@ const D=[
  rx:{s:1,r:0,n:RX_NOD+" Escuchar la red de una empresa no es infracción; publicar sus conversaciones sí."},
  tx:{s:1,r:2,n:"Cada frecuencia está concedida a un titular concreto que paga tasa por ella. Emitir aquí bloquea a un taxi, una grúa o un vigilante, y la interferencia se denuncia con titular identificado."},
  notas:["Comparte proximidad con la banda marítima (156–162 MHz): un error de programación puede meterte en el canal 16.","Es la banda donde más aparecen equipos genéricos programados a mano."],
- alt:"PMR446 o dPMR446 si te basta con 500 mW; concesión de uso privativo si necesitas cobertura de empresa."},
+ alt:"PMR446 o dPMR446 si te basta con 500 mW; concesión de uso privativo si necesitas cobertura de empresa.",
+ nolist:"No hay canalización pública: cada frecuencia se asigna nominalmente al titular que paga su tasa. La que usa un taxi de tu ciudad es suya, no de un plan común."},
 
 {id:"mar-16",nom:"Canal 16 · EMERGENCIA marítima",cat:"Náutica y marina",rf:"VHF",lo:156.8,hi:156.8,txt:"156,800 MHz · socorro y llamada",
  pot:"1 W o 25 W según el momento",modo:"FM",
@@ -1489,7 +1587,8 @@ const D=[
  notas:["Canal 70 (156,525 MHz): llamada selectiva digital DSC de socorro. Solo datos, nunca voz.",
   "Salvamento Marítimo escucha el 16 y el 70 en toda la costa española.",
   "Una falsa alerta moviliza medios de rescate y se sanciona con severidad."],
- alt:"Título SRC para el uso legal. Desde tierra, el 112 o Salvamento Marítimo."},
+ alt:"Título SRC para el uso legal. Desde tierra, el 112 o Salvamento Marítimo.",
+ canales:MAR16,colch:["Canal","MHz","Uso"]},
 {id:"mar",nom:"Banda Marina VHF",cat:"Náutica y marina",rf:"VHF",lo:156,hi:162.05,txt:"156,000 – 162,025 MHz · canales 1–88 + AIS",
  pot:"25 W · 1 W en canales de baja potencia",modo:"FM · DSC",
  desc:"Comunicaciones entre buques, puertos, prácticos y salvamento marítimo. El canal 16 es el de socorro.",
@@ -1504,12 +1603,14 @@ const D=[
  desc:"Contadores inteligentes, telemetría y sistemas de ayuda auditiva para personas con discapacidad.",
  rx:{s:0,r:0,n:RX_LIB},
  tx:{s:0,r:0,n:"Uso común con equipo homologado, respetando la subbanda y su límite de potencia."},
- notas:["La subbanda de ayudas auditivas tiene uso prioritario."],alt:"—"},
+ notas:["La subbanda de ayudas auditivas tiene uso prioritario."],alt:"—",
+ canales:SRD169,colch:["Subbanda","Tramo","Uso y potencia"]},
 
 {id:"dab",nom:"DAB+ y TDT en Banda III",cat:"Radio y televisión",rf:"VHF",lo:174,hi:230,txt:"174 – 230 MHz",
  pot:"Según concesión",modo:"DAB+ · COFDM",desc:"Radio digital terrestre. En España la cobertura DAB+ es parcial pero creciente.",
  rx:{s:0,r:0,n:RX_LIB},tx:{s:1,r:2,n:"Reservado a los múltiplex concedidos."},
- notas:["Se recibe con un receptor DAB+ o con SDR y software libre."],alt:"—"},
+ notas:["Se recibe con un receptor DAB+ o con SDR y software libre."],alt:"—",
+ canales:DABCH,colch:["Bloque","MHz","Nota"]},
 
 {id:"tetra",nom:"Emergencias y seguridad del Estado · SIRDEE / TETRA",cat:"Emergencias",rf:"UHF",lo:380,hi:400,txt:"380 – 400 MHz",
  pot:"Red estatal",modo:"TETRAPOL · TETRA · cifrado",
@@ -1517,7 +1618,8 @@ const D=[
  rx:{s:2,r:0,n:"Detectar la portadora con un SDR no radia nada, pero el tráfico va cifrado y descifrarlo, almacenarlo o difundirlo es delito de descubrimiento y revelación de secretos. No existe escucha lícita útil de esta red."},
  tx:{s:2,r:3,n:"Interferir la red de emergencias es de lo más grave que puede hacerse en el espectro: afecta directamente a intervenciones policiales, sanitarias y de extinción."},
  notas:["Las redes autonómicas (RESCAT y equivalentes) operan también en 380–400 MHz.","Si colaboras con protección civil, se te asigna terminal oficial: esa es la única vía."],
- alt:"Ninguna: es una red cerrada de seguridad pública."},
+ alt:"Ninguna: es una red cerrada de seguridad pública.",
+ nolist:"El reparto de SIRDEE no se publica: son frecuencias asignadas a cuerpos de seguridad y emergencias, y el tráfico va cifrado. No existe lista pública ni la habrá."},
 
 {id:"epirb",nom:"Radiobalizas COSPAS-SARSAT 406 MHz",cat:"Emergencias",rf:"UHF",lo:406,hi:406.1,txt:"406,0 – 406,1 MHz",
  pot:"5 W pulsado",modo:"Ráfagas digitales",
@@ -1525,7 +1627,8 @@ const D=[
  rx:{s:0,r:0,n:"Recibir la banda es legal y no afecta a nada. Las ráfagas son muy breves y esporádicas."},
  tx:{s:1,r:3,n:"Solo mediante baliza homologada, registrada a tu nombre, y únicamente ante peligro real de muerte. Una activación falsa moviliza helicópteros y salvamento, y se sanciona con severidad."},
  notas:["Comprar y registrar una PLB es legal y muy recomendable para montaña y navegación.","121,500 MHz sirve solo de baliza de guiado final; el alertado real va por 406 MHz."],
- alt:"Adquirir y registrar una PLB o EPIRB homologada: es la forma correcta de usar esta banda."},
+ alt:"Adquirir y registrar una PLB o EPIRB homologada: es la forma correcta de usar esta banda.",
+ canales:EPIRBCH,colch:["Función","Frecuencia","Cómo actúa"]},
 
 {id:"pmr-410",nom:"Redes privadas 410 – 430 MHz",cat:"Redes profesionales (PMR)",rf:"UHF",lo:410,hi:430,txt:"410 – 430 MHz",
  pot:"Según concesión",modo:"TETRA · DMR · FM",
@@ -1533,14 +1636,16 @@ const D=[
  rx:{s:1,r:0,n:RX_NOD},
  tx:{s:1,r:2,n:"Frecuencias asignadas individualmente. Una interferencia puede desbaratar la coordinación de un hospital o de un aeropuerto."},
  notas:["Buena parte del tráfico TETRA privado va cifrado."],
- alt:"dPMR446 o DMR Tier 1 en 446 MHz para uso interno, sin licencia ni tasas."},
+ alt:"dPMR446 o DMR Tier 1 en 446 MHz para uso interno, sin licencia ni tasas.",
+ nolist:"Frecuencias asignadas una a una por concesión, no un plan de canales publicado."},
 
 {id:"ham-70",nom:"Radioaficionado · 70 centímetros",cat:"Radioafición",rf:"UHF",lo:430,hi:440,txt:"430 – 440 MHz",
  pot:"Según autorización",modo:"FM · DMR · D-STAR · SSB · ATV",
  desc:"Repetidores urbanos, redes digitales enlazadas por internet y televisión de aficionado.",
  rx:{s:0,r:0,n:RX_LIB},tx:{s:1,r:1,n:"Requiere licencia e indicativo."},
  notas:["433,500 MHz: llamada FM.","Convive con LPD433 e ISM: hay miles de mandos y sensores en el mismo tramo."],
- alt:"Licencia de radioaficionado."},
+ alt:"Licencia de radioaficionado.",
+ canales:HAM70,colch:["Tramo","Rango","Uso · plan IARU R1"]},
 
 {id:"cb-9",nom:"Canal 9 CB · emergencia y carretera",cat:"Walkies y uso personal",rf:"HF",lo:27.065,hi:27.065,txt:"27,065 MHz · canal 9 de la CB",
  pot:"4 W en AM/FM · 12 W PEP en SSB",modo:"AM · FM · SSB",
@@ -1549,7 +1654,8 @@ const D=[
  tx:{s:0,r:0,n:"Uso común, sin licencia, como el resto de la CB-27. Lo que cambia es la norma de cortesía: se reserva a emergencias y no se usa para conversación."},
  notas:["No sustituye al 112: nadie garantiza que haya alguien escuchando.",
   "El canal 19 es el habitual de carretera para tráfico y avisos entre camioneros."],
- alt:"Es libre. Para una emergencia real, el 112 por teléfono."},
+ alt:"Es libre. Para una emergencia real, el 112 por teléfono.",
+ canales:CB9,colch:["Canal","MHz","Uso"]},
 {id:"lpd",nom:"LPD433 e ISM 433 MHz",cat:"Walkies y uso personal",rf:"UHF",lo:433.05,hi:434.79,txt:"433,05 – 434,79 MHz · 69 canales",
  pot:"10 mW ERP",modo:"FM voz · datos · OOK",
  desc:"Uso común compartido: walkies LPD, mandos de garaje, estaciones meteorológicas, sensores, telemandos y LoRa 433.",
@@ -1583,25 +1689,29 @@ const D=[
  rx:{s:1,r:0,n:RX_NOD},
  tx:{s:1,r:2,n:"Frecuencias asignadas nominalmente y con tasa pagada. Tumbar la red de un hospital o de un evento tiene impacto alto y titular identificable: la denuncia por interferencia es directa."},
  notas:["Es la banda donde más se cuela gente con walkies genéricos mal programados.","Muchos equipos de bajo coste cubren 400–470 MHz de fábrica: que el equipo pueda no significa que puedas."],
- alt:"PMR446 o dPMR446 si te basta con 500 mW; concesión de uso privativo si necesitas potencia y cobertura reales."},
+ alt:"PMR446 o dPMR446 si te basta con 500 mW; concesión de uso privativo si necesitas potencia y cobertura reales.",
+ nolist:"Asignadas nominalmente por concesión de uso privativo. No existe lista abierta que consultar."},
 
 {id:"tdt",nom:"TDT · Televisión Digital Terrestre",cat:"Radio y televisión",rf:"UHF",lo:470,hi:694,txt:"470 – 694 MHz · canales 21–48",
  pot:"Según concesión",modo:"DVB-T · DVB-T2",
  desc:"Múltiplex nacionales, autonómicos y locales. Tras el segundo dividendo digital, el techo es 694 MHz.",
  rx:{s:0,r:0,n:RX_LIB},
  tx:{s:1,r:2,n:"Reservado a múltiplex concedidos y, puntualmente, a PMSE con autorización."},
- notas:["Este tramo aloja también micrófonos profesionales (PMSE) con autorización temporal."],alt:"—"},
+ notas:["Este tramo aloja también micrófonos profesionales (PMSE) con autorización temporal."],alt:"—",
+ canales:TDTCH,colch:["Canal","MHz","Nota"]},
 
 {id:"movil-700",nom:"Móvil 5G · 700 MHz",cat:"Telefonía móvil",rf:"UHF",lo:694,hi:790,txt:"694 – 790 MHz",
  pot:"Operador con licencia",modo:"5G NR",desc:"Banda de cobertura del 5G nacional, adjudicada por subasta a los operadores.",
  rx:{s:2,r:0,n:"Ver la actividad de una celda con un SDR no daña nada, pero interceptar o intentar descifrar comunicaciones móviles ajenas es delito. No hay escucha lícita de contenido."},
  tx:{s:2,r:3,n:"Espectro licenciado. Cualquier emisión ajena degrada la cobertura móvil de un área entera, incluidas las llamadas al 112. Los inhibidores son ilegales para particulares y empresas."},
- notas:[],alt:"Ninguna: espectro subastado a operadores."},
+ notas:[],alt:"Ninguna: espectro subastado a operadores.",
+ nolist:"El reparto en bloques es de los operadores, adjudicado en subasta. Subida y bajada van separadas (FDD): no es un plan de canales sintonizable."},
 
 {id:"movil-800",nom:"Móvil 4G/5G · 800 MHz",cat:"Telefonía móvil",rf:"UHF",lo:791,hi:862,txt:"791 – 821 y 832 – 862 MHz",
  pot:"Operador con licencia",modo:"LTE · 5G",desc:"Banda de cobertura rural del 4G y 5G.",
  rx:{s:2,r:0,n:"Como el resto de bandas móviles: interceptar comunicaciones ajenas es delito."},
- tx:{s:2,r:3,n:"Espectro con licencia individual de operador."},notas:[],alt:"Ninguna."},
+ tx:{s:2,r:3,n:"Espectro con licencia individual de operador."},notas:[],alt:"Ninguna.",
+ nolist:"Bloques adjudicados por subasta a cada operador, con subida y bajada separadas."},
 
 {id:"micros",nom:"Micrófonos inalámbricos de uso común",cat:"Micrófonos y audio",rf:"UHF",lo:823,hi:832,txt:"823 – 832 MHz · y 1785 – 1805 MHz",
  pot:"20 mW portátil · 50 mW",modo:"FM · digital",
@@ -1609,7 +1719,8 @@ const D=[
  rx:{s:1,r:0,n:"RX libre de la banda; el contenido de una producción ajena sigue siendo privado."},
  tx:{s:0,r:0,n:"Uso común con equipo homologado dentro del límite de potencia."},
  notas:["Muchos micros antiguos trabajan en 700–800 MHz y hoy son ilegales tras el dividendo digital: comprueba el rango de tu equipo antes de usarlo.","Para producciones grandes en 470–694 MHz se solicita autorización PMSE temporal."],
- alt:"—"},
+ alt:"—",
+ canales:MICROSCH,colch:["Tramo","Rango","Condiciones"]},
 
 {id:"srd868",nom:"SRD 868 MHz · IoT, LoRa y alarmas",cat:"Datos, WiFi e IoT",rf:"UHF",lo:863,hi:870,txt:"863 – 870 MHz",
  pot:"25 mW ERP típico · ciclo de trabajo limitado",modo:"LoRa · FSK · Sigfox",
@@ -1617,12 +1728,14 @@ const D=[
  rx:{s:0,r:0,n:RX_LIB},
  tx:{s:0,r:0,n:"Uso común, pero con límite de ciclo de trabajo (0,1 %, 1 % o 10 % según subbanda): la transmisión continua no está permitida."},
  notas:["868,1 / 868,3 / 868,5 MHz: canales LoRaWAN por defecto en la región EU868.","Mejor alcance y mucho menos ruido que 433 MHz para telemetría."],
- alt:"—"},
+ alt:"—",
+ canales:SRD868,colch:["Subbanda","Tramo","Potencia y ciclo"]},
 
 {id:"movil-900",nom:"Móvil 900 MHz · GSM, UMTS y LTE",cat:"Telefonía móvil",rf:"UHF",lo:880,hi:960,txt:"880 – 960 MHz",
  pot:"Operador con licencia",modo:"GSM · LTE · 5G",desc:"Banda histórica de la telefonía móvil, aún clave para cobertura.",
  rx:{s:2,r:0,n:"Interceptar telefonía ajena es delito, aunque técnicamente sea captable."},
- tx:{s:2,r:3,n:"Espectro licenciado por subasta."},notas:[],alt:"Ninguna."},
+ tx:{s:2,r:3,n:"Espectro licenciado por subasta."},notas:[],alt:"Ninguna.",
+ nolist:"Reparto en bloques por operador. Conviven GSM, UMTS y LTE en el mismo tramo según lo que despliegue cada uno."},
 
 {id:"gnss",nom:"GNSS · GPS, Galileo y GLONASS",cat:"Satélite y espacio",rf:"SHF",lo:1164,hi:1610,txt:"1164 – 1300 y 1559 – 1610 MHz",
  pot:"Satélites",modo:"Espectro ensanchado (CDMA)",
@@ -1630,7 +1743,8 @@ const D=[
  rx:{s:0,r:0,n:RX_LIB+" Cualquier receptor GNSS o SDR puede recibirlas: es la base de la navegación civil."},
  tx:{s:2,r:3,n:"Los jammers de GPS son ilegales. Un solo inhibidor en una carretera afecta a aviación, transporte y emergencias en un radio de kilómetros."},
  notas:["L1 = 1575,42 MHz · L2 = 1227,60 MHz · L5 = 1176,45 MHz."],
- alt:"RX libre. No existe uso legal de emisión en esta banda para particulares."},
+ alt:"RX libre. No existe uso legal de emisión en esta banda para particulares.",
+ canales:GNSSCH,colch:["Señal","MHz","Uso"]},
 
 {id:"ham-23",nom:"Radioaficionado · microondas (23 cm y superiores)",cat:"Radioafición",rf:"SHF",lo:1240,hi:24250,txt:"1240–1300 · 2300–2450 · 5650–5850 MHz · 10 y 24 GHz",
  pot:"Según autorización",modo:"FM · SSB · ATV · digitales",
@@ -1638,13 +1752,15 @@ const D=[
  rx:{s:0,r:0,n:RX_LIB},
  tx:{s:1,r:1,n:"Requiere licencia. Muchos tramos son secundarios: hay que aceptar interferencia de servicios primarios y no causarla."},
  notas:["Comparte espectro con GNSS (23 cm) e ISM (13 y 6 cm): la convivencia exige cuidado."],
- alt:"Licencia de radioaficionado."},
+ alt:"Licencia de radioaficionado.",
+ canales:HAM23,colch:["Banda","Rango","Uso"]},
 
 {id:"dect",nom:"DECT · teléfonos inalámbricos",cat:"Datos, WiFi e IoT",rf:"SHF",lo:1880,hi:1900,txt:"1880 – 1900 MHz",
  pot:"250 mW de pico",modo:"DECT · DECT NR+",
  desc:"Teléfonos inalámbricos domésticos e intercomunicadores. Uso común con equipo homologado.",
  rx:{s:2,r:0,n:"Es telefonía: interceptar conversaciones ajenas encaja de lleno en el delito de descubrimiento y revelación de secretos, aunque el equipo lo permita."},
- tx:{s:0,r:0,n:"Uso común con equipo homologado DECT."},notas:["Diez portadoras de 1,728 MHz."],alt:"—"},
+ tx:{s:0,r:0,n:"Uso común con equipo homologado DECT."},notas:["Diez portadoras de 1,728 MHz."],alt:"—",
+ canales:DECT10,colch:["Portadora","MHz","Nota"]},
 
 {id:"wifi24",nom:"WiFi, Bluetooth y RC en 2,4 GHz (ISM)",cat:"Datos, WiFi e IoT",rf:"SHF",lo:2400,hi:2483.5,txt:"2400 – 2483,5 MHz · canales 1–13",
  pot:"100 mW EIRP",modo:"OFDM · FHSS · BLE",
@@ -1658,12 +1774,14 @@ const D=[
 {id:"movil-2100",nom:"Móvil 1800 / 2100 / 2600 MHz",cat:"Telefonía móvil",rf:"SHF",lo:1710,hi:2690,txt:"1710–1880 · 1920–2170 · 2500–2690 MHz",
  pot:"Operador con licencia",modo:"LTE · 5G NR",desc:"Bandas de capacidad de las redes móviles en zonas urbanas.",
  rx:{s:2,r:0,n:"Interceptar comunicaciones móviles ajenas es delito."},
- tx:{s:2,r:3,n:"Espectro licenciado por subasta."},notas:[],alt:"Ninguna."},
+ tx:{s:2,r:3,n:"Espectro licenciado por subasta."},notas:[],alt:"Ninguna.",
+ nolist:"Varios tramos (1800, 2100 y 2600 MHz) repartidos en bloques por operador."},
 
 {id:"5g-35",nom:"5G banda media · 3,5 GHz",cat:"Telefonía móvil",rf:"SHF",lo:3400,hi:3800,txt:"3400 – 3800 MHz",
  pot:"Operador con licencia",modo:"5G NR TDD",desc:"La banda principal del 5G español en capacidad.",
  rx:{s:2,r:0,n:"Interceptar comunicaciones móviles ajenas es delito."},
- tx:{s:2,r:3,n:"Espectro licenciado."},notas:[],alt:"Ninguna."},
+ tx:{s:2,r:3,n:"Espectro licenciado."},notas:[],alt:"Ninguna.",
+ nolist:"Bloques de 3,4 – 3,8 GHz adjudicados por subasta. Es espectro de operador: no hay canales que sintonizar."},
 
 {id:"wifi5",nom:"WiFi 5 GHz",cat:"Datos, WiFi e IoT",rf:"SHF",lo:5150,hi:5725,txt:"5150 – 5350 y 5470 – 5725 MHz",
  pot:"200 mW EIRP en interior · 1 W con DFS y TPC",modo:"OFDM · 802.11 a/n/ac/ax",
@@ -1671,7 +1789,8 @@ const D=[
  rx:{s:1,r:0,n:"Escanear redes es legal; capturar o descifrar tráfico ajeno no."},
  tx:{s:0,r:0,n:"Uso común con condiciones estrictas: respeta DFS y la limitación a interiores del tramo bajo."},
  notas:["DFS: el equipo debe abandonar el canal si detecta un radar. No lo desactives.","5150–5350 MHz: exclusivamente en interiores, sin antena exterior."],
- alt:"—"},
+ alt:"—",
+ canales:WIFI5,colch:["Canal","MHz","Condiciones"]},
 
 {id:"fpv58",nom:"FPV y enlaces de vídeo en 5,8 GHz",cat:"RC y drones",rf:"SHF",lo:5725,hi:5875,txt:"5725 – 5875 MHz",
  pot:"25 mW EIRP",modo:"Vídeo analógico y digital",
@@ -1679,28 +1798,32 @@ const D=[
  rx:{s:0,r:0,n:RX_LIB+" Las gafas y receptores FPV son solo receptores: usarlos nunca es el problema."},
  tx:{s:0,r:1,n:"Uso común solo hasta 25 mW EIRP. Muchos VTX se venden a 200, 600 o 1000 mW y a esa potencia ya no son legales aquí."},
  notas:["Comprueba y limita la potencia de tu VTX antes de volar.","El vuelo de drones tiene además normativa propia de AESA: registro de operador, zonas geográficas y límites de altura."],
- alt:"Configurar el VTX a 25 mW y volar en zona autorizada; para más potencia, autorización específica."},
+ alt:"Configurar el VTX a 25 mW y volar en zona autorizada; para más potencia, autorización específica.",
+ canales:FPV58,colch:["Canal","MHz","Legalidad en España"]},
 
 {id:"wifi6e",nom:"WiFi 6E · 6 GHz",cat:"Datos, WiFi e IoT",rf:"SHF",lo:5945,hi:6425,txt:"5945 – 6425 MHz",
  pot:"200 mW EIRP · modo LPI, interior",modo:"802.11ax / be",
  desc:"La banda nueva del WiFi: mucho espectro limpio, restringido a baja potencia y uso en interiores.",
  rx:{s:1,r:0,n:"Escanear redes es legal; capturar tráfico ajeno no."},
  tx:{s:0,r:0,n:"Uso común en modo LPI: interiores y sin antena exterior."},
- notas:["Comparte espectro con enlaces fijos de radio; de ahí el límite estricto."],alt:"—"},
+ notas:["Comparte espectro con enlaces fijos de radio; de ahí el límite estricto."],alt:"—",
+ canales:WIFI6E,colch:["Canal","MHz","Condiciones"]},
 
 {id:"satrx",nom:"Recepción de satélite en banda Ku",cat:"Satélite y espacio",rf:"SHF",lo:10700,hi:12750,txt:"10,7 – 12,75 GHz",
  pot:"Satélites",modo:"DVB-S · DVB-S2",
  desc:"Banda de bajada: televisión por satélite y datos. Recepción con parabólica y LNB.",
  rx:{s:0,r:0,n:RX_LIB+" La recepción doméstica de televisión por satélite es el caso de uso normal."},
  tx:{s:1,r:2,n:"El enlace ascendente requiere licencia de estación terrena; interferir un transpondedor afecta a un haz continental entero."},
- notas:[],alt:"—"},
+ notas:[],alt:"—",
+ nolist:"No hay canalización fija: cada satélite reparte su capacidad en transpondedores propios, que cambian con la operadora y el servicio."},
 
 {id:"radar24",nom:"ISM 24 GHz y radar de automoción",cat:"Datos, WiFi e IoT",rf:"SHF",lo:24000,hi:81000,txt:"24,05 – 24,25 GHz · 76 – 81 GHz",
  pot:"100 mW EIRP en ISM · según norma en automoción",modo:"FMCW · CW",
  desc:"Sensores de movimiento, puertas automáticas, radar de nivel y radar anticolisión de vehículos.",
  rx:{s:0,r:0,n:RX_LIB},
  tx:{s:0,r:0,n:"Uso común para equipos homologados; el radar de automoción de 76–81 GHz va integrado en el vehículo."},
- notas:["No confundir con los cinemómetros de tráfico, que son equipos oficiales verificados metrológicamente."],alt:"—"}
+ notas:["No confundir con los cinemómetros de tráfico, que son equipos oficiales verificados metrológicamente."],alt:"—",
+ nolist:"Banda continua sin canalizar: cada sensor de movimiento o radar de automoción ocupa el ancho que necesita dentro del tramo."}
 ];
 
 /* ═══════════════ constantes de presentación ═══════════════ */
@@ -2709,6 +2832,7 @@ function openBand(id,push=true){
         const crit=(b.hlch&&c.n===b.hlch)||/EMERGENC|SOCORRO/i.test((c.nota||"")+String(c.f));
         return `<tr class="${crit?"crit":""}"><td>${esc(c.n)}</td><td>${esc(fmtF(c))}${c.extra?` <span style="color:var(--fg3)">${esc(c.extra)}</span>`:""}</td><td>${esc(c.nota||"")}</td></tr>`;
       }).join("")}</tbody></table></div></div>`:""}
+    ${b.nolist?`<h5>Frecuencias</h5><div class="cal c-nt"><span class="kicker">Esta banda no tiene canalización</span>${esc(b.nolist)}</div>`:""}
     <div class="chips"><span>${rngTxt(b)}</span><span>${b.rf}</span>${b.canales?`<span>${b.canales.length} canales</span>`:""}<span>${esc(b.cat)}</span></div>
   </div>`;
   ov.classList.add("on"); document.body.style.overflow="hidden";
