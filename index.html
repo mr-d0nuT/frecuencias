@@ -2236,7 +2236,7 @@ function openProfile(first) {
 function perfilCambiado(){
   saveProfile();
   LS.set("espectro:equipo", MYEQ);
-  paintProfileBtn(); paintUcBtn(); paintMe(); paintStats(); paintUas(); render();
+  paintProfileBtn(); paintUcBtn(); paintMe(); paintUas(); render();
 }
 let povlOpened = 0;
 function closeProfile() {
@@ -2248,17 +2248,6 @@ povl.addEventListener("click", e => { if (e.target === povl && Date.now() - povl
 paintProfileBtn();
 
 
-function paintStats(){
-  const st=$("#stats"); if(!st) return;   // las cifras viven ahora en las tarjetas de arriba
-  st.hidden = UC!==null;
-  const ch=D.reduce((a,b)=>a+(b.canales?b.canales.length:0),0);
-  const puedo=D.filter(b=>fverdict(b).k==="ok").length;
-  const esc0=D.filter(b=>b.rx.s===0).length;
-  const items=hasProfile()
-    ? [[D.length,"bandas"],[puedo,"TX libre"],[esc0,"RX libre"],[ch,"canales listados"]]
-    : [[D.length,"bandas"],[D.filter(b=>b.tx.s===0).length,"TX libre"],[esc0,"RX libre"],[ch,"canales listados"]];
-  $("#stats").innerHTML=items.map(([n,l])=>`<div class="stat"><div class="n">${n}</div><div class="l">${l}</div></div>`).join("");
-}
 $("#ver").textContent="Rev. "+new Date().getFullYear();
 
 /* ═══════════════ casos de uso ═══════════════ */
@@ -2369,7 +2358,7 @@ ucmenu.addEventListener("click",e=>{
   const i=+b.dataset.uc;
   UC = i<0 ? null : i;
   if(UC!==null){ F={tx:"all",rx:"all",me:"all",rf:"all",cat:"all"}; Q=""; syncChips(); }
-  ucOpen(false); paintUcBtn(); paintQbar(); paintStats(); render();
+  ucOpen(false); paintUcBtn(); paintQbar(); render();
   const u=UC!==null?USECASES[UC]:null;
   const vuelo=!!(u && u.vuelo);
   $("#uas-sec").hidden = !vuelo;                      // el planificador solo aparece si vas a volar
@@ -2398,7 +2387,7 @@ qbar.addEventListener("click",e=>{
   const i=+b.dataset.q;
   UC = i<0 ? null : i;
   if(UC!==null){ F={tx:"all",rx:"all",me:"all",rf:"all",cat:"all"}; Q=""; syncChips(); }
-  paintUcBtn(); paintQbar(); paintStats(); render();
+  paintUcBtn(); paintQbar(); render();
   const u=UC!==null?USECASES[UC]:null;
   const vuelo=!!(u && u.vuelo);
   $("#uas-sec").hidden = !vuelo;
@@ -2581,23 +2570,6 @@ function rowHTML(b){
     <span class="bcel c1">${pill(b.rx,RXL)}</span>
     <span class="bcel c2">${pill(b.tx,TXL,txLabel(b))}</span>
     <span class="bcel c3 bme">${v?`<span class="vd" style="--c:${VK[v.k]}" title="${esc(v.d||v.t)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">${VICON[v.k]}</svg><span class="vt">${esc(v.c || v.t)}</span></span>`:""}</span>
-  </div>`;
-}
-function cardHTML(b){
-  return `<div class="bc" data-id="${b.id}" role="button" tabindex="0" aria-label="${esc(b.nom)}">
-    <span class="tag">${b.rf}</span>
-    <h4>${esc(b.nom)}</h4>
-    <span class="rng">${esc(b.txt)}</span>
-    <span class="dsc">${esc(b.desc)}</span>
-    <span class="rt">
-      <span class="rtr">${pill(b.rx,RXL)}<i class="rmini">no radia</i></span>
-      <span class="rtr">${pill(b.tx,TXL,txLabel(b))}${vtag(b)}${b.tx.r?bars(b.tx.r):'<i class="rmini">sin riesgo</i>'}</span>
-      ${hasProfile()?(()=>{const v=fverdict(b);return `<span class="rtr me tap" data-perfil="1" style="--c:${VK[v.k]}"><i class="rtk">TÚ</i>${vBadge(v)}${v.k==="partial"||v.k==="no"?'<i class="edit">ajustar</i>':""}${v.d?`<i class="mewhy">${esc(v.d)}</i>`:""}</span>`;})():""}
-    </span>
-    <span class="foot"><span>${esc(b.pot.split("·")[0].trim())}</span><span>${esc(b.modo.split("·")[0].trim())}</span>${b.canales?`<span>${b.canales.length} canales</span>`:""}</span>
-    <button class="fav ${FAV.has(b.id)?"on":""}" data-fav="${b.id}" aria-label="Marcar como favorito" aria-pressed="${FAV.has(b.id)}">
-      <svg viewBox="0 0 24 24" fill="${FAV.has(b.id)?"currentColor":"none"}" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M12 3.6l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8L3.5 9.8l5.9-.9z"/></svg>
-    </button>
   </div>`;
 }
 function render(){
@@ -3520,12 +3492,6 @@ function adTable(list) {
     </div>`;
   }).join("")}</div>`;
 }
-function adStatus(kind, txt) {
-  const col = { live: "var(--ok)", snap: "var(--warn)", err: "var(--bad)", load: "var(--info)" }[kind] || "var(--fg3)";
-  const u = AD[adSel.value] && AD[adSel.value].u;
-  adState.innerHTML = `<span class="pipdot" style="--c:${col}"></span>${txt}` +
-    (u ? ` · <a href="${AIP_BASE + u}" target="_blank" rel="noopener">ver PDF oficial</a>` : "");
-}
 const rutaGM=(la,lo)=>`https://www.google.com/maps/dir/?api=1&destination=${la},${lo}&travelmode=driving`;
 const chipRuta=(la,lo,cls="dchip")=>`<a class="${cls} ruta" href="${rutaGM(la,lo)}" target="_blank" rel="noopener" title="Abre Google Maps con tu posición actual y este punto a la vez, con la distancia entre ambos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-8-8 18-2-8-8-2z"/></svg>Ruta desde mi posición</a>`;
 function adContact(code) {
@@ -3551,12 +3517,6 @@ function adContact(code) {
     ${(tel||mail||mapa)?`<div class="dchips">${tel}${mail}${mapa}</div>`:""}
     ${tel?`<div class="cnote2">El teléfono es el que el AIP publica para el aeródromo, normalmente el gestor o la oficina de coordinación, no el directo de la torre.</div>`:""}
   </div>`;
-}
-function adStatus(kind, txt) {
-  const col = { live: "var(--ok)", snap: "var(--warn)", err: "var(--bad)", load: "var(--info)" }[kind] || "var(--fg3)";
-  const u = AD[adSel.value] && AD[adSel.value].u;
-  adState.innerHTML = `<span class="pipdot" style="--c:${col}"></span>${txt}` +
-    (u ? ` · <a href="${AIP_BASE + u}" target="_blank" rel="noopener">ver PDF oficial</a>` : "");
 }
 function adStatus(kind, txt) {
   const col = { live: "var(--ok)", snap: "var(--warn)", err: "var(--bad)", load: "var(--info)" }[kind] || "var(--fg3)";
@@ -3901,7 +3861,7 @@ function planVuelo(){
 nearRender(null);
 
 /* ═══════════════ arranque ═══════════════ */
-drawSpec(); paintStats(); render(); paintUas();
+drawSpec(); render(); paintUas();
 /* Sin perfil, los veredictos no son los tuyos: se pide al arrancar,
    con opción de omitirlo para no volver a insistir. */
 if (!hasProfile() && !LS.get("espectro:perfil-omitido", 0)) {
