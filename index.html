@@ -948,6 +948,10 @@ footer .end{margin-top:var(--s3);padding-top:var(--s3)}
 .ucfit.part{color:var(--warn);background:color-mix(in srgb,var(--warn) 13%,transparent);border:1px solid color-mix(in srgb,var(--warn) 30%,transparent)}
 .ucfit.no{color:var(--fg3);background:color-mix(in srgb,var(--fg3) 10%,transparent);border:1px solid var(--line)}
 @media (max-width:520px){ .ucfit{font-size:8.4px;padding:2px 5px;margin-left:6px} }
+
+/* ── habilitaciones que presupone el equipo declarado ── */
+.cimp{flex:none;align-self:center;margin-left:8px;font-family:var(--f-mono);font-size:8.6px;letter-spacing:.07em;text-transform:uppercase;font-weight:700;padding:3px 6px;border-radius:5px;white-space:nowrap;color:var(--warn);background:color-mix(in srgb,var(--warn) 13%,transparent);border:1px solid color-mix(in srgb,var(--warn) 32%,transparent)}
+.cal.eqimp{margin:0 0 12px}
 @media print{
   .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
   body{background:#fff;color:#000;font-size:10pt}
@@ -1870,6 +1874,16 @@ const EQ = {
           tx: [[156, 162.1]], pwr: 25, ant: "exterior", modes: ["FM"], cert: ["marino"] }
 };
 
+/* Qué habilitaciones presupone cada equipo.
+   No se marcan solas a propósito: tener el aparato no es tener el papel. Una
+   emisora marina se compra sin trámite alguno, y la Licencia de Estación de
+   Barco va ligada a una embarcación concreta —le asigna indicativo y MMSI—,
+   así que declarar la radio no prueba que el barco la tenga. Se señalan para
+   que el usuario las confirme de un toque, que es distinto de darlas por
+   supuestas. Al revés sí es seguro: quien tiene la licencia tiene, por
+   definición, la estación homologada instalada. */
+const EQIMPLICA = { mar: ["mar_op", "mar_est"], aer: ["aer_op", "aer_est"], ham: ["ham"] };
+
 /* Exigencias técnicas por banda. Solo donde el equipo es determinante. */
 const EQREQ = {
   pmr446:  { pwr: 0.5, ant: "fija", cert: "pmr446", modes: ["FM"], w: "500 mW y antena integrada no desmontable" },
@@ -1980,6 +1994,8 @@ function openProfile(first) {
         </button>`).join("")}</div>
       <h5 style="margin-top:22px">2 · Tus habilitaciones <span class="tagk pm">los permisos</span></h5>
       <p class="hint2">Son trámites administrativos, independientes del equipo que tengas.</p>
+      ${(EQIMPLICA[MYEQ]||[]).length ? `<div class="cal c-nt eqimp"><span class="kicker">Lo que presupone tu equipo</span>Una <b>${esc(eqCur().t)}</b> no es legal sin: ${
+        EQIMPLICA[MYEQ].map(k=>`<b>${esc(CRED[k].s || CRED[k].t)}</b>`).join(" y ")}. Van señaladas abajo, pero <b>márcalas tú</b>: el aparato se compra sin trámite y la app no puede dar por hecho que tengas el papel.</div>` : ""}
       ${Object.entries(groups).map(([g, items]) => `
         <h5 class="sub5">${esc(g)}</h5>
         <div class="creds">${items.map(([id, c]) => `
@@ -1987,6 +2003,8 @@ function openProfile(first) {
             <input type="checkbox" data-cred="${id}" ${PROFILE.has(id) ? "checked" : ""}>
             <span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg></span>
             <span class="ct"><b>${esc(c.t)}</b>${esc(c.d)}</span>
+            ${(EQIMPLICA[MYEQ]||[]).includes(id) && !PROFILE.has(id)
+              ? `<span class="cimp" title="Tu equipo declarado no funciona legalmente sin ella. Márcala solo si la tienes de verdad: la app no puede saberlo.">La exige tu equipo</span>` : ""}
           </label>`).join("")}</div>`).join("")}
       <div class="cal c-nt" style="margin-top:18px"><span class="kicker">Aviso</span>Esto es una ayuda de consulta, no un registro oficial. Marcar una casilla no te concede ningún permiso: solo hace que la app filtre por lo que declaras tener. La responsabilidad de operar dentro de tu habilitación es tuya.</div>
       <div style="display:flex;gap:9px;margin-top:16px;flex-wrap:wrap">
@@ -2004,11 +2022,23 @@ function openProfile(first) {
     MYEQ = t.dataset.eq; LS.set("espectro:equipo", MYEQ);
     povl.querySelectorAll("[data-eq]").forEach(x => x.classList.toggle("on", x === t));
     perfilCambiado();
+    // el equipo cambia qué habilitaciones se señalan: se repinta la hoja
+    // conservando el scroll, para no perder el sitio a media lista
+    const cuerpo = povl.querySelector(".sh-b"), y = cuerpo ? cuerpo.scrollTop : 0;
+    openProfile(false);
+    const nuevo = povl.querySelector(".sh-b"); if (nuevo) nuevo.scrollTop = y;
   }));
   povl.querySelectorAll("[data-cred]").forEach(i => i.addEventListener("change", e => {
     const id = e.target.dataset.cred;
     e.target.checked ? PROFILE.add(id) : PROFILE.delete(id);
-    e.target.closest(".cred").classList.toggle("on", e.target.checked);
+    const fila = e.target.closest(".cred");
+    fila.classList.toggle("on", e.target.checked);
+    if (e.target.checked) { const c = fila.querySelector(".cimp"); if (c) c.remove(); }
+    else if ((EQIMPLICA[MYEQ] || []).includes(id) && !fila.querySelector(".cimp")) {
+      const c = document.createElement("span"); c.className = "cimp";
+      c.title = "Tu equipo declarado no funciona legalmente sin ella. Márcala solo si la tienes de verdad: la app no puede saberlo.";
+      c.textContent = "La exige tu equipo"; fila.appendChild(c);
+    }
     perfilCambiado();
   }));
 }
