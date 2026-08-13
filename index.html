@@ -1343,7 +1343,10 @@ const MAR=[[1,156.050,160.650],[2,156.100,160.700],[3,156.150,160.750],[4,156.20
  .map(([n,f,dx,nota])=>({n,f,extra:dx?"▲"+dx.toFixed(3).replace(".",","):"símplex",nota:nota||""}));
 MAR.push({n:"AIS1",f:161.975,extra:"AIS",nota:"Identificación automática de buques"},{n:"AIS2",f:162.025,extra:"AIS",nota:"Identificación automática de buques"});
 
-const PMR16=gen(16,446.00625,0.0125).map(c=>({...c,nota:c.n===1?"Canal de llamada habitual":c.n===8?"Muy usado en montaña":""}));
+const PMR16=gen(16,446.00625,0.0125).map(c=>({...c,nota:
+ c.n===7?"CANAL 7-7 · convenio de seguridad en montaña en España · subtono CTCSS 7 = 85,4 Hz":
+ c.n===1?"Canal de llamada habitual":
+ c.n>=9?"Añadidos en 2018 · los equipos antiguos no los tienen, así que van mucho menos cargados":""}));
 const DPMR16=gen(16,446.103125,0.00625,6).map(c=>({...c,nota:""}));
 const LPD69=gen(69,433.075,0.025,3).map(c=>({...c,nota:c.n===17?"Zona muy congestionada por mandos":""}));
 const RC27=[26.995,27.045,27.095,27.145,27.195].map((f,i)=>({n:"A"+(i+1),f,nota:"Radiocontrol de superficie"}));
@@ -1671,7 +1674,7 @@ const D=[
  canales:PMR16,colch:["Canal","MHz","Nota"],
  rx:{s:1,r:0,n:"Escuchar la banda es libre. Ten presente que las conversaciones ajenas siguen siendo comunicaciones privadas: se pueden oír, no difundir."},
  tx:{s:0,r:0,n:"Uso común: sin licencia, sin tasas y sin examen. Solo equipo homologado europeo con su antena original."},
- notas:["Prohibido: antena externa, amplificador, repetidor o uso desde estación fija con antena elevada.","Alcance real: 1–2 km en ciudad, 5–10 km en campo abierto y mucho más de cima a cima.","Los tonos CTCSS/DCS no dan privacidad: solo silencian tu altavoz, cualquiera te sigue oyendo.","Si necesitas más alcance legal sin licencia, la CB-27 con antena exterior es la vía."],
+ notas:["<b>Canal 7-7</b>: en España existe un convenio de seguridad en montaña que fija el <b>canal 7 con subtono CTCSS 7 (85,4 Hz)</b> como canal común. No lo vigila el 112 ni ningún servicio de rescate: es ayuda mutua entre montañeros, no sustituye al teléfono.","Prohibido: antena externa, amplificador, repetidor o uso desde estación fija con antena elevada.","Alcance real: 1–2 km en ciudad, 5–10 km en campo abierto y mucho más de cima a cima.","Los tonos CTCSS/DCS no dan privacidad: solo silencian tu altavoz, cualquiera te sigue oyendo.","Si necesitas más alcance legal sin licencia, la CB-27 con antena exterior es la vía."],
  alt:"—"},
 
 {id:"dpmr446",nom:"dPMR446 y DMR446 digital",cat:"Walkies y uso personal",rf:"UHF",lo:446.1,hi:446.2,txt:"446,103125 – 446,196875 MHz · 16 canales",
