@@ -4087,7 +4087,7 @@ if(h&&D.some(b=>b.id===h))openBand(h,false);
     Q("#btPanel").hidden=false;
   }
 
-  let dev=null, chEscr=null, chNotif=null, pend=null, buf=[], identTxt="", MEM=null;
+  let dev=null, chEscr=null, chNotif=null, pend=null, buf=[], identTxt="", MEM=null, copiaHecha=false;
 
   const est=(t,k)=>{ const e=Q("#btEstado"); if(e) e.innerHTML=
     `<span class="pipdot" style="--c:${k==="ok"?"var(--ok-v)":k==="err"?"var(--bad-v)":"var(--warn-v)"}"></span>${t}`; };
@@ -4234,8 +4234,10 @@ if(h&&D.some(b=>b.id===h))openBand(h,false);
       const f=`tdh3plus-${new Date().toISOString().slice(0,19).replace(/[:T]/g,"-")}.h3p`;
       p.innerHTML=`<div class="cal c-ok"><span class="kicker">Copia leída</span>
         <b>${(leidos/1024).toFixed(0)} KB</b> leídos (hasta 0x${leidos.toString(16).toUpperCase()})${corte?` · se paró porque ${esc(corte)}, que es lo normal al llegar al final`:""}.
-        <a href="${url}" download="${f}"><b>Descargar ${f}</b></a> — guárdalo antes de escribir nada.</div>
-        <div class="bt-acts" style="margin-top:10px"><button class="btn" id="btCanales">Ver los canales de la radio</button></div>
+        <a href="${url}" download="${f}" id="btDesc"><b>Descargar ${f}</b></a> — guárdalo antes de escribir nada.</div>
+        <div class="bt-acts" style="margin-top:10px">
+          <button class="btn" id="btCanales">Ver los canales de la radio</button>
+          <button class="btn pri" id="btGrabar" disabled title="Descarga primero la copia de seguridad">Grabar 19 canales de escucha</button></div>
         <div id="btTabla"></div>`;
     }catch(e){
       p.innerHTML=`<div class="cal c-nt"><span class="kicker">Se cortó la lectura</span>${esc(e.message)}.
@@ -4291,11 +4293,148 @@ if(h&&D.some(b=>b.id===h))openBand(h,false);
       </tbody></table></div></div>`;
   }
 
+
+  /* ═══ ESCRITURA ═══
+     Tres salvaguardas obligatorias, tomadas de los avisos del mapa de memoria:
+     1. Lectura-modificación-escritura. El bloque mínimo son 32 bytes alineados
+        y un canal ocupa 16, así que en cada bloque conviven DOS canales.
+        Escribir uno sin conservar el otro lo destruye.
+     2. Solo se escriben los bloques que de verdad cambian.
+     3. Se relee todo lo escrito y se compara byte a byte. Si algo no cuadra,
+        se avisa en vez de dar por bueno.
+     Además, todos los canales que se graban van con TX inhibida (frecuencia de
+     transmisión a FF FF FF FF): son canales de escucha y así la radio no puede
+     transmitir en ellos ni por error. */
+
+  const aBcd = n => ((Math.floor(n/10)<<4) | (n%10)) & 0xFF;
+  function frecABytes(mhz){                     // → lbcd[4], unidades de 10 Hz
+    const v = Math.round(mhz*100000);           // p.ej. 145,500 → 14550000
+    const s = String(v).padStart(8,"0");
+    return [aBcd(+s.slice(6,8)), aBcd(+s.slice(4,6)), aBcd(+s.slice(2,4)), aBcd(+s.slice(0,2))];
+  }
+  function canalABytes(c){
+    const rx = frecABytes(c.f);
+    const b = new Uint8Array(16);
+    b.set(rx,0);
+    b.set([0xFF,0xFF,0xFF,0xFF],4);             // TX inhibida: canal de solo escucha
+    b.set([0xFF,0xFF,0xFF,0xFF],8);             // sin subtonos en RX ni TX
+    b[12]=0;
+    b[13]=0;                                    // sin PTT-ID, sin salto, sin bloqueo por ocupado
+    b[14]=(0<<4) | ((c.n?1:0)<<3);              // potencia baja + ancho (n = estrecho)
+    b[15]=0;
+    return b;
+  }
+  const nombreABytes = t => { const b=new Uint8Array(8);
+    for(let i=0;i<8;i++) b[i] = i<t.length ? t.charCodeAt(i) : 0; return b; };
+
+  async function escribirBloque(addr, datos32){
+    const t = new Uint8Array(37);
+    t[0]=0x57; t[1]=(addr>>8)&0xFF; t[2]=addr&0xFF; t[3]=0x20;
+    t.set(datos32,4);
+    let cs=0; for(const x of datos32) cs=(cs+x)&0xFF;
+    t[36]=cs;
+    for(let intento=1;intento<=4;intento++){
+      try{
+        buf=[]; const esp=esperar(1,2500);
+        await enviar(t);
+        const r=await esp;
+        if(r[0]===0x06) return true;
+        await dormir(150);
+      }catch(e){ await dormir(200); }
+    }
+    throw new Error(`la radio no confirmó la escritura en 0x${addr.toString(16).toUpperCase()}`);
+  }
+
+  async function grabar(lista){
+    const p=Q("#btProg");
+    if(!MEM){ p.innerHTML=`<div class="cal c-nt">Primero hay que leer la radio.</div>`; return; }
+    if(!copiaHecha){ p.innerHTML=`<div class="cal c-nt"><span class="kicker">Falta la copia</span>
+      Descarga primero el fichero .h3p. Sin copia no hay marcha atrás.</div>`; return; }
+    try{
+      /* Se construye la imagen nueva sobre la leída, y se buscan huecos libres */
+      const img = new Uint8Array(MEM);
+      const libres=[];
+      for(let n=1;n<=199;n++){ const o=16*n; if(o+16<=img.length && img[o]===0xFF) libres.push(n); }
+      if(libres.length < lista.length) throw new Error(`solo hay ${libres.length} canales libres y hacen falta ${lista.length}`);
+
+      const usados=[];
+      lista.forEach((c,i)=>{
+        const n=libres[i]; usados.push({n,...c});
+        img.set(canalABytes(c), 16*n);                       // registro del canal
+        img.set(nombreABytes(c.t), 0x0D40 + 8*(n-1));        // nombre
+        img[0x1900+((n-1)>>3)] |=  (1<<((n-1)&7));           // marcar como usado
+        img[0x1920+((n-1)>>3)] |=  (1<<((n-1)&7));           // incluir en el escaneo
+      });
+
+      /* Solo los bloques de 32 bytes que cambian */
+      const cambia=[];
+      for(let a=0;a<img.length;a+=BLOQUE){
+        for(let k=0;k<BLOQUE;k++) if(img[a+k]!==MEM[a+k]){ cambia.push(a); break; }
+      }
+      p.innerHTML=`<div class="bt-wait">Entrando en modo programación…</div>`;
+      await saludar();
+
+      for(let i=0;i<cambia.length;i++){
+        const a=cambia[i];
+        p.innerHTML=`<div class="bt-wait">Escribiendo bloque ${i+1} de ${cambia.length}…</div>`;
+        await escribirBloque(a, img.slice(a,a+BLOQUE));
+        await dormir(RITMO);
+      }
+
+      /* Cierre de transacción, como hace CHIRP tras una subida */
+      try{ buf=[]; const e2=esperar(1,1500); await enviar([0x45]); await e2; }catch{}
+
+      /* Verificación: se relee lo escrito y se compara */
+      p.innerHTML=`<div class="bt-wait">Comprobando lo escrito…</div>`;
+      await dormir(300); await saludar();
+      let malos=0;
+      for(const a of cambia){
+        buf=[]; const esp=esperar(4+BLOQUE,2500);
+        await enviar([0x52,(a>>8)&0xFF,a&0xFF,BLOQUE]);
+        const r=await esp;
+        const leido=r.slice(4,4+BLOQUE);
+        for(let k=0;k<BLOQUE;k++) if(leido[k]!==img[a+k]){ malos++; break; }
+        await dormir(RITMO);
+      }
+      MEM=img;
+      p.innerHTML= malos
+        ? `<div class="cal c-nt"><span class="kicker">Atención</span>${malos} de ${cambia.length} bloques
+           no coinciden al releer. Restaura tu copia .h3p y avísame antes de seguir.</div>`
+        : `<div class="cal c-ok"><span class="kicker">Grabado y verificado</span>
+           ${lista.length} canales escritos en los huecos ${usados[0].n}–${usados[usados.length-1].n}, y
+           releídos byte a byte sin una sola diferencia. Todos con <b>transmisión inhibida</b>: son de escucha.
+           <br>Apaga y enciende la radio para que los cargue.</div>
+           <div id="btTabla"></div>`;
+      if(!malos) pintaCanales();
+    }catch(e){
+      p.innerHTML=`<div class="cal c-nt"><span class="kicker">Se cortó la escritura</span>${esc(e.message)}.
+        Revisa el registro y, si algo quedó a medias, restaura tu copia .h3p.</div>`;
+    }
+  }
+
+  /* Frecuencias con actividad real y comprobable, todas en FM.
+     La banda aérea queda fuera a propósito: va en AM y el bit que la activa
+     por canal no está confirmado en este firmware — grabarla ahora daría
+     canales que suenan a ruido. */
+  const PACK_ESCUCHA = [
+    {t:"LLAM2M", f:145.500,  n:1}, {t:"APRS",   f:144.800,  n:1},
+    {t:"R2M-600",f:145.600,  n:1}, {t:"R2M-625",f:145.625,  n:1},
+    {t:"R2M-650",f:145.650,  n:1}, {t:"R2M-675",f:145.675,  n:1},
+    {t:"R2M-700",f:145.700,  n:1}, {t:"R2M-725",f:145.725,  n:1},
+    {t:"R2M-750",f:145.750,  n:1}, {t:"R2M-775",f:145.775,  n:1},
+    {t:"LLAM70", f:433.500,  n:1},
+    {t:"R70-000",f:433.000,  n:1}, {t:"R70-050",f:433.050,  n:1},
+    {t:"R70-100",f:433.100,  n:1}, {t:"R70-150",f:433.150,  n:1},
+    {t:"R70-200",f:433.200,  n:1}, {t:"R70-250",f:433.250,  n:1},
+    {t:"R70-300",f:433.300,  n:1}, {t:"R70-350",f:433.350,  n:1}
+  ];
   document.addEventListener("click",e=>{
     if(e.target.closest("#btConn")) conectar();
     if(e.target.closest("#btDisc") && dev && dev.gatt.connected) dev.gatt.disconnect();
     if(e.target.closest("#btLeer")) leerTodo();
+    if(e.target.closest("#btDesc")) { copiaHecha=true; const g=Q("#btGrabar"); if(g) g.disabled=false; }
     if(e.target.closest("#btCanales")) pintaCanales();
+    if(e.target.closest("#btGrabar")) grabar(PACK_ESCUCHA);
   });
   pinta();
 })();
