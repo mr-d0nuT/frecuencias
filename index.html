@@ -4061,7 +4061,7 @@ if(h&&D.some(b=>b.id===h))openBand(h,false);
   const SRV = 0xFF00, C_NOTIF = 0xFF01, C_ESCR = 0xFF02;
   const MEM_FIN = 0x2000;              // 8 KB · confirmado por la barra de progreso de la radio
   const BLOQUE  = 0x20;                // 32 bytes por lectura
-  const RITMO   = 30;                  // ms entre bloques, para no desbordar la radio
+  const RITMO   = 12;                  // ms entre bloques; margen para el enlace de 9600 baudios
 
   const hay = typeof navigator!=="undefined" && !!navigator.bluetooth;
   const seguro = location.protocol==="https:" || location.hostname==="localhost";
@@ -4093,11 +4093,20 @@ if(h&&D.some(b=>b.id===h))openBand(h,false);
     `<span class="pipdot" style="--c:${k==="ok"?"var(--ok-v)":k==="err"?"var(--bad-v)":"var(--warn-v)"}"></span>${t}`; };
 
   const dormir = ms => new Promise(r=>setTimeout(r,ms));
+  /* Cada espera es dueña de su propio plazo y lo cancela al resolverse. Antes
+     no se cancelaba: el plazo de un bloque seguía corriendo y, al vencer,
+     se apropiaba de la espera de otro bloque muy posterior y la abortaba.
+     Por eso la lectura moría siempre en el bloque 28, que es justo cuando
+     vencía el plazo del bloque 0. */
   const esperar = (n,ms) => new Promise((res,rej)=>{
-    quiero=n; pend={res,rej};
-    setTimeout(()=>{ if(!pend) return; const p=pend; pend=null;
-      if(buf.length){ const r=new Uint8Array(buf); buf=[]; p.res(r); }
-      else p.rej(new Error("la radio no contestó")); }, ms||3000);
+    quiero=n;
+    const t=setTimeout(()=>{
+      if(!pend || pend.t!==t) return;          // plazo de otra espera: no tocar
+      pend=null;
+      if(buf.length){ const r=new Uint8Array(buf); buf=[]; res(r); }
+      else rej(new Error("la radio no contestó"));
+    }, ms||3000);
+    pend={res,rej,t};
   });
 
   /* Una trama de 37 bytes puede llegar partida en varias notificaciones BLE,
@@ -4108,7 +4117,11 @@ if(h&&D.some(b=>b.id===h))openBand(h,false);
     const d=new Uint8Array(ev.target.value.buffer);
     for(const x of d) buf.push(x);
     log("←",d);
-    if(pend && buf.length>=quiero){ const p=pend; pend=null; const r=new Uint8Array(buf); buf=[]; p.res(r); }
+    if(pend && buf.length>=quiero){
+      const p=pend; pend=null;
+      clearTimeout(p.t);              // sin esto, el plazo seguía vivo y mataba a un bloque posterior
+      const r=new Uint8Array(buf); buf=[]; p.res(r);
+    }
   }
   /* Registro del diálogo con la radio. Si algo falla, esto dice exactamente
      en qué paso y con qué bytes, en vez de dejarnos adivinando. */
