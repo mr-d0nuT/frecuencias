@@ -1102,6 +1102,11 @@ section.svc{margin:0 0 12px;scroll-margin-top:calc(var(--hdr) + 16px)}
 .bt-chr{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 10px;margin-top:7px;padding-top:7px;border-top:1px solid var(--line)}
 .bt-chr code{font-family:var(--f-mono);font-size:11px;color:var(--fg2);word-break:break-all}
 .bt-chr span{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.05em;color:var(--fg3)}
+
+.bt-det{margin-top:12px;border:1px solid var(--line);border-radius:var(--r2);padding:10px 12px;background:var(--srf2)}
+.bt-det summary{cursor:pointer;font-size:12.5px;font-weight:600;color:var(--fg2)}
+.bt-det pre{margin:8px 0 0;font-family:var(--f-mono);font-size:10.5px;line-height:1.5;color:var(--fg2);
+  max-height:260px;overflow:auto;white-space:pre-wrap;word-break:break-all}
 @media print{
   .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
   body{background:#fff;color:#000;font-size:10pt}
@@ -4101,9 +4106,19 @@ if(h&&D.some(b=>b.id===h))openBand(h,false);
   function alRecibir(ev){
     const d=new Uint8Array(ev.target.value.buffer);
     for(const x of d) buf.push(x);
+    log("←",d);
     if(pend && buf.length>=quiero){ const p=pend; pend=null; const r=new Uint8Array(buf); buf=[]; p.res(r); }
   }
-  const enviar = b => chEscr.writeValue(b instanceof Uint8Array ? b : new Uint8Array(b));
+  /* Registro del diálogo con la radio. Si algo falla, esto dice exactamente
+     en qué paso y con qué bytes, en vez de dejarnos adivinando. */
+  const LOG=[];
+  const hex = a => Array.from(a).map(x=>x.toString(16).toUpperCase().padStart(2,"0")).join(" ");
+  function log(dir,d,nota){
+    LOG.push(`${dir} ${hex(d)}${nota?"   ← "+nota:""}`);
+    const e=Q("#btLog"); if(e) e.textContent=LOG.slice(-40).join("\n");
+  }
+  const enviar = b => { const u = b instanceof Uint8Array ? b : new Uint8Array(b);
+    log("→",u); return chEscr.writeValue(u); };
   const enviarTxt = t => enviar(new TextEncoder().encode(t));
 
   async function conectar(){
@@ -4135,7 +4150,11 @@ if(h&&D.some(b=>b.id===h))openBand(h,false);
         <p class="hint2">Lee los 16 KB de memoria y los guarda en un fichero <code>.h3p</code>.
         Hazlo <b>antes de tocar nada</b>: es tu única marcha atrás.</p>
         <div class="bt-acts"><button class="btn pri" id="btLeer">Leer y guardar copia</button></div>
-        <div id="btProg"></div>`;
+        <div id="btProg"></div>
+        <details class="bt-det"><summary>Registro del diálogo con la radio</summary>
+          <p class="hint2">Cada línea es un intercambio: <code>→</code> lo que envía la app, <code>←</code> lo que responde la radio.
+          Si algo falla, cópialo entero.</p>
+          <pre id="btLog"></pre></details>`;
     }catch(e){ est("No se pudo conectar: "+esc(e.message),"err"); }
   }
 
