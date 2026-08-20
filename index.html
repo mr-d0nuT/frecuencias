@@ -4059,8 +4059,9 @@ if(h&&D.some(b=>b.id===h))openBand(h,false);
   if(!Q("#radio-sec") || !Q("#btSoporte")) return;
 
   const SRV = 0xFF00, C_NOTIF = 0xFF01, C_ESCR = 0xFF02;
-  const MEM_FIN = 0x4000;              // 16 KB en el H3 Plus
+  const MEM_FIN = 0x2000;              // 8 KB · confirmado por la barra de progreso de la radio
   const BLOQUE  = 0x20;                // 32 bytes por lectura
+  const RITMO   = 30;                  // ms entre bloques, para no desbordar la radio
 
   const hay = typeof navigator!=="undefined" && !!navigator.bluetooth;
   const seguro = location.protocol==="https:" || location.hostname==="localhost";
@@ -4186,19 +4187,32 @@ if(h&&D.some(b=>b.id===h))openBand(h,false);
     try{
       p.innerHTML=`<div class="bt-wait">Entrando en modo programación…</div>`;
       await saludar();
+      /* El enlace interno entre la radio y su módulo Bluetooth va a 9600 baudios.
+         Pedir el bloque siguiente sin dejar vaciar el buffer desborda la radio y
+         deja de contestar, que es lo que pasaba a los 28 bloques. Se marca el
+         ritmo y se reintenta cada bloque antes de rendirse. */
       for(let a=0; a<MEM_FIN; a+=BLOQUE){
-        buf=[];
-        let r;
-        try{
-          const esp=esperar(4+BLOQUE,3500);      // 4 de cabecera + 32 de datos
-          await enviar([0x52,(a>>8)&0xFF,a&0xFF,BLOQUE]);
-          r=await esp;
-        }catch(err){ corte=`la radio dejó de contestar en 0x${a.toString(16).toUpperCase()}`; break; }
-        if(r[0]!==0x57){ corte=`respuesta inesperada en 0x${a.toString(16).toUpperCase()}`; break; }
+        let r=null, err=null;
+        for(let intento=1; intento<=4 && !r; intento++){
+          try{
+            buf=[];
+            const esp=esperar(4+BLOQUE, 2500);   // 4 de cabecera + 32 de datos
+            await enviar([0x52,(a>>8)&0xFF,a&0xFF,BLOQUE]);
+            const resp=await esp;
+            if(resp[0]!==0x57){ err=`respondió 0x${resp[0].toString(16)} en vez de 0x57`; await dormir(120); continue; }
+            if(resp.length < 4+BLOQUE){ err=`solo llegaron ${resp.length} bytes`; await dormir(120); continue; }
+            r=resp;
+          }catch(e){ err=e.message; await dormir(150); }
+        }
+        if(!r){ corte=`se paró en 0x${a.toString(16).toUpperCase().padStart(4,"0")} (${esc(err||"sin respuesta")})`; break; }
         /* Se cogen los 32 bytes de datos. Por BLE puede venir sin el byte final
            de checksum, y este corte funciona en ambos casos. */
         trozos.push(r.slice(4,4+BLOQUE)); leidos=a+BLOQUE;
-        if((a & 0x3FF)===0){ p.innerHTML=`<div class="bt-wait">Leyendo… 0x${a.toString(16).toUpperCase().padStart(4,"0")}</div>`; await dormir(0); }
+        await dormir(RITMO);
+        if((a & 0x1FF)===0){
+          p.innerHTML=`<div class="bt-wait">Leyendo… ${Math.round(a*100/MEM_FIN)} % · 0x${a.toString(16).toUpperCase().padStart(4,"0")}</div>`;
+          await dormir(0);
+        }
       }
       if(leidos<0x1000) throw new Error(corte||"apenas se leyó nada");
       MEM=new Uint8Array(leidos);
