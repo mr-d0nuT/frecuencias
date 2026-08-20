@@ -4081,20 +4081,27 @@ if(h&&D.some(b=>b.id===h))openBand(h,false);
     Q("#btPanel").hidden=false;
   }
 
-  let dev=null, chEscr=null, chNotif=null, pend=null, buf=[];
+  let dev=null, chEscr=null, chNotif=null, pend=null, buf=[], identTxt="", MEM=null;
 
   const est=(t,k)=>{ const e=Q("#btEstado"); if(e) e.innerHTML=
     `<span class="pipdot" style="--c:${k==="ok"?"var(--ok-v)":k==="err"?"var(--bad-v)":"var(--warn-v)"}"></span>${t}`; };
 
   const dormir = ms => new Promise(r=>setTimeout(r,ms));
-  const esperar = ms => new Promise((res,rej)=>{
-    pend={res,rej}; setTimeout(()=>{ if(pend){pend=null; rej(new Error("la radio no contestó"));} }, ms||3000);
+  const esperar = (n,ms) => new Promise((res,rej)=>{
+    quiero=n; pend={res,rej};
+    setTimeout(()=>{ if(!pend) return; const p=pend; pend=null;
+      if(buf.length){ const r=new Uint8Array(buf); buf=[]; p.res(r); }
+      else p.rej(new Error("la radio no contestó")); }, ms||3000);
   });
 
+  /* Una trama de 37 bytes puede llegar partida en varias notificaciones BLE,
+     así que se acumula hasta reunir lo que se espera. Si vence el plazo con
+     algo recibido, se entrega lo que haya en vez de descartarlo. */
+  let quiero=0;
   function alRecibir(ev){
     const d=new Uint8Array(ev.target.value.buffer);
-    buf.push(...d);
-    if(pend){ const p=pend; pend=null; p.res(new Uint8Array(buf)); buf=[]; }
+    for(const x of d) buf.push(x);
+    if(pend && buf.length>=quiero){ const p=pend; pend=null; const r=new Uint8Array(buf); buf=[]; p.res(r); }
   }
   const enviar = b => chEscr.writeValue(b instanceof Uint8Array ? b : new Uint8Array(b));
   const enviarTxt = t => enviar(new TextEncoder().encode(t));
@@ -4121,12 +4128,6 @@ if(h&&D.some(b=>b.id===h))openBand(h,false);
       await chNotif.startNotifications();
       chNotif.addEventListener("characteristicvaluechanged", alRecibir);
 
-      est("Saludando a la radio…","load");
-      buf=[]; await enviarTxt("AT+BAUD?\r\n"); await dormir(200);
-      buf=[]; await enviar([0x50,0x56,0x4F,0x4A,0x48,0x5C,0x14]); await dormir(200);
-      buf=[]; await enviar([0x02]); await dormir(200);
-      buf=[]; await enviar([0x06]); await dormir(200);
-
       est(`Conectada a <b>${esc(dev.name||"la radio")}</b>`,"ok");
       Q("#btConn").hidden=true; Q("#btDisc").hidden=false;
       Q("#btConsola").hidden=false;
@@ -4138,39 +4139,117 @@ if(h&&D.some(b=>b.id===h))openBand(h,false);
     }catch(e){ est("No se pudo conectar: "+esc(e.message),"err"); }
   }
 
+  /* Las fuentes discrepan sobre el tamaño de memoria del H3 Plus: el CPS de
+     jamarju dice 16 KB y el módulo de CHIRP 8 KB. En vez de apostar, se lee
+     hasta que la radio deja de contestar y se conserva lo leído. Leer de más
+     es inofensivo; asumir un tamaño equivocado, no. */
+  /* El saludo tiene que ir INMEDIATAMENTE antes de leer. La radio entra en modo
+     programación y sale sola a los pocos segundos; hacerlo al conectar y leer
+     después es lo que provocaba que no contestara. */
+  async function saludar(){
+    buf=[]; await enviarTxt("AT+BAUD?\r\n");
+    try{ await esperar(1,700); }catch{}          // no siempre responde a esto
+    buf=[]; await enviar([0x50,0x56,0x4F,0x4A,0x48,0x5C,0x14]);   // "PVOJH\x5c\x14"
+    const a1 = await esperar(1,2000);
+    if(a1[0]!==0x06) throw new Error(`la radio no aceptó el modo programación (respondió 0x${a1[0].toString(16)})`);
+    buf=[]; await enviar([0x02]);
+    const id = await esperar(8,2000);
+    identTxt = Array.from(id.slice(0,6)).map(c=>String.fromCharCode(c)).join("");
+    buf=[]; await enviar([0x06]);
+    const a2 = await esperar(1,2000);
+    if(a2[0]!==0x06) throw new Error("la radio rechazó la clonación");
+    const modo={"P31183":"Normal","P31185":"HAM","P31184":"GMRS"}[identTxt];
+    est(`Conectada a <b>${esc(dev.name||"la radio")}</b> · modo <b>${modo||esc(identTxt)}</b>`,"ok");
+  }
+
   async function leerTodo(){
-    const p=Q("#btProg"); const trozos=[];
+    const p=Q("#btProg"); const trozos=[]; let leidos=0, corte=null;
     try{
+      p.innerHTML=`<div class="bt-wait">Entrando en modo programación…</div>`;
+      await saludar();
       for(let a=0; a<MEM_FIN; a+=BLOQUE){
         buf=[];
-        const esp=esperar(4000);
-        await enviar([0x52,(a>>8)&0xFF,a&0xFF,BLOQUE]);
-        const r=await esp;
-        /* Respuesta esperada: 0x57, dirHi, dirLo, longitud, …32 bytes */
-        if(r[0]!==0x57) throw new Error(`respuesta inesperada en 0x${a.toString(16)}: 0x${r[0].toString(16)}`);
-        trozos.push(r.slice(4,4+BLOQUE));
-        if((a & 0x3FF)===0){
-          p.innerHTML=`<div class="bt-wait">Leyendo… ${Math.round(a*100/MEM_FIN)} %</div>`;
-          await dormir(0);
-        }
+        let r;
+        try{
+          const esp=esperar(4+BLOQUE,3500);      // 4 de cabecera + 32 de datos
+          await enviar([0x52,(a>>8)&0xFF,a&0xFF,BLOQUE]);
+          r=await esp;
+        }catch(err){ corte=`la radio dejó de contestar en 0x${a.toString(16).toUpperCase()}`; break; }
+        if(r[0]!==0x57){ corte=`respuesta inesperada en 0x${a.toString(16).toUpperCase()}`; break; }
+        /* Se cogen los 32 bytes de datos. Por BLE puede venir sin el byte final
+           de checksum, y este corte funciona en ambos casos. */
+        trozos.push(r.slice(4,4+BLOQUE)); leidos=a+BLOQUE;
+        if((a & 0x3FF)===0){ p.innerHTML=`<div class="bt-wait">Leyendo… 0x${a.toString(16).toUpperCase().padStart(4,"0")}</div>`; await dormir(0); }
       }
-      const mem=new Uint8Array(MEM_FIN);
-      trozos.forEach((t,i)=>mem.set(t,i*BLOQUE));
-      const url=URL.createObjectURL(new Blob([mem],{type:"application/octet-stream"}));
+      if(leidos<0x1000) throw new Error(corte||"apenas se leyó nada");
+      MEM=new Uint8Array(leidos);
+      trozos.forEach((t,i)=>MEM.set(t.slice(0,BLOQUE), i*BLOQUE));
+      const url=URL.createObjectURL(new Blob([MEM],{type:"application/octet-stream"}));
       const f=`tdh3plus-${new Date().toISOString().slice(0,19).replace(/[:T]/g,"-")}.h3p`;
       p.innerHTML=`<div class="cal c-ok"><span class="kicker">Copia leída</span>
-        16 KB leídos correctamente. <a href="${url}" download="${f}"><b>Descargar ${f}</b></a> —
-        guárdalo en sitio seguro antes de escribir nada en la radio.</div>`;
+        <b>${(leidos/1024).toFixed(0)} KB</b> leídos (hasta 0x${leidos.toString(16).toUpperCase()})${corte?` · se paró porque ${esc(corte)}, que es lo normal al llegar al final`:""}.
+        <a href="${url}" download="${f}"><b>Descargar ${f}</b></a> — guárdalo antes de escribir nada.</div>
+        <div class="bt-acts" style="margin-top:10px"><button class="btn" id="btCanales">Ver los canales de la radio</button></div>
+        <div id="btTabla"></div>`;
     }catch(e){
       p.innerHTML=`<div class="cal c-nt"><span class="kicker">Se cortó la lectura</span>${esc(e.message)}.
         No se ha escrito nada en la radio; puedes reintentarlo sin riesgo.</div>`;
     }
   }
 
+  /* ── Decodificación, según el mapa verificado del driver de CHIRP ── */
+  const bcd = x => (x>>4)*10 + (x&15);
+  const frec = b => (bcd(b[3])*1e6 + bcd(b[2])*1e4 + bcd(b[1])*1e2 + bcd(b[0])) * 10;   // Hz
+  function tono(b){
+    const v = bcd(b[1])*100 + bcd(b[0]);
+    if(v===16665 || v===0) return "";
+    if(v>=12000) return "DCS "+String(v-12000).padStart(3,"0")+"I";
+    if(v>=8000)  return "DCS "+String(v-8000).padStart(3,"0")+"N";
+    return (v/10).toFixed(1).replace(".",",");
+  }
+  const POT=["Baja 2 W","Alta 5 W"];
+  function canales(){
+    const out=[];
+    for(let n=1;n<=199;n++){
+      const o=16*n;                                   // canal N en 0x0010 + 16·(N−1)
+      if(o+16>MEM.length) break;
+      const r=MEM.slice(o,o+16);
+      if(r[0]===0xFF) continue;                       // vacío
+      const nomOff=0x0D40+8*(n-1);
+      let nom="";
+      if(nomOff+8<=MEM.length) nom=Array.from(MEM.slice(nomOff,nomOff+8))
+        .filter(c=>c!==0&&c!==0xFF).map(c=>String.fromCharCode(c)).join("").trim();
+      const txRaw=r.slice(4,8), soloRX=txRaw.every(x=>x===0xFF);
+      const b13=r[13], b14=r[14];
+      const scOff=0x1920+((n-1)>>3);
+      const scan = scOff<MEM.length ? !!(MEM[scOff]>>((n-1)&7) & 1) : null;
+      out.push({n, nom, rx:frec(r.slice(0,4))/1e6, tx:soloRX?null:frec(txRaw)/1e6,
+        dec:tono(r.slice(8,10)), enc:tono(r.slice(10,12)),
+        ancho:((b14>>3)&1)?"N":"W", pot:POT[(b14>>4)&3]||"?", bcl:!!((b13>>2)&1), scan});
+    }
+    return out;
+  }
+  function pintaCanales(){
+    const t=Q("#btTabla"); if(!MEM){ t.innerHTML=""; return; }
+    const cs=canales();
+    if(!cs.length){ t.innerHTML=`<div class="cal c-nt">No hay ningún canal grabado.</div>`; return; }
+    t.innerHTML=`<h5>Canales en la radio · ${cs.length}</h5>
+      <div class="tblwrap"><div class="tblscroll"><table>
+      <thead><tr><th>CH</th><th>Nombre</th><th>RX</th><th>TX</th><th>Dec</th><th>Enc</th><th>BW</th><th>Potencia</th><th>Scan</th></tr></thead>
+      <tbody>${cs.map(c=>`<tr>
+        <td>${c.n}</td><td>${esc(c.nom)}</td>
+        <td>${c.rx.toFixed(5).replace(".",",")}</td>
+        <td>${c.tx===null?'<i style="color:var(--fg3)">solo RX</i>':c.tx.toFixed(5).replace(".",",")}</td>
+        <td>${esc(c.dec||"—")}</td><td>${esc(c.enc||"—")}</td>
+        <td>${c.ancho}</td><td>${esc(c.pot)}</td><td>${c.scan===null?"—":(c.scan?"sí":"no")}</td></tr>`).join("")}
+      </tbody></table></div></div>`;
+  }
+
   document.addEventListener("click",e=>{
     if(e.target.closest("#btConn")) conectar();
     if(e.target.closest("#btDisc") && dev && dev.gatt.connected) dev.gatt.disconnect();
     if(e.target.closest("#btLeer")) leerTodo();
+    if(e.target.closest("#btCanales")) pintaCanales();
   });
   pinta();
 })();
