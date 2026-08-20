@@ -1090,6 +1090,18 @@ section.svc{margin:0 0 12px;scroll-margin-top:calc(var(--hdr) + 16px)}
 .dchip.ruta,.rlink.ruta{color:var(--acc);border-color:color-mix(in srgb,var(--acc) 34%,var(--line));background:color-mix(in srgb,var(--acc) 8%,transparent)}
 .dchip.ruta svg,.rlink.ruta svg{width:13px;height:13px;flex:none}
 .rlink.ruta{display:inline-flex;align-items:center;gap:5px}
+
+/* ═══ radio por Bluetooth ═══ */
+.bt-acts{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:11px}
+.bt-estado{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--fg2);margin-bottom:10px;min-height:20px}
+.bt-wait{font-size:13px;color:var(--fg3);padding:10px 0}
+.bt-list{display:flex;flex-direction:column;gap:9px}
+.bt-svc{border:1px solid var(--line);border-radius:var(--r2);padding:11px 12px;background:var(--srf2)}
+.bt-svc>b{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--fg3);display:block;margin-bottom:3px}
+.bt-svc>code{font-family:var(--f-mono);font-size:12px;color:var(--acc);word-break:break-all}
+.bt-chr{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 10px;margin-top:7px;padding-top:7px;border-top:1px solid var(--line)}
+.bt-chr code{font-family:var(--f-mono);font-size:11px;color:var(--fg2);word-break:break-all}
+.bt-chr span{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.05em;color:var(--fg3)}
 @media print{
   .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
   body{background:#fff;color:#000;font-size:10pt}
@@ -1122,6 +1134,9 @@ section.svc{margin:0 0 12px;scroll-margin-top:calc(var(--hdr) + 16px)}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6" stroke-linecap="round"/></svg>
       </button>
       <button class="pbtn" id="pbtn" aria-label="Mis habilitaciones"></button>
+      <button class="ib" id="rbtn" aria-label="Conectar mi radio" title="Conectar mi radio por Bluetooth">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7l10 10-5 4V3l5 4L7 17"/></svg>
+      </button>
       <button class="ib" id="favbtn" aria-label="Mostrar solo favoritos" title="Solo favoritos">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M12 3.6l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8L3.5 9.8l5.9-.9z"/></svg>
       </button>
@@ -1240,6 +1255,27 @@ section.svc{margin:0 0 12px;scroll-margin-top:calc(var(--hdr) + 16px)}
     </div>
   </section>
   <div id="ucpanel"></div>
+
+  <section class="sec" id="radio-sec" hidden>
+    <div class="card uas">
+      <div class="uas-h"><span class="uas-ico">🔌</span>
+        <div><h4>Mi radio · conexión Bluetooth</h4>
+        <p>Conecta tu TIDRADIO al navegador para leerla, programarla y manejarla desde aquí</p></div></div>
+      <div class="uas-body">
+        <div id="btSoporte"></div>
+        <div id="btPanel" hidden>
+          <div class="bt-acts">
+            <button class="btn pri" id="btConn">Conectar radio</button>
+            <button class="btn" id="btDisc" hidden>Desconectar</button>
+          </div>
+          <div id="btEstado" class="bt-estado"></div>
+          <div id="btServicios"></div>
+          <div id="btConsola" hidden></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
 
 
   <div class="facets" id="facets"><div class="wrap">
@@ -3998,6 +4034,121 @@ if (!hasProfile() && !LS.get("espectro:perfil-omitido", 0)) {
 }
 const h=location.hash.replace("#","");
 if(h&&D.some(b=>b.id===h))openBand(h,false);
+
+/* ═══════════════ RADIO POR BLUETOOTH ═══════════════
+   Banco de pruebas y control del TIDRADIO por Web Bluetooth.
+
+   Regla de oro de este módulo: ANTES de escribir un solo byte en la radio
+   hay que haber leído su memoria entera y haberla guardado en un fichero.
+   Un byte mal puesto en la EEPROM deja el equipo inservible, y sin copia
+   no hay vuelta atrás. Por eso el botón de escribir permanece bloqueado
+   mientras no exista una copia de seguridad de esta sesión. */
+(()=>{
+  const $$$ = s => document.querySelector(s);
+  const sop = $$$("#radio-sec") && $$$("#btSoporte");
+  if(!sop) return;
+
+  const hay = typeof navigator !== "undefined" && !!navigator.bluetooth;
+  const seguro = location.protocol === "https:" || location.hostname === "localhost";
+
+  function pinta(){
+    const s = $$$("#btSoporte");
+    if(!hay){
+      s.innerHTML = `<div class="cal c-nt"><span class="kicker">Este navegador no puede</span>
+        Web Bluetooth solo existe en <b>Chrome y Edge</b> sobre Android, Windows, Mac o Linux.
+        En <b>Safari y en cualquier navegador de iPhone o iPad no está disponible</b> y no lo va a estar:
+        iOS obliga a todos los navegadores a usar el motor de Safari. Abre esta página en Chrome desde
+        un Android o un ordenador.</div>`;
+      return;
+    }
+    if(!seguro){
+      s.innerHTML = `<div class="cal c-nt"><span class="kicker">Hace falta HTTPS</span>
+        El navegador solo permite Bluetooth en páginas seguras. Abre la versión publicada en
+        GitHub Pages, no el fichero local.</div>`;
+      return;
+    }
+    s.innerHTML = `<div class="cal c-nt"><span class="kicker">Antes de empezar</span>
+      Enciende la radio, activa su Bluetooth y <b>ciérrale la app oficial de TIDRADIO</b>:
+      un equipo BLE solo admite una conexión a la vez, y si la app del móvil la tiene cogida,
+      aquí no aparecerá.</div>`;
+    $$$("#btPanel").hidden = false;
+  }
+
+  let dev = null, srv = null;
+  const est = (txt, k) => { const e=$$$("#btEstado"); if(e) e.innerHTML =
+    `<span class="pipdot" style="--c:${k==="ok"?"var(--ok-v)":k==="err"?"var(--bad-v)":"var(--warn-v)"}"></span>${txt}`; };
+
+  async function conectar(){
+    try{
+      est("Buscando la radio…","load");
+      /* Sin filtros de nombre a propósito: no sabemos aún cómo se anuncia el
+         TD-H3 Plus, y filtrar mal haría que no apareciese en el selector. */
+      dev = await navigator.bluetooth.requestDevice({
+        acceptAllDevices: true,
+        optionalServices: [0xFFE0, 0xFF01, 0xFFF0, 0x180A,
+          "6e400001-b5a3-f393-e0a9-e50e24dcca9e",
+          "0000ffe0-0000-1000-8000-00805f9b34fb",
+          "0000ff01-0000-1000-8000-00805f9b34fb"]
+      });
+      dev.addEventListener("gattserverdisconnected", ()=>{
+        est("Desconectada","err"); $$$("#btDisc").hidden=true; $$$("#btConn").hidden=false;
+      });
+      est("Conectando…","load");
+      srv = await dev.gatt.connect();
+      est(`Conectada a <b>${esc(dev.name||"(sin nombre)")}</b>`,"ok");
+      $$$("#btConn").hidden=true; $$$("#btDisc").hidden=false;
+      await explorar();
+    }catch(e){
+      est("No se pudo conectar: "+esc(e.message),"err");
+    }
+  }
+
+  /* Enumera todo lo que expone la radio. Esto es lo que nos dirá qué
+     protocolo habla de verdad este equipo y este firmware, en vez de
+     dar por bueno lo que documentó otro con otra versión. */
+  async function explorar(){
+    const cont = $$$("#btServicios");
+    cont.innerHTML = `<div class="bt-wait">Leyendo los servicios que expone la radio…</div>`;
+    try{
+      const svs = await srv.getPrimaryServices();
+      let html = `<h5>Lo que expone tu radio</h5><div class="bt-list">`;
+      for(const s of svs){
+        html += `<div class="bt-svc"><b>Servicio</b><code>${s.uuid}</code>`;
+        let chs=[];
+        try{ chs = await s.getCharacteristics(); }catch{}
+        for(const c of chs){
+          const p=[];
+          for(const k of ["read","write","writeWithoutResponse","notify","indicate"])
+            if(c.properties[k]) p.push(k);
+          html += `<div class="bt-chr"><code>${c.uuid}</code><span>${p.join(" · ")||"sin propiedades"}</span></div>`;
+        }
+        html += `</div>`;
+      }
+      html += `</div>`;
+      cont.innerHTML = html;
+    }catch(e){
+      cont.innerHTML = `<div class="cal c-nt">No se pudieron leer los servicios: ${esc(e.message)}</div>`;
+    }
+  }
+
+  document.addEventListener("click", e=>{
+    if(e.target.closest("#btConn")) conectar();
+    if(e.target.closest("#btDisc") && dev && dev.gatt.connected) dev.gatt.disconnect();
+  });
+  pinta();
+})();
+
+/* El botón de la cabecera muestra la sección de radio y oculta el resto,
+   igual que hace el planificador de vuelo UAS. */
+document.addEventListener("click", e=>{
+  if(!e.target.closest("#rbtn")) return;
+  const s=document.getElementById("radio-sec"); if(!s) return;
+  const abrir = s.hidden;
+  s.hidden = !abrir;
+  ["spec-sec","sos-sec","uas-sec"].forEach(id=>{ const el=document.getElementById(id); if(el&&abrir) el.hidden=true; });
+  document.getElementById("rbtn").classList.toggle("on", abrir);
+  if(abrir) s.scrollIntoView({behavior:"smooth",block:"start"});
+});
 </script>
 </body>
 </html>
