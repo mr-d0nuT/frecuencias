@@ -1107,6 +1107,19 @@ section.svc{margin:0 0 12px;scroll-margin-top:calc(var(--hdr) + 16px)}
 .bt-det summary{cursor:pointer;font-size:12.5px;font-weight:600;color:var(--fg2)}
 .bt-det pre{margin:8px 0 0;font-family:var(--f-mono);font-size:10.5px;line-height:1.5;color:var(--fg2);
   max-height:260px;overflow:auto;white-space:pre-wrap;word-break:break-all}
+
+.lab-list{display:flex;flex-direction:column;gap:9px;margin-bottom:12px}
+.lab-it{border:1px solid var(--line);border-radius:var(--r2);padding:11px 12px;background:var(--srf2)}
+.lab-h{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:5px}
+.lab-h b{font-size:13.5px}
+.lab-h code{font-family:var(--f-mono);font-size:11px;color:var(--acc);background:color-mix(in srgb,var(--acc) 10%,transparent);padding:2px 6px;border-radius:5px}
+.lab-h .btn{margin-left:auto;padding:4px 11px;font-size:12px}
+.lab-it>span{font-size:12.3px;color:var(--fg2);line-height:1.5;display:block}
+.lab-r{font-family:var(--f-mono);font-size:10.5px;color:var(--fg2);margin:7px 0 0;white-space:pre-wrap;word-break:break-all}
+.lab-r:empty{display:none}
+.lab-libre{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:11px 12px;border:1px dashed var(--line2);border-radius:var(--r2)}
+.lab-libre b{font-size:12.5px}
+.lab-libre input{flex:1;min-width:150px;height:32px;padding:0 9px;border-radius:8px;border:1px solid var(--line);background:var(--bg-e);color:var(--fg);font-family:var(--f-mono);font-size:12.5px}
 @media print{
   .hdr,.fpanel,.fbar,.spec,.lk,.uc,.fav,.ov{display:none!important}
   body{background:#fff;color:#000;font-size:10pt}
@@ -4160,11 +4173,13 @@ if(h&&D.some(b=>b.id===h))openBand(h,false);
       est(`Conectada a <b>${esc(dev.name||"la radio")}</b>`,"ok");
       Q("#btConn").hidden=true; Q("#btDisc").hidden=false;
       Q("#btConsola").hidden=false;
+      setTimeout(pintaLab,50);
       Q("#btConsola").innerHTML=`<h5>Copia de seguridad</h5>
         <p class="hint2">Lee los 16 KB de memoria y los guarda en un fichero <code>.h3p</code>.
         Hazlo <b>antes de tocar nada</b>: es tu única marcha atrás.</p>
         <div class="bt-acts"><button class="btn pri" id="btLeer">Leer y guardar copia</button></div>
         <div id="btProg"></div>
+        <div id="btLab"></div>
         <details class="bt-det"><summary>Registro del diálogo con la radio</summary>
           <p class="hint2">Cada línea es un intercambio: <code>→</code> lo que envía la app, <code>←</code> lo que responde la radio.
           Si algo falla, cópialo entero.</p>
@@ -4428,11 +4443,91 @@ if(h&&D.some(b=>b.id===h))openBand(h,false);
     {t:"R70-200",f:433.200,  n:1}, {t:"R70-250",f:433.250,  n:1},
     {t:"R70-300",f:433.300,  n:1}, {t:"R70-350",f:433.350,  n:1}
   ];
+
+  /* ═══ LABORATORIO DE SONDEO ═══
+     En vez de deducir si esta radio admite control en vivo, se le pregunta.
+     Cada sondeo envía unos bytes y enseña la respuesta cruda. Los de riesgo
+     nulo solo leen o consultan; ninguno de los que se ofrecen aquí escribe en
+     la memoria. Si un sondeo no obtiene respuesta, esa función no existe en
+     este firmware, y saberlo también es información. */
+  const SONDEOS = [
+    {id:"ping",  t:"Ping",                bytes:[0x01], esp:1,
+     d:"Un byte que en el firmware alternativo se devuelve como eco. Si contesta 0x01, esta radio comparte más protocolo del esperado."},
+    {id:"estado",t:"Estado en vivo",      bytes:[0xAA,0x60], esp:37,
+     d:"Comando sin documentar hallado en el código del firmware nicFW. Devolvería frecuencia sintonizada, RSSI y si el squelch está abierto. Es el premio gordo: sería monitorización en tiempo real."},
+    {id:"remoto",t:"Activar modo remoto", bytes:[0x4A], esp:1,
+     d:"En nicFW activa el teclado remoto y el volcado de pantalla. Si devuelve 0x4A, tu radio de fábrica lo admite y el control en vivo es posible."},
+    {id:"remoff",t:"Desactivar remoto",   bytes:[0x4B], esp:1,
+     d:"El contrario del anterior. Conviene enviarlo siempre después de probar el remoto."},
+    {id:"tecla", t:"Simular tecla MENU",  bytes:[0x50,0x00,0x0B,0x00,0x00,0x00,0x00], esp:1,
+     d:"Paquete de pulsación de tecla del modo en vivo del firmware de fábrica. Si la radio reacciona en pantalla, tenemos control directo."},
+    {id:"soltar",t:"Soltar tecla",        bytes:[0x00], esp:1,
+     d:"Libera la tecla simulada. Envíalo después del anterior."},
+    {id:"vfoa",  t:"Leer el VFO-A",       lee:0x1950,
+     d:"Lee el bloque donde vive la frecuencia del VFO activo. Si escribiéndolo la radio cambia sin reiniciar, tendríamos cambio de frecuencia en vivo."}
+  ];
+
+  function pintaLab(){
+    const l=Q("#btLab"); if(!l) return;
+    l.innerHTML=`<h5>Laboratorio · ¿qué admite tu radio?</h5>
+      <p class="hint2">Ninguno de estos sondeos escribe en la memoria. Pulsa uno, mira la respuesta,
+      y si no contesta nada es que esa función no existe en tu firmware.</p>
+      <div class="lab-list">${SONDEOS.map(s=>`
+        <div class="lab-it"><div class="lab-h"><b>${esc(s.t)}</b>
+          <code>${s.bytes?hex(s.bytes):"0x52 "+s.lee.toString(16).toUpperCase()}</code>
+          <button class="btn" data-sondeo="${s.id}">Probar</button></div>
+          <span>${esc(s.d)}</span><pre class="lab-r" id="lab-${s.id}"></pre></div>`).join("")}</div>
+      <div class="lab-libre"><b>Enviar bytes a mano</b>
+        <input id="labHex" placeholder="p. ej.  AA 60" spellcheck="false">
+        <button class="btn" id="labGo">Enviar</button></div>
+      <pre class="lab-r" id="lab-libre"></pre>`;
+  }
+
+  async function sondear(id){
+    const s=SONDEOS.find(x=>x.id===id); if(!s) return;
+    const out=Q("#lab-"+id); out.textContent="…";
+    try{
+      if(s.lee!==undefined){
+        await saludar();
+        buf=[]; const e=esperar(4+BLOQUE,2500);
+        await enviar([0x52,(s.lee>>8)&0xFF,s.lee&0xFF,BLOQUE]);
+        const r=await e;
+        const d=r.slice(4,4+BLOQUE);
+        out.textContent = hex(d) + `\n\nDecodificado: RX ${(frec(d.slice(0,4))/1e6).toFixed(5)} MHz · TX ${(frec(d.slice(4,8))/1e6).toFixed(5)} MHz`;
+        return;
+      }
+      buf=[]; const e=esperar(s.esp||1,2000);
+      await enviar(s.bytes);
+      const r=await e;
+      out.textContent = `Respondió ${r.length} bytes:\n${hex(r)}`;
+      if(id==="estado" && r.length>=37){
+        const rssi=((r[34]&1)<<8)|r[35];
+        out.textContent += `\n\n¡FUNCIONA! Squelch ${r[1]===0x61?"abierto":"cerrado"} · RSSI ${(rssi>>1)-160} dBm`;
+      }
+    }catch(err){
+      out.textContent = `Sin respuesta (${err.message}). Esta función no existe en tu firmware.`;
+    }
+  }
+
+  async function enviarLibre(){
+    const v=(Q("#labHex").value||"").trim().split(/[\s,]+/).filter(Boolean).map(x=>parseInt(x,16));
+    const out=Q("#lab-libre");
+    if(!v.length || v.some(isNaN)){ out.textContent="Escribe bytes en hexadecimal, separados por espacios."; return; }
+    out.textContent="…";
+    try{
+      buf=[]; const e=esperar(1,2500);
+      await enviar(new Uint8Array(v));
+      const r=await e;
+      out.textContent=`Respondió ${r.length} bytes:\n${hex(r)}`;
+    }catch(err){ out.textContent=`Sin respuesta (${err.message}).`; }
+  }
   document.addEventListener("click",e=>{
     if(e.target.closest("#btConn")) conectar();
     if(e.target.closest("#btDisc") && dev && dev.gatt.connected) dev.gatt.disconnect();
     if(e.target.closest("#btLeer")) leerTodo();
     if(e.target.closest("#btDesc")) { copiaHecha=true; const g=Q("#btGrabar"); if(g) g.disabled=false; }
+    const sd=e.target.closest("[data-sondeo]"); if(sd) sondear(sd.dataset.sondeo);
+    if(e.target.closest("#labGo")) enviarLibre();
     if(e.target.closest("#btCanales")) pintaCanales();
     if(e.target.closest("#btGrabar")) grabar(PACK_ESCUCHA);
   });
