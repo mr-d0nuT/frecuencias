@@ -4036,104 +4036,141 @@ const h=location.hash.replace("#","");
 if(h&&D.some(b=>b.id===h))openBand(h,false);
 
 /* ═══════════════ RADIO POR BLUETOOTH ═══════════════
-   Banco de pruebas y control del TIDRADIO por Web Bluetooth.
+   Control del TIDRADIO TD-H3 Plus por Web Bluetooth.
 
-   Regla de oro de este módulo: ANTES de escribir un solo byte en la radio
-   hay que haber leído su memoria entera y haberla guardado en un fichero.
-   Un byte mal puesto en la EEPROM deja el equipo inservible, y sin copia
-   no hay vuelta atrás. Por eso el botón de escribir permanece bloqueado
-   mientras no exista una copia de seguridad de esta sesión. */
+   Protocolo tomado de jamarju/tid-h3-plus-cps (MIT), que cubre este modelo
+   exacto con el firmware de fábrica.
+
+   AVISO CAPITAL: sobre el mismo transporte BLE conviven DOS protocolos
+   incompatibles. El de fábrica del H3 Plus (16 KB de memoria, lectura 0x52 /
+   escritura 0x57) y el del firmware alternativo nicFW, que es para el TD-H3
+   normal y usa 8 KB con otros comandos. Aplicar el segundo a esta radio
+   corrompe su memoria. Aquí solo se implementa el de fábrica.
+
+   De momento este módulo SOLO LEE. La escritura llegará cuando haya copia de
+   seguridad verificada, porque un byte mal puesto deja el equipo inservible. */
 (()=>{
-  const $$$ = s => document.querySelector(s);
-  const sop = $$$("#radio-sec") && $$$("#btSoporte");
-  if(!sop) return;
+  const Q = s => document.querySelector(s);
+  if(!Q("#radio-sec") || !Q("#btSoporte")) return;
 
-  const hay = typeof navigator !== "undefined" && !!navigator.bluetooth;
-  const seguro = location.protocol === "https:" || location.hostname === "localhost";
+  const SRV = 0xFF00, C_NOTIF = 0xFF01, C_ESCR = 0xFF02;
+  const MEM_FIN = 0x4000;              // 16 KB en el H3 Plus
+  const BLOQUE  = 0x20;                // 32 bytes por lectura
+
+  const hay = typeof navigator!=="undefined" && !!navigator.bluetooth;
+  const seguro = location.protocol==="https:" || location.hostname==="localhost";
 
   function pinta(){
-    const s = $$$("#btSoporte");
-    if(!hay){
-      s.innerHTML = `<div class="cal c-nt"><span class="kicker">Este navegador no puede</span>
-        Web Bluetooth solo existe en <b>Chrome y Edge</b> sobre Android, Windows, Mac o Linux.
-        En <b>Safari y en cualquier navegador de iPhone o iPad no está disponible</b> y no lo va a estar:
-        iOS obliga a todos los navegadores a usar el motor de Safari. Abre esta página en Chrome desde
-        un Android o un ordenador.</div>`;
-      return;
-    }
-    if(!seguro){
-      s.innerHTML = `<div class="cal c-nt"><span class="kicker">Hace falta HTTPS</span>
-        El navegador solo permite Bluetooth en páginas seguras. Abre la versión publicada en
-        GitHub Pages, no el fichero local.</div>`;
-      return;
-    }
-    s.innerHTML = `<div class="cal c-nt"><span class="kicker">Antes de empezar</span>
-      Enciende la radio, activa su Bluetooth y <b>ciérrale la app oficial de TIDRADIO</b>:
-      un equipo BLE solo admite una conexión a la vez, y si la app del móvil la tiene cogida,
-      aquí no aparecerá.</div>`;
-    $$$("#btPanel").hidden = false;
+    const s=Q("#btSoporte");
+    if(!hay){ s.innerHTML=`<div class="cal c-nt"><span class="kicker">Este navegador no puede</span>
+      Web Bluetooth solo existe en <b>Chrome y Edge</b> sobre Android, Windows, Mac o Linux.
+      En <b>Safari y en cualquier navegador de iPhone o iPad</b> no está disponible ni lo va a estar.
+      Abre esta página en Chrome desde un Android o un ordenador.</div>`; return; }
+    if(!seguro){ s.innerHTML=`<div class="cal c-nt"><span class="kicker">Hace falta HTTPS</span>
+      El navegador solo permite Bluetooth en páginas seguras. Usa la versión publicada, no el fichero local.</div>`; return; }
+    s.innerHTML=`<div class="cal c-nt"><span class="kicker">Antes de conectar</span>
+      Enciende el Bluetooth de la radio con una <b>pulsación larga de MENU</b>, y
+      <b>no la emparejes desde los ajustes Bluetooth del sistema</b>: si lo haces puede dejar de
+      aparecer aquí. Cierra también la app oficial de TIDRADIO — un equipo BLE solo admite
+      una conexión a la vez.</div>
+      <div class="cal c-nt" style="border-color:color-mix(in srgb,var(--warn) 34%,var(--line))">
+      <span class="kicker" style="color:var(--warn)">Firmware</span>
+      El mapa de memoria está verificado en <b>firmware 1.0.45 a 1.0.50</b>. La radio no sabe
+      decir su versión, así que compruébala en su menú antes de escribir nada. Leer es inocuo
+      en cualquier versión.</div>`;
+    Q("#btPanel").hidden=false;
   }
 
-  let dev = null, srv = null;
-  const est = (txt, k) => { const e=$$$("#btEstado"); if(e) e.innerHTML =
-    `<span class="pipdot" style="--c:${k==="ok"?"var(--ok-v)":k==="err"?"var(--bad-v)":"var(--warn-v)"}"></span>${txt}`; };
+  let dev=null, chEscr=null, chNotif=null, pend=null, buf=[];
+
+  const est=(t,k)=>{ const e=Q("#btEstado"); if(e) e.innerHTML=
+    `<span class="pipdot" style="--c:${k==="ok"?"var(--ok-v)":k==="err"?"var(--bad-v)":"var(--warn-v)"}"></span>${t}`; };
+
+  const dormir = ms => new Promise(r=>setTimeout(r,ms));
+  const esperar = ms => new Promise((res,rej)=>{
+    pend={res,rej}; setTimeout(()=>{ if(pend){pend=null; rej(new Error("la radio no contestó"));} }, ms||3000);
+  });
+
+  function alRecibir(ev){
+    const d=new Uint8Array(ev.target.value.buffer);
+    buf.push(...d);
+    if(pend){ const p=pend; pend=null; p.res(new Uint8Array(buf)); buf=[]; }
+  }
+  const enviar = b => chEscr.writeValue(b instanceof Uint8Array ? b : new Uint8Array(b));
+  const enviarTxt = t => enviar(new TextEncoder().encode(t));
 
   async function conectar(){
     try{
-      est("Buscando la radio…","load");
-      /* Sin filtros de nombre a propósito: no sabemos aún cómo se anuncia el
-         TD-H3 Plus, y filtrar mal haría que no apareciese en el selector. */
-      dev = await navigator.bluetooth.requestDevice({
-        acceptAllDevices: true,
-        optionalServices: [0xFFE0, 0xFF01, 0xFFF0, 0x180A,
-          "6e400001-b5a3-f393-e0a9-e50e24dcca9e",
-          "0000ffe0-0000-1000-8000-00805f9b34fb",
-          "0000ff01-0000-1000-8000-00805f9b34fb"]
-      });
-      dev.addEventListener("gattserverdisconnected", ()=>{
-        est("Desconectada","err"); $$$("#btDisc").hidden=true; $$$("#btConn").hidden=false;
+      est("Elige la radio en el selector del navegador…","load");
+      try{
+        dev = await navigator.bluetooth.requestDevice({
+          filters:[{namePrefix:"TD-H3"}], optionalServices:[SRV] });
+      }catch(e){
+        if(e.name==="NotFoundError"){    // por si el Plus se anuncia con otro nombre
+          dev = await navigator.bluetooth.requestDevice({ acceptAllDevices:true, optionalServices:[SRV] });
+        } else throw e;
+      }
+      dev.addEventListener("gattserverdisconnected",()=>{
+        est("Desconectada","err"); Q("#btDisc").hidden=true; Q("#btConn").hidden=false; Q("#btConsola").hidden=true;
       });
       est("Conectando…","load");
-      srv = await dev.gatt.connect();
-      est(`Conectada a <b>${esc(dev.name||"(sin nombre)")}</b>`,"ok");
-      $$$("#btConn").hidden=true; $$$("#btDisc").hidden=false;
-      await explorar();
-    }catch(e){
-      est("No se pudo conectar: "+esc(e.message),"err");
-    }
+      const srv = await dev.gatt.connect();
+      const s   = await srv.getPrimaryService(SRV);
+      chNotif   = await s.getCharacteristic(C_NOTIF);
+      chEscr    = await s.getCharacteristic(C_ESCR);
+      await chNotif.startNotifications();
+      chNotif.addEventListener("characteristicvaluechanged", alRecibir);
+
+      est("Saludando a la radio…","load");
+      buf=[]; await enviarTxt("AT+BAUD?\r\n"); await dormir(200);
+      buf=[]; await enviar([0x50,0x56,0x4F,0x4A,0x48,0x5C,0x14]); await dormir(200);
+      buf=[]; await enviar([0x02]); await dormir(200);
+      buf=[]; await enviar([0x06]); await dormir(200);
+
+      est(`Conectada a <b>${esc(dev.name||"la radio")}</b>`,"ok");
+      Q("#btConn").hidden=true; Q("#btDisc").hidden=false;
+      Q("#btConsola").hidden=false;
+      Q("#btConsola").innerHTML=`<h5>Copia de seguridad</h5>
+        <p class="hint2">Lee los 16 KB de memoria y los guarda en un fichero <code>.h3p</code>.
+        Hazlo <b>antes de tocar nada</b>: es tu única marcha atrás.</p>
+        <div class="bt-acts"><button class="btn pri" id="btLeer">Leer y guardar copia</button></div>
+        <div id="btProg"></div>`;
+    }catch(e){ est("No se pudo conectar: "+esc(e.message),"err"); }
   }
 
-  /* Enumera todo lo que expone la radio. Esto es lo que nos dirá qué
-     protocolo habla de verdad este equipo y este firmware, en vez de
-     dar por bueno lo que documentó otro con otra versión. */
-  async function explorar(){
-    const cont = $$$("#btServicios");
-    cont.innerHTML = `<div class="bt-wait">Leyendo los servicios que expone la radio…</div>`;
+  async function leerTodo(){
+    const p=Q("#btProg"); const trozos=[];
     try{
-      const svs = await srv.getPrimaryServices();
-      let html = `<h5>Lo que expone tu radio</h5><div class="bt-list">`;
-      for(const s of svs){
-        html += `<div class="bt-svc"><b>Servicio</b><code>${s.uuid}</code>`;
-        let chs=[];
-        try{ chs = await s.getCharacteristics(); }catch{}
-        for(const c of chs){
-          const p=[];
-          for(const k of ["read","write","writeWithoutResponse","notify","indicate"])
-            if(c.properties[k]) p.push(k);
-          html += `<div class="bt-chr"><code>${c.uuid}</code><span>${p.join(" · ")||"sin propiedades"}</span></div>`;
+      for(let a=0; a<MEM_FIN; a+=BLOQUE){
+        buf=[];
+        const esp=esperar(4000);
+        await enviar([0x52,(a>>8)&0xFF,a&0xFF,BLOQUE]);
+        const r=await esp;
+        /* Respuesta esperada: 0x57, dirHi, dirLo, longitud, …32 bytes */
+        if(r[0]!==0x57) throw new Error(`respuesta inesperada en 0x${a.toString(16)}: 0x${r[0].toString(16)}`);
+        trozos.push(r.slice(4,4+BLOQUE));
+        if((a & 0x3FF)===0){
+          p.innerHTML=`<div class="bt-wait">Leyendo… ${Math.round(a*100/MEM_FIN)} %</div>`;
+          await dormir(0);
         }
-        html += `</div>`;
       }
-      html += `</div>`;
-      cont.innerHTML = html;
+      const mem=new Uint8Array(MEM_FIN);
+      trozos.forEach((t,i)=>mem.set(t,i*BLOQUE));
+      const url=URL.createObjectURL(new Blob([mem],{type:"application/octet-stream"}));
+      const f=`tdh3plus-${new Date().toISOString().slice(0,19).replace(/[:T]/g,"-")}.h3p`;
+      p.innerHTML=`<div class="cal c-ok"><span class="kicker">Copia leída</span>
+        16 KB leídos correctamente. <a href="${url}" download="${f}"><b>Descargar ${f}</b></a> —
+        guárdalo en sitio seguro antes de escribir nada en la radio.</div>`;
     }catch(e){
-      cont.innerHTML = `<div class="cal c-nt">No se pudieron leer los servicios: ${esc(e.message)}</div>`;
+      p.innerHTML=`<div class="cal c-nt"><span class="kicker">Se cortó la lectura</span>${esc(e.message)}.
+        No se ha escrito nada en la radio; puedes reintentarlo sin riesgo.</div>`;
     }
   }
 
-  document.addEventListener("click", e=>{
+  document.addEventListener("click",e=>{
     if(e.target.closest("#btConn")) conectar();
     if(e.target.closest("#btDisc") && dev && dev.gatt.connected) dev.gatt.disconnect();
+    if(e.target.closest("#btLeer")) leerTodo();
   });
   pinta();
 })();
