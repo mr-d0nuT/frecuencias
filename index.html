@@ -4467,6 +4467,39 @@ if(h&&D.some(b=>b.id===h))openBand(h,false);
      d:"Lee el bloque donde vive la frecuencia del VFO activo. Si escribiéndolo la radio cambia sin reiniciar, tendríamos cambio de frecuencia en vivo."}
   ];
 
+  /* ── Experimento del VFO ──
+     El VFO-A vive en 0x1950 y el VFO-B en 0x1960, pero el bloque mínimo de
+     escritura son 32 bytes alineados: 0x1950 cae en la segunda mitad del
+     bloque 0x1940. Se lee ese bloque entero, se cambian solo los cuatro bytes
+     de la frecuencia y se devuelve completo. 0x1940 está dentro del rango que
+     la app oficial escribe, así que es terreno conocido. */
+  async function vfoEscribir(mhz, cual){
+    const out=Q("#lab-vfow");
+    if(!copiaHecha){ out.textContent="Descarga primero la copia de seguridad."; return; }
+    if(!(mhz>=18 && mhz<=1300)){ out.textContent="Frecuencia fuera del margen de la radio."; return; }
+    const BLQ = 0x1940, off = (cual==="B") ? 0x20 : 0x10;   // A en 0x1950, B en 0x1960
+    const base = (cual==="B") ? 0x1960 : 0x1950;
+    try{
+      out.textContent="Leyendo el bloque…";
+      await saludar();
+      const dirBloque = base & ~0x1F;                       // alineado a 32
+      buf=[]; let e=esperar(4+BLOQUE,2500);
+      await enviar([0x52,(dirBloque>>8)&0xFF,dirBloque&0xFF,BLOQUE]);
+      const r=await e;
+      const b=new Uint8Array(r.slice(4,4+BLOQUE));
+      const dentro = base - dirBloque;                      // dónde cae el VFO en el bloque
+      const antes = (frec(b.slice(dentro,dentro+4))/1e6).toFixed(5);
+      b.set(frecABytes(mhz), dentro);                       // solo la frecuencia de RX
+      out.textContent=`Escribiendo… (antes: ${antes} MHz)`;
+      await escribirBloque(dirBloque, b);
+      try{ buf=[]; const e2=esperar(1,1200); await enviar([0x45]); await e2; }catch{}
+      out.textContent = `Escrito ${mhz.toFixed(5)} MHz en el VFO-${cual} (antes ${antes}).\n\n`
+        + `AHORA MIRA LA PANTALLA DE LA RADIO, sin apagarla:\n`
+        + `· Si ya marca ${mhz.toFixed(4)} → hay cambio de frecuencia en vivo.\n`
+        + `· Si sigue igual → hace falta apagar y encender. Pruébalo y dime si entonces sí.`;
+    }catch(err){ out.textContent="Falló: "+err.message; }
+  }
+
   function pintaLab(){
     const l=Q("#btLab"); if(!l) return;
     l.innerHTML=`<h5>Laboratorio · ¿qué admite tu radio?</h5>
@@ -4477,6 +4510,17 @@ if(h&&D.some(b=>b.id===h))openBand(h,false);
           <code>${s.bytes?hex(s.bytes):"0x52 "+s.lee.toString(16).toUpperCase()}</code>
           <button class="btn" data-sondeo="${s.id}">Probar</button></div>
           <span>${esc(s.d)}</span><pre class="lab-r" id="lab-${s.id}"></pre></div>`).join("")}</div>
+      <div class="lab-it" style="border-color:color-mix(in srgb,var(--warn) 40%,var(--line))">
+        <div class="lab-h"><b>Cambiar la frecuencia del VFO</b>
+          <code>escribe 0x1940</code></div>
+        <span>Esto <b>sí escribe</b> en la radio, en un bloque que la app oficial también toca.
+        Es el experimento que decide si se puede cambiar de frecuencia en vivo desde aquí.
+        Requiere copia de seguridad hecha.</span>
+        <div class="lab-h" style="margin-top:8px">
+          <input id="vfoMhz" placeholder="145.500" spellcheck="false" style="max-width:120px">
+          <button class="btn" data-vfo="A">Escribir en VFO-A</button>
+          <button class="btn" data-vfo="B">Escribir en VFO-B</button></div>
+        <pre class="lab-r" id="lab-vfow"></pre></div>
       <div class="lab-libre"><b>Enviar bytes a mano</b>
         <input id="labHex" placeholder="p. ej.  AA 60" spellcheck="false">
         <button class="btn" id="labGo">Enviar</button></div>
@@ -4496,6 +4540,9 @@ if(h&&D.some(b=>b.id===h))openBand(h,false);
         out.textContent = hex(d) + `\n\nDecodificado: RX ${(frec(d.slice(0,4))/1e6).toFixed(5)} MHz · TX ${(frec(d.slice(4,8))/1e6).toFixed(5)} MHz`;
         return;
       }
+      /* Se saluda antes: algunos comandos podrían exigir modo programación,
+         y probarlos sin él daría un falso negativo. */
+      if(s.saludo!==false){ try{ await saludar(); }catch{} }
       buf=[]; const e=esperar(s.esp||1,2000);
       await enviar(s.bytes);
       const r=await e;
@@ -4528,6 +4575,8 @@ if(h&&D.some(b=>b.id===h))openBand(h,false);
     if(e.target.closest("#btDesc")) { copiaHecha=true; const g=Q("#btGrabar"); if(g) g.disabled=false; }
     const sd=e.target.closest("[data-sondeo]"); if(sd) sondear(sd.dataset.sondeo);
     if(e.target.closest("#labGo")) enviarLibre();
+    const vb=e.target.closest("[data-vfo]");
+    if(vb) vfoEscribir(parseFloat((Q("#vfoMhz").value||"").replace(",",".")), vb.dataset.vfo);
     if(e.target.closest("#btCanales")) pintaCanales();
     if(e.target.closest("#btGrabar")) grabar(PACK_ESCUCHA);
   });
