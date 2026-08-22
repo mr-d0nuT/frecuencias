@@ -1,8 +1,13 @@
 # Frecuencias
 
 Cuadro de consulta de las frecuencias de radio utilizables en España.
+
+👉 **[Abrir la app](https://mr-d0nut.github.io/frecuencias/)**
+
 Archivo único, sin dependencias, funciona sin conexión: descarga
-`frecuencias-espana.html` y ábrelo con doble clic.
+[`index.html`](https://github.com/mr-d0nuT/frecuencias/raw/refs/heads/main/index.html)
+y ábrelo con doble clic. En el móvil se puede añadir a la pantalla de inicio
+desde el navegador y queda como una app más.
 
 ## Qué hace
 
@@ -34,21 +39,20 @@ Cubre las dos generaciones de PDF del AIP: los modernos con object streams y
 fuentes subset, y los bilingües antiguos con fuentes Type1, escapes octales
 y continuaciones de línea.
 
-Convierte los canales de 8,33 kHz a portadora real: el AIP publica
-`128.880`, tu escáner necesita `128,875 MHz`.
+Convierte los canales de 8,33 kHz a portadora real: el AIP publica `128.880`,
+tu escáner necesita `128,875 MHz`.
 
 ## Tolerancia a fallos
 
 - Copia local de los 72 aeródromos embebida: respuesta instantánea y
-  funcionamiento sin conexión.
+funcionamiento sin conexión.
 - Caché de siete días en el navegador.
 - Tiempo máximo de espera de 25 s; nunca se queda colgada.
 - Si la lectura en vivo sale más pobre que la copia local, gana la copia
-  local: nunca muestra menos información de la que tiene.
+local: nunca muestra menos información de la que tiene.
 
-Cobertura: 69 de 72. Los otros tres publican literalmente
-*Information not available* en el AIP, y la app lo dice en vez de mostrar una
-tabla vacía.
+Cobertura: 69 de 72. Los otros tres publican literalmente *Information not
+available* en el AIP, y la app lo dice en vez de mostrar una tabla vacía.
 
 ## Aviso
 
